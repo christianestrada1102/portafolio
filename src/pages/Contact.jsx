@@ -8,6 +8,7 @@ import {
   FiLinkedin,
   FiGithub,
   FiTwitter,
+  FiInstagram,
 } from 'react-icons/fi';
 
 const Contact = () => {
@@ -45,20 +46,26 @@ const Contact = () => {
     {
       icon: FiLinkedin,
       label: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/christian-estrada',
+      url: 'https://www.linkedin.com/in/christian-estrada-a59130386/',
       color: '#0077B5',
     },
     {
       icon: FiGithub,
       label: 'GitHub',
-      url: 'https://github.com/ChristianEstrada',
+      url: 'https://github.com/christianestrada1102',
       color: '#181717',
     },
     {
       icon: FiTwitter,
-      label: 'Twitter',
-      url: 'https://twitter.com/ChristianEstrad_',
-      color: '#1DA1F2',
+      label: 'X (Twitter)',
+      url: 'https://x.com/CodeByNAS',
+      color: '#000000',
+    },
+    {
+      icon: FiInstagram,
+      label: 'Instagram',
+      url: 'https://instagram.com/christianestrada1102',
+      color: '#E4405F',
     },
     {
       icon: FiMail,
@@ -81,7 +88,7 @@ const Contact = () => {
     setSubmitStatus(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/sendEmail', {
+      const response = await fetch('https://christian-estrada-backend.onrender.com/api/sendEmail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
