@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #F9F9F9;
+  color: #1a1a1a;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .gradient-purple {
+    background: linear-gradient(135deg, #D056F1 0%, #8200A5 100%);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, #D056F1 0%, #8200A5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shadow-purple {
+    box-shadow: 0 10px 30px rgba(208, 86, 241, 0.2);
+  }
+
+  .shadow-purple-lg {
+    box-shadow: 0 20px 60px rgba(208, 86, 241, 0.3);
+  }
+}
+

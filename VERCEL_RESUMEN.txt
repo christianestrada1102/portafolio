@@ -1,0 +1,83 @@
+═══════════════════════════════════════════════════════════════════
+   🚀 DESPLIEGUE A VERCEL - RESUMEN RÁPIDO
+═══════════════════════════════════════════════════════════════════
+
+📋 PASOS RÁPIDOS (5 minutos)
+
+1️⃣ PREPARAR EL CÓDIGO
+   → Ejecuta: QUICK_DEPLOY.bat
+   → Esto verifica que todo compile correctamente
+
+2️⃣ SUBIR A GITHUB
+   → Ve a github.com y crea un nuevo repositorio
+   → Nombre sugerido: "portfolio" o "christian-estrada-portfolio"
+   
+   En PowerShell, ejecuta:
+   
+   git remote add origin https://github.com/TU-USUARIO/portfolio.git
+   git branch -M main
+   git push -u origin main
+
+3️⃣ DESPLEGAR EN VERCEL
+   → Ve a vercel.com
+   → Click en "Sign Up" (usa tu cuenta de GitHub)
+   → Click en "Add New..." → "Project"
+   → Selecciona tu repositorio "portfolio"
+   → Click en "Deploy"
+   → ¡Espera 1-2 minutos!
+
+4️⃣ DESPLEGAR EL BACKEND (Formulario de contacto)
+   → Ve a render.com (gratis)
+   → Crea un "Web Service"
+   → Root Directory: server
+   → Variables de entorno:
+      • EMAIL_USER=christianmanuel1233@gmail.com
+      • EMAIL_PASS=tu-contraseña-de-aplicación
+   
+5️⃣ ACTUALIZAR URL DEL BACKEND
+   → Abre: src/pages/Contact.jsx
+   → Línea ~51, cambia:
+   
+   De:  'http://localhost:5000/api/sendEmail'
+   A:   'https://tu-backend.onrender.com/api/sendEmail'
+   
+   → Guarda y sube los cambios a GitHub:
+   
+   git add .
+   git commit -m "Update backend URL"
+   git push origin main
+
+═══════════════════════════════════════════════════════════════════
+
+✅ TU PORTAFOLIO ESTARÁ EN:
+   https://portfolio-TU-USUARIO.vercel.app
+
+🔗 URLs EJEMPLO:
+   Frontend: https://christian-estrada.vercel.app
+   Backend:  https://christian-estrada-api.onrender.com
+
+═══════════════════════════════════════════════════════════════════
+
+📖 INSTRUCCIONES DETALLADAS:
+   Lee el archivo: DESPLEGAR_VERCEL.md
+
+═══════════════════════════════════════════════════════════════════
+
+💡 TIPS:
+   • Vercel redespliega automáticamente con cada push a main
+   • Puedes agregar un dominio personalizado gratis
+   • El plan gratuito de Vercel es más que suficiente
+   • Render.com también es gratis para el backend
+
+═══════════════════════════════════════════════════════════════════
+
+🆘 ¿PROBLEMAS?
+   1. Revisa que el build funcione: npm run build
+   2. Verifica que no haya errores en el código
+   3. Lee los logs de Vercel para más detalles
+   4. Consulta DESPLEGAR_VERCEL.md
+
+═══════════════════════════════════════════════════════════════════
+
+¡Éxito con tu despliegue! 🎉
+

@@ -1,0 +1,166 @@
+═══════════════════════════════════════════════════════════════════
+   🚀 COMANDOS ESPECÍFICOS PARA CHRISTIAN ESTRADA
+═══════════════════════════════════════════════════════════════════
+
+Tu usuario de GitHub: christianestrada1102
+Tu repo: https://github.com/christianestrada1102/Portafolio.git
+
+═══════════════════════════════════════════════════════════════════
+   PASO 1: INSTALAR DEPENDENCIAS (PRIMERO!)
+═══════════════════════════════════════════════════════════════════
+
+Ejecuta estos comandos EN ORDEN:
+
+# 1. Instalar dependencias del frontend
+npm install
+
+# Espera a que termine... (puede tomar 1-2 minutos)
+
+# 2. Instalar dependencias del backend
+cd server
+npm install
+cd ..
+
+═══════════════════════════════════════════════════════════════════
+   PASO 2: VERIFICAR QUE COMPILE
+═══════════════════════════════════════════════════════════════════
+
+# Ahora sí, hacer el build
+npm run build
+
+# Si todo está bien, verás: "✓ built in XXXms"
+
+═══════════════════════════════════════════════════════════════════
+   PASO 3: SUBIR A GITHUB
+═══════════════════════════════════════════════════════════════════
+
+# 1. Inicializar Git
+git init
+
+# 2. Configurar tu información (solo la primera vez)
+git config --global user.name "Christian Estrada"
+git config --global user.email "christianmanuel1233@gmail.com"
+
+# 3. Agregar todos los archivos
+git add .
+
+# 4. Crear el primer commit
+git commit -m "Initial commit - Portfolio profesional"
+
+# 5. Conectar con tu repositorio de GitHub
+git remote add origin https://github.com/christianestrada1102/Portafolio.git
+
+# 6. Cambiar a la rama main
+git branch -M main
+
+# 7. Subir el código
+git push -u origin main
+
+═══════════════════════════════════════════════════════════════════
+   PASO 4: DESPLEGAR EN VERCEL
+═══════════════════════════════════════════════════════════════════
+
+1. Ve a: https://vercel.com/signup
+2. Click en "Continue with GitHub"
+3. Autoriza Vercel
+4. Ve a: https://vercel.com/new
+5. Busca "Portafolio" en la lista de repos
+6. Click en "Import"
+7. NO CAMBIES NADA en la configuración
+8. Click en "Deploy"
+9. Espera 1-2 minutos
+10. ¡Copia tu URL!
+
+Tu URL será algo como:
+https://portafolio-christianestrada1102.vercel.app
+
+═══════════════════════════════════════════════════════════════════
+   PASO 5: DESPLEGAR BACKEND EN RENDER
+═══════════════════════════════════════════════════════════════════
+
+1. Ve a: https://dashboard.render.com
+2. Click en "New +" → "Web Service"
+3. Click en "Build and deploy from a Git repository"
+4. Conecta tu cuenta de GitHub si no lo has hecho
+5. Busca y selecciona "Portafolio"
+6. Click en "Connect"
+
+Configuración:
+   Name: christian-estrada-backend
+   Region: Oregon (US West)
+   Branch: main
+   Root Directory: server
+   Runtime: Node
+   Build Command: npm install
+   Start Command: npm start
+
+Variables de entorno (Environment Variables):
+   EMAIL_USER = christianmanuel1233@gmail.com
+   EMAIL_PASS = [tu contraseña de aplicación de Gmail]
+   PORT = 5000
+
+7. Click en "Create Web Service"
+8. Espera 3-5 minutos
+9. Copia la URL que te da (algo como):
+   https://christian-estrada-backend.onrender.com
+
+═══════════════════════════════════════════════════════════════════
+   PASO 6: CONECTAR FRONTEND CON BACKEND
+═══════════════════════════════════════════════════════════════════
+
+1. Abre el archivo: src/pages/Contact.jsx
+2. Busca la línea ~51 (Ctrl+F "localhost:5000")
+3. Cambia:
+
+   De:  http://localhost:5000/api/sendEmail
+   A:   https://christian-estrada-backend.onrender.com/api/sendEmail
+
+4. Guarda el archivo
+5. Sube los cambios a GitHub:
+
+git add .
+git commit -m "Update backend URL for production"
+git push origin main
+
+Vercel redesplegrá automáticamente en 1-2 minutos.
+
+═══════════════════════════════════════════════════════════════════
+   ✅ CHECKLIST
+═══════════════════════════════════════════════════════════════════
+
+[ ] npm install (frontend)
+[ ] cd server && npm install (backend)
+[ ] npm run build (verificar que compile)
+[ ] git init
+[ ] git config (nombre y email)
+[ ] git add .
+[ ] git commit
+[ ] git remote add origin
+[ ] git push
+[ ] Desplegar en Vercel
+[ ] Desplegar backend en Render
+[ ] Actualizar URL en Contact.jsx
+[ ] Push final a GitHub
+[ ] Probar formulario de contacto
+
+═══════════════════════════════════════════════════════════════════
+   🆘 SI HAY ERRORES
+═══════════════════════════════════════════════════════════════════
+
+Error: "git is not recognized"
+   → Instala Git: https://git-scm.com/download/win
+   → Cierra y abre PowerShell de nuevo
+
+Error: "authentication failed" en GitHub
+   → Ve a: https://github.com/settings/tokens
+   → Genera un "Personal Access Token"
+   → Usa ese token como contraseña
+
+Error: Build failed en Vercel
+   → Verifica que npm run build funcione localmente
+   → Revisa los logs en Vercel Dashboard
+
+═══════════════════════════════════════════════════════════════════
+
+¡Sigue estos pasos en orden y funcionará! 🚀
+
