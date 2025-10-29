@@ -199,7 +199,7 @@ const Layout = ({ children }) => {
               © 2025 Christian Estrada. Todos los derechos reservados.
             </p>
             <p className="text-gray-500 dark:text-gray-500 text-xs mt-2">
-              Hecho con ❤️ y React
+              Hecho con React y Café ☕
             </p>
           </div>
         </div>
