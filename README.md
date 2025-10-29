@@ -260,7 +260,7 @@ Vercel redesplegrá automáticamente. ✨
 ---
 
 <div align="center">
-  <p>Hecho con ❤️ en Chihuahua, México</p>
+  <p>Hecho en Chihuahua, México</p>
   <p>UTCH - Universidad Tecnológica de Chihuahua</p>
 </div>
 
