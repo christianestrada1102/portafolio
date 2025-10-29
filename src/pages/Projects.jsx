@@ -14,7 +14,7 @@ const Projects = () => {
       image: null,
       description: 'Plataforma digital que conecta pacientes con médicos cercanos de forma rápida y segura. Permite solicitar consultas por videollamada, a domicilio o en consultorio, según la urgencia y preferencia del usuario. Ofrece geolocalización, historial de consultas y chat seguro.',
       goal: 'Revolucionar el acceso a la salud en México.',
-      technologies: ['React', 'Node.js', 'MongoDB', 'WebRTC'],
+      technologies: ['Por definir'],
       link: null,
       github: null,
     },
@@ -24,9 +24,9 @@ const Projects = () => {
       status: 'in-progress',
       statusText: 'En desarrollo',
       image: astroImg,
-      description: 'Plataforma educativa interactiva surgida del hackatón de la NASA Space Apps Challenge. Enseña a niños y niñas mediante juegos, retos y música con un enfoque en concentración y memoria. Personaje guía: Yuyin.',
+      description: 'App para mejorar la concentración en niños y aprender de temas a la vez que se divierten. Surgida del hackathon de la NASA Space Apps Challenge. Enseña mediante juegos, retos y música con un enfoque en concentración y memoria. Personaje guía: Yuyin.',
       goal: 'Convertir el aprendizaje en una experiencia positiva e inclusiva (considera daltonismo y TDAH).',
-      technologies: ['React', 'Three.js', 'Firebase', 'Web Audio API'],
+      technologies: ['Unity', 'C#'],
       link: null,
       github: null,
     },
@@ -38,7 +38,7 @@ const Projects = () => {
       image: safezoneImg,
       description: 'App móvil de seguridad personal y comunitaria. Permite enviar alertas en tiempo real ante situaciones de riesgo o emergencia. Crea una red de apoyo entre usuarios, familiares y autoridades.',
       goal: 'Prevenir, reaccionar y proteger con tecnología.',
-      technologies: ['React Native', 'Node.js', 'Socket.io', 'PostgreSQL'],
+      technologies: ['React Native', 'Expo CLI', 'Django', 'PostgreSQL'],
       link: null,
       github: null,
     },
@@ -110,7 +110,7 @@ const Projects = () => {
             <span className="gradient-text">Mis Proyectos</span>
           </h1>
           <div className="w-20 h-1 bg-gradient-to-r from-primary-400 to-primary-800 mx-auto rounded-full mb-6" />
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Soluciones tecnológicas que buscan impactar positivamente en la sociedad
           </p>
         </motion.div>
@@ -127,7 +127,7 @@ const Projects = () => {
               key={project.id}
               variants={cardVariants}
               whileHover={{ y: -10 }}
-              className="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-purple transition-all duration-300"
+              className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden hover:shadow-purple transition-all duration-300"
             >
               {/* Project Image */}
               <div className="relative h-64 bg-gradient-to-br from-primary-400 to-primary-800 overflow-hidden">
@@ -160,29 +160,29 @@ const Projects = () => {
                   {project.title}
                 </h3>
                 
-                <p className="text-gray-700 mb-4 leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
                   {project.description}
                 </p>
 
-                <div className="bg-primary-50 border-l-4 border-primary-600 p-4 mb-6 rounded">
-                  <p className="text-sm font-semibold text-primary-900 mb-1">
+                <div className="bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-600 dark:border-primary-400 p-4 mb-6 rounded">
+                  <p className="text-sm font-semibold text-primary-900 dark:text-primary-300 mb-1">
                     🎯 Objetivo:
                   </p>
-                  <p className="text-sm text-primary-800">
+                  <p className="text-sm text-primary-800 dark:text-primary-400">
                     {project.goal}
                   </p>
                 </div>
 
                 {/* Technologies */}
                 <div className="mb-6">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Tecnologías:
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {project.technologies.map((tech) => (
                       <span
                         key={tech}
-                        className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200"
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full border border-gray-200 dark:border-gray-600"
                       >
                         {tech}
                       </span>

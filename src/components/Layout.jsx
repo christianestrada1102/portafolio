@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import { useTheme } from '../context/ThemeContext';
 
 const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
+  const { isDark, toggleTheme } = useTheme();
 
   const navLinks = [
     { name: 'Inicio', id: 'inicio' },
@@ -51,9 +53,9 @@ const Layout = ({ children }) => {
   const isActive = (id) => activeSection === id;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-gray-900 transition-colors duration-300">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -65,38 +67,79 @@ const Layout = ({ children }) => {
             </button>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive(link.id)
-                      ? 'text-primary-600'
-                      : 'text-gray-700 hover:text-primary-600'
-                  }`}
+            <div className="flex items-center gap-6">
+              <div className="hidden md:flex space-x-8">
+                {navLinks.map((link) => (
+                  <button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className={`relative px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive(link.id)
+                        ? 'text-primary-600'
+                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
+                    }`}
+                  >
+                    {link.name}
+                    {isActive(link.id) && (
+                      <motion.div
+                        layoutId="navbar-indicator"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
+                        initial={false}
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Theme Toggle Button */}
+              <button
+                onClick={toggleTheme}
+                className="hidden md:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Toggle theme"
+              >
+                <motion.div
+                  initial={false}
+                  animate={{ rotate: isDark ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  {link.name}
-                  {isActive(link.id) && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
-                      initial={false}
-                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    />
+                  {isDark ? (
+                    <FiSun className="w-5 h-5 text-yellow-500" />
+                  ) : (
+                    <FiMoon className="w-5 h-5 text-gray-700" />
                   )}
-                </button>
-              ))}
+                </motion.div>
+              </button>
             </div>
 
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-            </button>
+            {/* Mobile buttons */}
+            <div className="flex items-center gap-2 md:hidden">
+              {/* Mobile Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Toggle theme"
+              >
+                {isDark ? (
+                  <FiSun className="w-5 h-5 text-yellow-500" />
+                ) : (
+                  <FiMoon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                )}
+              </button>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? (
+                  <FiX size={24} className="text-gray-700 dark:text-gray-300" />
+                ) : (
+                  <FiMenu size={24} className="text-gray-700 dark:text-gray-300" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -107,7 +150,7 @@ const Layout = ({ children }) => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-gray-200"
+              className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300"
             >
               <div className="px-4 py-4 space-y-2">
                 {navLinks.map((link) => (
@@ -116,8 +159,8 @@ const Layout = ({ children }) => {
                     onClick={() => scrollToSection(link.id)}
                     className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       isActive(link.id)
-                        ? 'bg-primary-50 text-primary-600'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     {link.name}
@@ -135,13 +178,13 @@ const Layout = ({ children }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-20">
+      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-20 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               © 2025 Christian Estrada. Todos los derechos reservados.
             </p>
-            <p className="text-gray-500 text-xs mt-2">
+            <p className="text-gray-500 dark:text-gray-500 text-xs mt-2">
               Hecho con ❤️ y React
             </p>
           </div>
