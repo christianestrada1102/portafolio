@@ -112,7 +112,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen py-20">
+    <section id="contacto" className="min-h-screen py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -327,7 +327,7 @@ const Contact = () => {
           </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

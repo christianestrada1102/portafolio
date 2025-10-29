@@ -1,11 +1,22 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { FiArrowRight, FiMail } from 'react-icons/fi';
 import profileImg from '../assets/Img.jpg';
 
 const Home = () => {
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const elementPosition = element.offsetTop - offset;
+      window.scrollTo({
+        top: elementPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <section id="inicio" className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -100,27 +111,25 @@ const Home = () => {
             transition={{ delay: 0.6, duration: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <Link to="/projects">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="gradient-purple text-white px-8 py-4 rounded-full font-medium text-lg shadow-purple flex items-center gap-2 hover:shadow-purple-lg transition-shadow"
-              >
-                Ver proyectos
-                <FiArrowRight />
-              </motion.button>
-            </Link>
+            <motion.button
+              onClick={() => scrollToSection('proyectos')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="gradient-purple text-white px-8 py-4 rounded-full font-medium text-lg shadow-purple flex items-center gap-2 hover:shadow-purple-lg transition-shadow"
+            >
+              Ver proyectos
+              <FiArrowRight />
+            </motion.button>
             
-            <Link to="/contact">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-primary-600 px-8 py-4 rounded-full font-medium text-lg border-2 border-primary-600 hover:bg-primary-50 transition-colors flex items-center gap-2"
-              >
-                Contactarme
-                <FiMail />
-              </motion.button>
-            </Link>
+            <motion.button
+              onClick={() => scrollToSection('contacto')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white text-primary-600 px-8 py-4 rounded-full font-medium text-lg border-2 border-primary-600 hover:bg-primary-50 transition-colors flex items-center gap-2"
+            >
+              Contactarme
+              <FiMail />
+            </motion.button>
           </motion.div>
 
           {/* Scroll Indicator */}
@@ -146,7 +155,7 @@ const Home = () => {
           </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

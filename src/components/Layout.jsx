@@ -1,20 +1,54 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMenu, FiX } from 'react-icons/fi';
 
 const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
+  const [activeSection, setActiveSection] = useState('inicio');
 
   const navLinks = [
-    { name: 'Inicio', path: '/' },
-    { name: 'Sobre mí', path: '/about' },
-    { name: 'Proyectos', path: '/projects' },
-    { name: 'Contacto', path: '/contact' },
+    { name: 'Inicio', id: 'inicio' },
+    { name: 'Sobre mí', id: 'sobre-mi' },
+    { name: 'Proyectos', id: 'proyectos' },
+    { name: 'Contacto', id: 'contacto' },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  // Detectar la sección activa con scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = navLinks.map(link => link.id);
+      const scrollPosition = window.scrollY + 100;
+
+      for (const sectionId of sections) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          const { offsetTop, offsetHeight } = section;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80; // Altura del navbar
+      const elementPosition = element.offsetTop - offset;
+      window.scrollTo({
+        top: elementPosition,
+        behavior: 'smooth'
+      });
+    }
+    setIsMenuOpen(false);
+  };
+
+  const isActive = (id) => activeSection === id;
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,24 +57,27 @@ const Layout = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="text-2xl font-bold gradient-text">
+            <button 
+              onClick={() => scrollToSection('inicio')}
+              className="text-2xl font-bold gradient-text cursor-pointer"
+            >
               CE
-            </Link>
+            </button>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-8">
               {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
+                <button
+                  key={link.id}
+                  onClick={() => scrollToSection(link.id)}
                   className={`relative px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive(link.path)
+                    isActive(link.id)
                       ? 'text-primary-600'
                       : 'text-gray-700 hover:text-primary-600'
                   }`}
                 >
                   {link.name}
-                  {isActive(link.path) && (
+                  {isActive(link.id) && (
                     <motion.div
                       layoutId="navbar-indicator"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
@@ -48,7 +85,7 @@ const Layout = ({ children }) => {
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
                   )}
-                </Link>
+                </button>
               ))}
             </div>
 
@@ -74,18 +111,17 @@ const Layout = ({ children }) => {
             >
               <div className="px-4 py-4 space-y-2">
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      isActive(link.path)
+                  <button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(link.id)
                         ? 'bg-primary-50 text-primary-600'
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     {link.name}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </motion.div>

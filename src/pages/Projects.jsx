@@ -98,7 +98,7 @@ const Projects = () => {
   };
 
   return (
-    <div className="min-h-screen py-20">
+    <section id="proyectos" className="min-h-screen py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -236,16 +236,26 @@ const Projects = () => {
             <p className="text-xl opacity-90 mb-8">
               Estoy siempre abierto a colaborar en proyectos innovadores
             </p>
-            <a
-              href="/contact"
+            <button
+              onClick={() => {
+                const element = document.getElementById('contacto');
+                if (element) {
+                  const offset = 80;
+                  const elementPosition = element.offsetTop - offset;
+                  window.scrollTo({
+                    top: elementPosition,
+                    behavior: 'smooth'
+                  });
+                }
+              }}
               className="inline-block bg-white text-primary-600 px-8 py-4 rounded-full font-semibold hover:shadow-lg transition-shadow"
             >
               Hablemos
-            </a>
+            </button>
           </div>
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 };
 
