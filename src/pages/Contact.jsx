@@ -88,23 +88,38 @@ const Contact = () => {
     setSubmitStatus(null);
 
     try {
+      // Timeout de 30 segundos para cold start de Render
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
       const response = await fetch('https://christian-estrada-backend.onrender.com/api/sendEmail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
+
+      const data = await response.json();
+      console.log('Response:', data);
 
       if (response.ok) {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
+        console.error('Error response:', data);
         setSubmitStatus('error');
       }
     } catch (error) {
-      console.error('Error:', error);
-      setSubmitStatus('error');
+      console.error('Error completo:', error);
+      if (error.name === 'AbortError') {
+        setSubmitStatus('timeout');
+      } else {
+        setSubmitStatus('error');
+      }
     } finally {
       setIsSubmitting(false);
       setTimeout(() => setSubmitStatus(null), 5000);
@@ -308,9 +323,9 @@ const Contact = () => {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-center font-medium"
+                  className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 text-center font-medium"
                 >
-                  ✅ Mensaje enviado correctamente
+                  ✅ ¡Mensaje enviado correctamente! Te responderé pronto.
                 </motion.div>
               )}
 
@@ -318,10 +333,31 @@ const Contact = () => {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-center font-medium"
+                  className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-center font-medium"
                 >
-                  ❌ Error al enviar el mensaje. Por favor, intenta de nuevo.
+                  ❌ Error al enviar el mensaje. Por favor, intenta de nuevo o contáctame directamente por email.
                 </motion.div>
+              )}
+
+              {submitStatus === 'timeout' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl text-yellow-700 dark:text-yellow-400 text-center font-medium"
+                >
+                  ⏱️ El servidor está despertando (puede tomar hasta 1 minuto). Por favor, intenta de nuevo en unos segundos.
+                </motion.div>
+              )}
+
+              {isSubmitting && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-gray-500 dark:text-gray-400 text-center italic"
+                >
+                  {/* Si tarda más de 5 segundos, mostrar mensaje de paciencia */}
+                  El servidor gratuito puede tomar unos segundos en responder...
+                </motion.p>
               )}
             </form>
           </motion.div>

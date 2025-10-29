@@ -3,8 +3,11 @@ import { FiExternalLink, FiGithub, FiClock, FiCheckCircle, FiAlertCircle } from 
 import astroImg from '../assets/Astro.jpg';
 import safezoneImg from '../assets/safezone.png';
 import profileImg from '../assets/Img.jpg';
+import TiltCard from '../components/TiltCard';
+import { useInView } from '../hooks/useInView';
 
 const Projects = () => {
+  const { ref: sectionRef, hasBeenInView } = useInView({ threshold: 0.1 });
   const projects = [
     {
       id: 1,
@@ -123,12 +126,14 @@ const Projects = () => {
           className="grid grid-cols-1 lg:grid-cols-2 gap-8"
         >
           {projects.map((project) => (
-            <motion.div
+            <TiltCard
               key={project.id}
-              variants={cardVariants}
-              whileHover={{ y: -10 }}
-              className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden hover:shadow-purple transition-all duration-300"
+              className="perspective-1000"
             >
+              <motion.div
+                variants={cardVariants}
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden hover:shadow-purple transition-all duration-300"
+              >
               {/* Project Image */}
               <div className="relative h-64 bg-gradient-to-br from-primary-400 to-primary-800 overflow-hidden">
                 {project.image ? (
@@ -219,6 +224,7 @@ const Projects = () => {
                 )}
               </div>
             </motion.div>
+            </TiltCard>
           ))}
         </motion.div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
 
@@ -7,6 +7,14 @@ const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
   const { isDark, toggleTheme } = useTheme();
+  
+  // Scroll progress
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   const navLinks = [
     { name: 'Inicio', id: 'inicio' },
@@ -171,6 +179,12 @@ const Layout = ({ children }) => {
           )}
         </AnimatePresence>
       </nav>
+
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-16 left-0 right-0 h-1 bg-gradient-to-r from-primary-400 via-primary-600 to-primary-800 origin-left z-50"
+        style={{ scaleX }}
+      />
 
       {/* Main Content */}
       <main className="pt-16">

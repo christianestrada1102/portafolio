@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { motion, useSpring, useTransform } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { 
   SiCplusplus, 
   SiReact, 
@@ -14,8 +15,38 @@ import {
   FaCodeBranch,
   FaLaptopCode 
 } from 'react-icons/fa';
+import { useInView } from '../hooks/useInView';
+
+// Componente para animar números
+const AnimatedNumber = ({ value, duration = 2000 }) => {
+  const [count, setCount] = useState(0);
+  const { ref, hasBeenInView } = useInView({ threshold: 0.3 });
+
+  useEffect(() => {
+    if (!hasBeenInView) return;
+
+    let start = 0;
+    const end = value;
+    const increment = end / (duration / 16);
+    
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [hasBeenInView, value, duration]);
+
+  return <span ref={ref}>{count}</span>;
+};
 
 const About = () => {
+  const { ref: sectionRef, hasBeenInView } = useInView({ threshold: 0.1 });
   const technologies = [
     { name: 'C#', icon: FaMicrosoft, color: '#68217A' },
     { name: 'C++', icon: SiCplusplus, color: '#00599C' },
@@ -49,7 +80,7 @@ const About = () => {
   };
 
   return (
-    <section id="sobre-mi" className="min-h-screen py-20">
+    <section id="sobre-mi" className="min-h-screen py-20" ref={sectionRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -113,10 +144,20 @@ const About = () => {
               <motion.div
                 key={tech.name}
                 variants={itemVariants}
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-purple transition-all duration-300 flex flex-col items-center justify-center"
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -5,
+                  rotate: [0, -5, 5, 0],
+                  transition: { duration: 0.3 }
+                }}
+                className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-purple transition-all duration-300 flex flex-col items-center justify-center cursor-pointer"
               >
-                <tech.icon size={48} color={tech.color} className="mb-3" />
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <tech.icon size={48} color={tech.color} className="mb-3" />
+                </motion.div>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tech.name}</p>
               </motion.div>
             ))}
@@ -146,7 +187,9 @@ const About = () => {
                     <tool.icon size={28} color={tool.color} />
                     <span className="font-semibold text-gray-800 dark:text-gray-200">{tool.name}</span>
                   </div>
-                  <span className="text-primary-600 dark:text-primary-400 font-bold">{tool.percentage}%</span>
+                  <span className="text-primary-600 dark:text-primary-400 font-bold">
+                    <AnimatedNumber value={tool.percentage} duration={1500} />%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                   <motion.div

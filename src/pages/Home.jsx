@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiMail } from 'react-icons/fi';
 import profileImg from '../assets/Img.jpg';
+import TypingText from '../components/TypingText';
 
 const Home = () => {
   const scrollToSection = (id) => {
@@ -67,10 +68,12 @@ const Home = () => {
                   ease: "easeInOut",
                 }}
               />
-              <img
+              <motion.img
                 src={profileImg}
                 alt="Christian Estrada"
-                className="relative w-48 h-48 rounded-full object-cover border-4 border-white shadow-purple-lg"
+                className="relative w-48 h-48 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-purple-lg"
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 300 }}
               />
             </div>
           </motion.div>
@@ -101,7 +104,11 @@ const Home = () => {
             transition={{ delay: 0.5, duration: 0.5 }}
             className="text-lg md:text-xl text-gray-500 dark:text-gray-400 mb-12 max-w-2xl mx-auto"
           >
-            passionate about building scalable, meaningful applications.
+            <TypingText 
+              text="passionate about building scalable, meaningful applications."
+              speed={50}
+              delay={1500}
+            />
           </motion.p>
 
           {/* CTA Buttons */}
@@ -113,19 +120,37 @@ const Home = () => {
           >
             <motion.button
               onClick={() => scrollToSection('proyectos')}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 20px 40px rgba(160, 86, 241, 0.4)"
+              }}
               whileTap={{ scale: 0.95 }}
-              className="gradient-purple text-white px-8 py-4 rounded-full font-medium text-lg shadow-purple flex items-center gap-2 hover:shadow-purple-lg transition-shadow"
+              className="gradient-purple text-white px-8 py-4 rounded-full font-medium text-lg shadow-purple flex items-center gap-2 transition-all relative overflow-hidden group"
             >
-              Ver proyectos
-              <FiArrowRight />
+              <span className="relative z-10">Ver proyectos</span>
+              <motion.span
+                className="relative z-10"
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <FiArrowRight />
+              </motion.span>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-800"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
             </motion.button>
             
             <motion.button
               onClick={() => scrollToSection('contacto')}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ 
+                scale: 1.05,
+                backgroundColor: 'rgba(160, 86, 241, 0.1)'
+              }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white text-primary-600 px-8 py-4 rounded-full font-medium text-lg border-2 border-primary-600 hover:bg-primary-50 transition-colors flex items-center gap-2"
+              className="bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 px-8 py-4 rounded-full font-medium text-lg border-2 border-primary-600 dark:border-primary-400 transition-all flex items-center gap-2"
             >
               Contactarme
               <FiMail />
