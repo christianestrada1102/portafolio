@@ -102,25 +102,25 @@ const About = () => {
           className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-8 md:p-12 mb-16 transition-colors duration-300"
         >
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            Hi! I'm <span className="font-semibold text-primary-600 dark:text-primary-400">Christian Estrada</span>, 
-            a passionate software developer from Chihuahua, Mexico.
+            ¡Hola! Soy <span className="font-semibold text-primary-600 dark:text-primary-400">Christian Estrada</span>, 
+            un apasionado desarrollador de software de Chihuahua, México.
           </p>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            I enjoy creating meaningful and scalable applications using technologies like{' '}
-            <span className="font-semibold text-primary-600 dark:text-primary-400">C#, C++, React, and Node.js</span>.
+            Disfruto crear aplicaciones significativas y escalables utilizando tecnologías como{' '}
+            <span className="font-semibold text-primary-600 dark:text-primary-400">C#, C++, React y Node.js</span>.
           </p>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            I'm currently expanding my skills in{' '}
-            <span className="font-semibold text-primary-600 dark:text-primary-400">Web3</span> and cloud environments 
-            such as <span className="font-semibold text-primary-600 dark:text-primary-400">AWS</span>.
+            Actualmente estoy expandiendo mis habilidades en{' '}
+            <span className="font-semibold text-primary-600 dark:text-primary-400">Web3</span> y entornos de nube 
+            como <span className="font-semibold text-primary-600 dark:text-primary-400">AWS</span>.
           </p>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-            I've participated in hackathons with{' '}
-            <span className="font-semibold text-primary-600 dark:text-primary-400">NASA, MIT, AWS, and ETH Mty</span>, 
-            where I've learned to work in teams and build creative, real-world solutions.
+            He participado en hackatones con{' '}
+            <span className="font-semibold text-primary-600 dark:text-primary-400">NASA, MIT, AWS y ETH Mty</span>, 
+            donde he aprendido a trabajar en equipos y construir soluciones creativas y reales.
           </p>
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-            Always open to collaboration and new challenges that push my limits as a developer.
+            Siempre abierto a la colaboración y a nuevos desafíos que impulsen mis límites como desarrollador.
           </p>
         </motion.div>
 

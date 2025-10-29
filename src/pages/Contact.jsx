@@ -67,12 +67,6 @@ const Contact = () => {
       url: 'https://instagram.com/christianestrada1102',
       color: '#E4405F',
     },
-    {
-      icon: FiMail,
-      label: 'Email',
-      url: 'mailto:christianmanuel1233@gmail.com',
-      color: '#EA4335',
-    },
   ];
 
   const handleChange = (e) => {
