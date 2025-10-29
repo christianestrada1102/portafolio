@@ -54,8 +54,8 @@ const Projects = () => {
       description: 'Este mismo sitio, que refleja mis habilidades, proyectos y crecimiento como desarrollador. Diseñado con enfoque UI/UX y Design Thinking.',
       goal: 'Mostrar mi trabajo y conectar con otros profesionales.',
       technologies: ['React', 'Vite', 'TailwindCSS', 'Framer Motion'],
-      link: '#',
-      github: 'https://github.com/ChristianEstrada',
+      link: 'https://portafolio-seven-iota-56.vercel.app/',
+      github: 'https://github.com/christianestrada1102/portafolio',
     },
   ];
 
