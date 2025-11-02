@@ -3,12 +3,25 @@ import { FiExternalLink, FiGithub, FiClock, FiCheckCircle, FiAlertCircle } from 
 import astroImg from '../assets/Astro.jpg';
 import safezoneImg from '../assets/safezone.png';
 import profileImg from '../assets/Img.jpg';
+import settArbImg from '../assets/SettArb.png';
 import TiltCard from '../components/TiltCard';
 import { useInView } from '../hooks/useInView';
 
 const Projects = () => {
   const { ref: sectionRef, hasBeenInView } = useInView({ threshold: 0.1 });
   const projects = [
+    {
+      id: 5,
+      title: 'SettArb',
+      status: 'completed',
+      statusText: 'Terminado',
+      image: settArbImg,
+      description: 'Plataforma Web3 desarrollada durante el hackathon EthMexico MTY 2025 que revoluciona los retiros de fondos desde Arbitrum Layer 2 hacia Ethereum. Mediante smart contracts desplegados en blockchain, el proyecto reduce el tiempo de espera de 7 días a menos de 2 minutos, permitiendo a los usuarios acceder a su liquidez de forma inmediata.',
+      goal: 'Revolucionar los retiros L2→L1, permitiendo acceso inmediato a la liquidez mediante tecnología blockchain.',
+      technologies: ['Web3', 'Arbitrum', 'Solidity', 'Blockchain', 'TypeScript', 'React', 'JavaScript', 'Next.js'],
+      link: 'https://eth-mexico.vercel.app/',
+      github: 'https://github.com/christianestrada1102/EthMexico',
+    },
     {
       id: 1,
       title: 'Alera',
