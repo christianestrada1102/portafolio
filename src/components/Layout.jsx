@@ -19,6 +19,7 @@ const Layout = ({ children }) => {
   const navLinks = [
     { name: 'Inicio', id: 'inicio' },
     { name: 'Sobre mí', id: 'sobre-mi' },
+    { name: 'Logros', id: 'logros' },
     { name: 'Proyectos', id: 'proyectos' },
     { name: 'Contacto', id: 'contacto' },
   ];
