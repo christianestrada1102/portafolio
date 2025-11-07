@@ -95,7 +95,7 @@ const Home = () => {
             transition={{ delay: 0.4, duration: 0.5 }}
             className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto leading-relaxed"
           >
-            Software developer from Chihuahua, México
+            Desarrollador de software de Chihuahua, México
           </motion.p>
           
           <motion.p
@@ -105,7 +105,7 @@ const Home = () => {
             className="text-lg md:text-xl text-gray-500 dark:text-gray-400 mb-12 max-w-2xl mx-auto"
           >
             <TypingText 
-              text="passionate about building scalable, meaningful applications."
+              text="apasionado por construir aplicaciones escalables y significativas."
               speed={50}
               delay={1500}
             />

@@ -10,13 +10,38 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: #F9F9F9 !important;
+  height: 100%;
+  width: 100%;
+}
+
+html.dark {
+  background-color: #111827 !important;
 }
 
 body {
   font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #F9F9F9;
+  background-color: #F9F9F9 !important;
   color: #1a1a1a;
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+body.dark {
+  background-color: #111827 !important;
+}
+
+#root {
+  min-height: 100vh;
+  background-color: #F9F9F9 !important;
+  width: 100%;
+}
+
+#root.dark {
+  background-color: #111827 !important;
 }
 
 @layer utilities {

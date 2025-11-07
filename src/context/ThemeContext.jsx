@@ -22,12 +22,18 @@ export const ThemeProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    // Actualizar clase en el html
+    // Actualizar clase en el html, body y root
     if (isDark) {
       document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
+      const root = document.getElementById('root');
+      if (root) root.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
+      const root = document.getElementById('root');
+      if (root) root.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
   }, [isDark]);

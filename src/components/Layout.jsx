@@ -62,18 +62,63 @@ const Layout = ({ children }) => {
   const isActive = (id) => activeSection === id;
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-background dark:bg-gray-900 transition-colors duration-300 w-full">
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <button 
+            <motion.button 
               onClick={() => scrollToSection('inicio')}
-              className="text-2xl font-bold gradient-text cursor-pointer"
+              className="relative text-xl md:text-2xl font-bold cursor-pointer group font-mono"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              CE
-            </button>
+              <span className="relative z-10 inline-flex items-center gap-1">
+                <motion.span 
+                  className="text-primary-400 dark:text-primary-500"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {'<'}
+                </motion.span>
+                <motion.span
+                  className="relative"
+                  animate={{
+                    textShadow: [
+                      '0 0 5px rgba(168, 85, 247, 0.5)',
+                      '0 0 15px rgba(168, 85, 247, 0.8), 0 0 25px rgba(147, 51, 234, 0.6)',
+                      '0 0 5px rgba(168, 85, 247, 0.5)',
+                    ],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                >
+                  <span className="gradient-text bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-primary-600 to-primary-800">
+                    CodeByNas
+                  </span>
+                </motion.span>
+                <motion.span 
+                  className="text-primary-400 dark:text-primary-500"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                >
+                  {'/>'}
+                </motion.span>
+              </span>
+              {/* Efecto glow tecnológico */}
+              <motion.div
+                className="absolute -inset-2 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"
+                style={{
+                  background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)',
+                }}
+                initial={false}
+                whileHover={{ opacity: 0.6 }}
+              />
+            </motion.button>
 
             {/* Desktop Navigation */}
             <div className="flex items-center gap-6">
@@ -188,12 +233,12 @@ const Layout = ({ children }) => {
       />
 
       {/* Main Content */}
-      <main className="pt-16">
+      <main className="pt-16 min-h-screen bg-background dark:bg-gray-900">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-20 transition-colors duration-300">
+      <footer className="bg-background dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-20 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-gray-600 dark:text-gray-400 text-sm">

@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
-import { FiExternalLink, FiAward } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiExternalLink, FiAward, FiX } from 'react-icons/fi';
+import { useState } from 'react';
 import { useInView } from '../hooks/useInView';
 import poapEtherfuse from '../assets/etherfuse.webp';
 import poapBase from '../assets/base.webp';
@@ -10,6 +11,8 @@ import nasaSpaceAppsCert from '../assets/nasa-space-apps.jpg';
 
 const Achievements = () => {
   const { ref: sectionRef, hasBeenInView } = useInView({ threshold: 0.1 });
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedItechCert, setSelectedItechCert] = useState(null);
 
   // Datos de los POAPs
   const poaps = [
@@ -74,30 +77,41 @@ const Achievements = () => {
   const poapProfileEmail = 'christianmanuel1233@gmail.com';
   const poapProfileUrl = `https://collectors.poap.xyz/scan/${poapProfileEmail}`;
 
-  // Certificados
-  const certificates = [
+  // Certificado destacado
+  const featuredCertificate = {
+    id: 1,
+    name: 'NASA Space Apps Challenge',
+    issuer: 'NASA',
+    date: 'Octubre 2025',
+    description: 'Certificado "Galactic Problem Solver" por participación destacada en el hackathon internacional de NASA Space Apps Challenge, reconociendo esfuerzos para abordar desafíos en la Tierra y el espacio.',
+    image: nasaSpaceAppsCert,
+    link: null,
+    category: 'Hackathon',
+    isFeatured: true,
+  };
+
+  // Certificados ICATECH (solo texto, sin imágenes)
+  const icatechCertificates = [
     {
-      id: 1,
-      name: 'NASA Space Apps Challenge',
-      issuer: 'NASA',
-      date: 'Octubre 2025',
-      description: 'Certificado "Galactic Problem Solver" por participación destacada en el hackathon internacional de NASA Space Apps Challenge, reconociendo esfuerzos para abordar desafíos en la Tierra y el espacio.',
-      image: nasaSpaceAppsCert,
-      link: null,
-      category: 'Hackathon',
-      isFeatured: true, // Destacar este certificado
+      name: 'Pensamiento Crítico y Creatividad en STEAM',
+      hours: 40,
     },
-    // Si en el futuro quieres agregar ICATECH sin información sensible:
-    // {
-    //   id: 2,
-    //   name: 'Manejo STEAM',
-    //   issuer: 'ICATECH',
-    //   date: '2024',
-    //   description: 'Certificado en metodologías STEAM (Ciencia, Tecnología, Ingeniería, Artes y Matemáticas)',
-    //   image: null, // Solo si editas la imagen para ocultar información sensible
-    //   link: null,
-    //   category: 'Educación',
-    // },
+    {
+      name: 'Comunicación Efectiva en STEAM',
+      hours: 10,
+    },
+    {
+      name: 'Emprender con Energía',
+      hours: 10,
+    },
+    {
+      name: 'Autogestión y Responsabilidad Personal',
+      hours: 10,
+    },
+    {
+      name: 'Estrategias Colaborativas para el Trabajo en Equipo',
+      hours: 10,
+    },
   ];
 
   const containerVariants = {
@@ -147,85 +161,195 @@ const Achievements = () => {
         </motion.div>
 
         {/* Certificados destacados */}
-        {certificates.length > 0 && (
-          <div className="mb-16">
-            <motion.h2
-              initial={{ opacity: 0, y: -20 }}
-              animate={hasBeenInView ? { opacity: 1, y: 0 } : {}}
-              className="text-3xl font-bold text-center mb-8"
-            >
-              <span className="gradient-text">Certificados</span>
-            </motion.h2>
+        <div className="mb-16">
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            animate={hasBeenInView ? { opacity: 1, y: 0 } : {}}
+            className="text-3xl font-bold text-center mb-8"
+          >
+            <span className="gradient-text">Certificados</span>
+          </motion.h2>
+          
+          {/* Layout: NASA a la izquierda, ICATECH a la derecha */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
+            {/* Certificado de NASA */}
             <motion.div
-              variants={containerVariants}
+              variants={itemVariants}
               initial="hidden"
               animate={hasBeenInView ? "visible" : "hidden"}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+              whileHover={{ y: -10, scale: 1.02 }}
+              className="relative group"
             >
-              {certificates.map((cert) => (
-                <motion.div
-                  key={cert.id}
-                  variants={itemVariants}
-                  whileHover={{ y: -10, scale: 1.05 }}
-                  className={`relative group ${cert.isFeatured ? 'md:col-span-2 lg:col-span-1' : ''}`}
-                >
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-purple transition-all duration-300 flex flex-col items-center border-2 border-primary-200 dark:border-primary-800">
-                    {/* Certificate Image */}
-                    <div className="relative mb-4 w-full">
-                      {cert.image ? (
-                        <img
-                          src={cert.image}
-                          alt={cert.name}
-                          className="w-full h-48 object-cover rounded-xl border-2 border-primary-200 dark:border-primary-800"
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gradient-to-br from-primary-400 to-primary-800 rounded-xl flex items-center justify-center border-2 border-primary-200 dark:border-primary-800">
-                          <FiAward className="text-white text-6xl" />
-                        </div>
-                      )}
-                      {/* Badge de categoría */}
-                      <div className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                        {cert.category}
-                      </div>
-                      {cert.isFeatured && (
-                        <div className="absolute -top-2 -left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          ⭐ Destacado
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Certificate Info */}
-                    <h3 className="font-bold text-gray-800 dark:text-gray-200 text-center mb-2">
-                      {cert.name}
-                    </h3>
-                    <p className="text-sm text-primary-600 dark:text-primary-400 font-medium mb-2">
-                      {cert.issuer}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-2">
-                      {cert.description}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
-                      {cert.date}
-                    </p>
-
-                    {/* Link si existe */}
-                    {cert.link && (
-                      <a
-                        href={cert.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 flex items-center gap-1"
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-purple transition-all duration-300 flex flex-col items-center border-2 border-primary-200 dark:border-primary-800 h-full">
+                {/* Certificate Image - Más grande y clickeable */}
+                <div className="relative mb-4 w-full flex justify-center">
+                  <motion.div
+                    className="relative w-full max-w-md cursor-pointer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsImageModalOpen(true)}
+                  >
+                    <motion.img
+                      src={featuredCertificate.image}
+                      alt={featuredCertificate.name}
+                      className="w-full h-64 md:h-80 object-contain rounded-xl border-2 border-primary-200 dark:border-primary-800 shadow-lg"
+                      animate={{
+                        boxShadow: [
+                          '0 10px 30px rgba(168, 85, 247, 0.2)',
+                          '0 15px 40px rgba(168, 85, 247, 0.4)',
+                          '0 10px 30px rgba(168, 85, 247, 0.2)',
+                        ],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
+                    />
+                    {/* Overlay hover */}
+                    <div className="absolute inset-0 bg-black/0 hover:bg-black/10 rounded-xl transition-colors duration-300 flex items-center justify-center">
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        className="bg-white/90 dark:bg-gray-900/90 px-4 py-2 rounded-lg text-sm font-medium text-gray-800 dark:text-gray-200"
                       >
-                        Ver certificado
-                        <FiExternalLink className="w-3 h-3" />
-                      </a>
+                        Click para ampliar
+                      </motion.div>
+                    </div>
+                    {/* Badge de categoría */}
+                    <div className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                      {featuredCertificate.category}
+                    </div>
+                    {featuredCertificate.isFeatured && (
+                      <div className="absolute -top-2 -left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                        ⭐ Destacado
+                      </div>
                     )}
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                </div>
+
+                {/* Certificate Info */}
+                <h3 className="font-bold text-gray-800 dark:text-gray-200 text-center mb-2">
+                  {featuredCertificate.name}
+                </h3>
+                <p className="text-sm text-primary-600 dark:text-primary-400 font-medium mb-2">
+                  {featuredCertificate.issuer}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-2">
+                  {featuredCertificate.description}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
+                  {featuredCertificate.date}
+                </p>
+
+                {/* Link si existe */}
+                {featuredCertificate.link && (
+                  <a
+                    href={featuredCertificate.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 flex items-center gap-1"
+                  >
+                    Ver certificado
+                    <FiExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Certificados ICATECH - Lista compacta */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={hasBeenInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.2 }}
+              whileHover={{
+                scale: 1.02,
+                boxShadow: [
+                  '0 10px 30px rgba(168, 85, 247, 0.2)',
+                  '0 15px 40px rgba(168, 85, 247, 0.4)',
+                  '0 10px 30px rgba(168, 85, 247, 0.2)',
+                ],
+              }}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-2 border-primary-200 dark:border-primary-800 h-full cursor-pointer transition-all duration-300"
+            >
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4 text-center lg:text-left">
+                Certificados ICATECH (2025)
+              </h3>
+              <div className="space-y-3">
+                {icatechCertificates.map((cert, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={
+                      hasBeenInView
+                        ? {
+                            opacity: 1,
+                            x: 0,
+                            scale: selectedItechCert === index ? [1, 1.02, 1] : 1,
+                            boxShadow: selectedItechCert === index
+                              ? [
+                                  '0 10px 30px rgba(168, 85, 247, 0.2)',
+                                  '0 15px 40px rgba(168, 85, 247, 0.4)',
+                                  '0 10px 30px rgba(168, 85, 247, 0.2)',
+                                ]
+                              : '0 0 0 rgba(168, 85, 247, 0)',
+                          }
+                        : {}
+                    }
+                    transition={{
+                      delay: 0.3 + index * 0.05,
+                      scale: selectedItechCert === index
+                        ? {
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                          }
+                        : { duration: 0.3 },
+                      boxShadow: selectedItechCert === index
+                        ? {
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                          }
+                        : { duration: 0.3 },
+                    }}
+                    whileHover={{ x: 3 }}
+                    onClick={() => setSelectedItechCert(selectedItechCert === index ? null : index)}
+                    className={`flex items-center justify-between p-3 rounded-lg transition-all duration-300 border-l-4 cursor-pointer ${
+                      selectedItechCert === index
+                        ? 'bg-primary-100 dark:bg-primary-900/30 border-primary-600 dark:border-primary-400 ring-2 ring-primary-400/50 dark:ring-primary-500/50'
+                        : 'bg-gray-50 dark:bg-gray-700 border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-sm text-gray-800 dark:text-gray-200 mb-1 truncate">
+                        {cert.name}
+                      </h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        ICATECH - Chihuahua
+                      </p>
+                    </div>
+                    <div className="ml-3 flex-shrink-0">
+                      <span className="bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-full text-xs font-medium">
+                        {cert.hours}h
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={hasBeenInView ? { opacity: 1 } : {}}
+                transition={{ delay: 0.6 }}
+                className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-center"
+              >
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="font-semibold">Total:</span> 80 horas de capacitación
+                </p>
+              </motion.div>
             </motion.div>
           </div>
-        )}
+        </div>
 
         {/* POAPs Section */}
         <div className="mb-16">
@@ -302,25 +426,55 @@ const Achievements = () => {
             ))}
           </motion.div>
         </div>
-
-        {/* Info Box */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={hasBeenInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6 }}
-          className="bg-gradient-to-r from-primary-400 to-primary-800 rounded-3xl p-8 md:p-12 text-white text-center"
-        >
-          <h2 className="text-2xl font-bold mb-4">
-            ¿Qué son los POAPs?
-          </h2>
-          <p className="text-lg opacity-90 max-w-3xl mx-auto">
-            Los POAPs (Proof of Attendance Protocol) son certificados digitales en blockchain que 
-            acreditan tu participación en eventos, hackathons y conferencias. Cada POAP es único, 
-            verificable y almacenado de forma permanente en la blockchain, sirviendo como prueba 
-            auténtica de tus logros y experiencia.
-          </p>
-        </motion.div>
       </div>
+
+      {/* Modal para imagen de NASA */}
+      <AnimatePresence>
+        {isImageModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsImageModalOpen(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 dark:bg-black/90 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-4xl w-full max-h-[90vh] bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-2xl"
+            >
+              {/* Botón cerrar */}
+              <button
+                onClick={() => setIsImageModalOpen(false)}
+                className="absolute top-4 right-4 z-50 w-10 h-10 bg-white/90 dark:bg-gray-900/90 rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-900 transition-colors shadow-lg"
+              >
+                <FiX className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+              </button>
+
+              {/* Imagen ampliada */}
+              <div className="w-full h-full flex items-center justify-center p-8">
+                <img
+                  src={featuredCertificate.image}
+                  alt={featuredCertificate.name}
+                  className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-xl"
+                />
+              </div>
+
+              {/* Información del certificado */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                <h3 className="text-white font-bold text-xl mb-1">
+                  {featuredCertificate.name}
+                </h3>
+                <p className="text-white/80 text-sm">
+                  {featuredCertificate.issuer} • {featuredCertificate.date}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
