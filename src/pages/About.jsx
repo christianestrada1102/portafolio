@@ -1,4 +1,4 @@
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { 
   SiCplusplus, 
@@ -18,12 +18,16 @@ import {
 import { useInView } from '../hooks/useInView';
 
 // Componente para animar números
-const AnimatedNumber = ({ value, duration = 2000 }) => {
+const AnimatedNumber = ({ value, duration = 2000, prefersReducedMotion }) => {
   const [count, setCount] = useState(0);
   const { ref, hasBeenInView } = useInView({ threshold: 0.3 });
 
   useEffect(() => {
     if (!hasBeenInView) return;
+    if (prefersReducedMotion) {
+      setCount(value);
+      return;
+    }
 
     let start = 0;
     const end = value;
@@ -40,13 +44,14 @@ const AnimatedNumber = ({ value, duration = 2000 }) => {
     }, 16);
 
     return () => clearInterval(timer);
-  }, [hasBeenInView, value, duration]);
+  }, [hasBeenInView, value, duration, prefersReducedMotion]);
 
-  return <span ref={ref}>{count}</span>;
+  return <span ref={ref}>{prefersReducedMotion ? value : count}</span>;
 };
 
 const About = () => {
   const { ref: sectionRef, hasBeenInView } = useInView({ threshold: 0.1 });
+  const prefersReducedMotion = useReducedMotion();
   const technologies = [
     { name: 'C#', icon: FaMicrosoft, color: '#68217A' },
     { name: 'C++', icon: SiCplusplus, color: '#00599C' },
@@ -84,21 +89,22 @@ const About = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+          <h2 className="text-5xl md:text-6xl font-bold mb-4">
             <span className="gradient-text">Sobre mí</span>
-          </h1>
+          </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-primary-400 to-primary-800 mx-auto rounded-full" />
         </motion.div>
 
         {/* About Text */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.2 }}
           className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-8 md:p-12 mb-16 transition-colors duration-300"
         >
           <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
@@ -126,25 +132,25 @@ const About = () => {
 
         {/* Technologies */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.3 }}
           className="mb-16"
         >
-          <h2 className="text-3xl font-bold text-center mb-8">
+          <h3 className="text-3xl font-bold text-center mb-8">
             <span className="gradient-text">Tecnologías</span>
-          </h2>
+          </h3>
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+            variants={prefersReducedMotion ? undefined : containerVariants}
+            initial={prefersReducedMotion ? undefined : 'hidden'}
+            animate={prefersReducedMotion ? undefined : 'visible'}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
           >
             {technologies.map((tech) => (
               <motion.div
                 key={tech.name}
-                variants={itemVariants}
-                whileHover={{ 
+                variants={prefersReducedMotion ? undefined : itemVariants}
+                whileHover={prefersReducedMotion ? undefined : { 
                   scale: 1.05, 
                   y: -5,
                   rotate: [0, -5, 5, 0],
@@ -153,10 +159,10 @@ const About = () => {
                 className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-purple transition-all duration-300 flex flex-col items-center justify-center cursor-pointer"
               >
                 <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
+                  whileHover={prefersReducedMotion ? undefined : { rotate: 360 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.6 }}
                 >
-                  <tech.icon size={48} color={tech.color} className="mb-3" />
+                  <tech.icon size={48} color={tech.color} className="mb-3" aria-hidden="true" />
                 </motion.div>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{tech.name}</p>
               </motion.div>
@@ -166,36 +172,36 @@ const About = () => {
 
         {/* Tools & IDEs */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.4 }}
         >
-          <h2 className="text-3xl font-bold text-center mb-8">
+          <h3 className="text-3xl font-bold text-center mb-8">
             <span className="gradient-text">Herramientas & IDEs</span>
-          </h2>
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {tools.map((tool, index) => (
               <motion.div
                 key={tool.name}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                initial={prefersReducedMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.5 + index * 0.1 }}
                 className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-purple transition-all duration-300"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <tool.icon size={28} color={tool.color} />
+                    <tool.icon size={28} color={tool.color} aria-hidden="true" />
                     <span className="font-semibold text-gray-800 dark:text-gray-200">{tool.name}</span>
                   </div>
                   <span className="text-primary-600 dark:text-primary-400 font-bold">
-                    <AnimatedNumber value={tool.percentage} duration={1500} />%
+                    <AnimatedNumber value={tool.percentage} duration={1500} prefersReducedMotion={prefersReducedMotion} />%
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                   <motion.div
-                    initial={{ width: 0 }}
+                    initial={prefersReducedMotion ? false : { width: 0 }}
                     animate={{ width: `${tool.percentage}%` }}
-                    transition={{ delay: 0.7 + index * 0.1, duration: 0.8, ease: "easeOut" }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.7 + index * 0.1, duration: 0.8, ease: "easeOut" }}
                     className="h-full rounded-full"
                     style={{ 
                       background: `linear-gradient(90deg, ${tool.color}, ${tool.color}dd)` 
@@ -209,12 +215,12 @@ const About = () => {
 
         {/* Student Info */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.6 }}
           className="mt-16 bg-gradient-to-r from-primary-400 to-primary-800 rounded-3xl p-8 md:p-12 text-white text-center"
         >
-          <h2 className="text-3xl font-bold mb-4">Estudiante UTCH</h2>
+          <h3 className="text-3xl font-bold mb-4">Estudiante UTCH</h3>
           <p className="text-xl opacity-90">
             Universidad Tecnológica de Chihuahua
           </p>

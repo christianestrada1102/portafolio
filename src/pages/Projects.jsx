@@ -1,14 +1,19 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { FiExternalLink, FiGithub, FiClock, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import astroImg from '../assets/Astro.jpg';
+import astroImgWebp from '../assets/Astro.jpg?format=webp&imagetools';
 import safezoneImg from '../assets/safezone.png';
+import safezoneImgWebp from '../assets/safezone.png?format=webp&imagetools';
 import profileImg from '../assets/Img.jpg';
+import profileImgWebp from '../assets/Img.jpg?format=webp&imagetools';
 import settArbImg from '../assets/SettArb.png';
+import settArbImgWebp from '../assets/SettArb.png?format=webp&imagetools';
 import TiltCard from '../components/TiltCard';
 import { useInView } from '../hooks/useInView';
 
 const Projects = () => {
   const { ref: sectionRef, hasBeenInView } = useInView({ threshold: 0.1 });
+  const prefersReducedMotion = useReducedMotion();
   const projects = [
     {
       id: 5,
@@ -16,6 +21,7 @@ const Projects = () => {
       status: 'completed',
       statusText: 'Terminado',
       image: settArbImg,
+      imageWebp: settArbImgWebp,
       description: 'Plataforma Web3 desarrollada durante el hackathon EthMexico MTY 2025 que revoluciona los retiros de fondos desde Arbitrum Layer 2 hacia Ethereum. Mediante smart contracts desplegados en blockchain, el proyecto reduce el tiempo de espera de 7 días a menos de 2 minutos, permitiendo a los usuarios acceder a su liquidez de forma inmediata.',
       goal: 'Revolucionar los retiros L2→L1, permitiendo acceso inmediato a la liquidez mediante tecnología blockchain.',
       technologies: ['Web3', 'Arbitrum', 'Solidity', 'Blockchain', 'TypeScript', 'React', 'JavaScript', 'Next.js'],
@@ -40,6 +46,7 @@ const Projects = () => {
       status: 'in-progress',
       statusText: 'En desarrollo',
       image: astroImg,
+      imageWebp: astroImgWebp,
       description: 'App para mejorar la concentración en niños y aprender de temas a la vez que se divierten. Surgida del hackathon de la NASA Space Apps Challenge. Enseña mediante juegos, retos y música con un enfoque en concentración y memoria. Personaje guía: Yuyin.',
       goal: 'Convertir el aprendizaje en una experiencia positiva e inclusiva (considera daltonismo y TDAH).',
       technologies: ['Unity', 'C#'],
@@ -52,6 +59,7 @@ const Projects = () => {
       status: 'in-progress',
       statusText: 'En desarrollo',
       image: safezoneImg,
+      imageWebp: safezoneImgWebp,
       description: 'App móvil de seguridad personal y comunitaria. Permite enviar alertas en tiempo real ante situaciones de riesgo o emergencia. Crea una red de apoyo entre usuarios, familiares y autoridades.',
       goal: 'Prevenir, reaccionar y proteger con tecnología.',
       technologies: ['React Native', 'Expo CLI', 'Django', 'PostgreSQL'],
@@ -64,6 +72,7 @@ const Projects = () => {
       status: 'completed',
       statusText: 'Terminado',
       image: profileImg,
+      imageWebp: profileImgWebp,
       description: 'Este mismo sitio, que refleja mis habilidades, proyectos y crecimiento como desarrollador. Diseñado con enfoque UI/UX y Design Thinking.',
       goal: 'Mostrar mi trabajo y conectar con otros profesionales.',
       technologies: ['React', 'Vite', 'TailwindCSS', 'Framer Motion'],
@@ -75,11 +84,11 @@ const Projects = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case 'completed':
-        return <FiCheckCircle className="text-green-500" />;
+        return <FiCheckCircle className="text-green-500" aria-hidden="true" />;
       case 'in-progress':
-        return <FiClock className="text-yellow-500" />;
+        return <FiClock className="text-yellow-500" aria-hidden="true" />;
       case 'coming-soon':
-        return <FiAlertCircle className="text-blue-500" />;
+        return <FiAlertCircle className="text-blue-500" aria-hidden="true" />;
       default:
         return null;
     }
@@ -114,17 +123,18 @@ const Projects = () => {
   };
 
   return (
-    <section id="proyectos" className="min-h-screen py-20">
+    <section id="proyectos" className="min-h-screen py-20" ref={sectionRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+          <h2 className="text-5xl md:text-6xl font-bold mb-4">
             <span className="gradient-text">Mis Proyectos</span>
-          </h1>
+          </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-primary-400 to-primary-800 mx-auto rounded-full mb-6" />
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Soluciones tecnológicas que buscan impactar positivamente en la sociedad
@@ -133,9 +143,9 @@ const Projects = () => {
 
         {/* Projects Grid */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+          variants={prefersReducedMotion ? undefined : containerVariants}
+          initial={prefersReducedMotion ? undefined : 'hidden'}
+          animate={prefersReducedMotion ? undefined : 'visible'}
           className="grid grid-cols-1 lg:grid-cols-2 gap-8"
         >
           {projects.map((project) => (
@@ -144,20 +154,25 @@ const Projects = () => {
               className="perspective-1000"
             >
               <motion.div
-                variants={cardVariants}
+                variants={prefersReducedMotion ? undefined : cardVariants}
                 className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden hover:shadow-purple transition-all duration-300"
               >
               {/* Project Image */}
               <div className="relative h-64 bg-gradient-to-br from-primary-400 to-primary-800 overflow-hidden">
                 {project.image ? (
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <picture>
+                    {project.imageWebp && <source srcSet={project.imageWebp} type="image/webp" />}
+                    <img
+                      src={project.image}
+                      alt={`Proyecto ${project.title}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-white text-6xl font-bold opacity-20">
+                    <div className="text-white text-6xl font-bold opacity-20" aria-hidden="true">
                       {project.title.charAt(0)}
                     </div>
                   </div>
@@ -217,8 +232,9 @@ const Projects = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-6 py-3 gradient-purple text-white rounded-full font-medium hover:shadow-purple transition-shadow"
+                        aria-label={`Abrir demostración del proyecto ${project.title} en una nueva pestaña`}
                       >
-                        <FiExternalLink />
+                        <FiExternalLink aria-hidden="true" />
                         Ver Demo
                       </a>
                     )}
@@ -228,8 +244,9 @@ const Projects = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
+                        aria-label={`Abrir repositorio de GitHub del proyecto ${project.title} en una nueva pestaña`}
                       >
-                        <FiGithub />
+                        <FiGithub aria-hidden="true" />
                         GitHub
                       </a>
                     )}
@@ -243,15 +260,15 @@ const Projects = () => {
 
         {/* Call to Action */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.8 }}
           className="mt-20 text-center"
         >
           <div className="bg-gradient-to-r from-primary-400 to-primary-800 rounded-3xl p-12 text-white">
-            <h2 className="text-3xl font-bold mb-4">
+            <h3 className="text-3xl font-bold mb-4">
               ¿Tienes un proyecto en mente?
-            </h2>
+            </h3>
             <p className="text-xl opacity-90 mb-8">
               Estoy siempre abierto a colaborar en proyectos innovadores
             </p>
@@ -268,6 +285,7 @@ const Projects = () => {
                 }
               }}
               className="inline-block bg-white text-primary-600 px-8 py-4 rounded-full font-semibold hover:shadow-lg transition-shadow"
+              aria-label="Ir a la sección de contacto para iniciar una conversación"
             >
               Hablemos
             </button>

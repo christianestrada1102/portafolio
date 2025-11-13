@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { 
   FiMail, 
   FiPhone, 
@@ -20,6 +20,8 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const prefersReducedMotion = useReducedMotion();
+  const shouldAnimate = !prefersReducedMotion;
 
   const contactInfo = [
     {
@@ -98,13 +100,11 @@ const Contact = () => {
       clearTimeout(timeoutId);
 
       const data = await response.json();
-      console.log('Response:', data);
 
       if (response.ok) {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
-        console.error('Error response:', data);
         setSubmitStatus('error');
       }
     } catch (error) {
@@ -125,13 +125,14 @@ const Contact = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={shouldAnimate ? { opacity: 0, y: -20 } : { opacity: 1, y: 0 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={shouldAnimate ? { duration: 0.6 } : { duration: 0 }}
           className="text-center mb-16"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+          <h2 className="text-5xl md:text-6xl font-bold mb-4">
             <span className="gradient-text">Contacto</span>
-          </h1>
+          </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-primary-400 to-primary-800 mx-auto rounded-full mb-6" />
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             ¿Tienes alguna pregunta o propuesta? ¡Me encantaría saber de ti!
@@ -142,15 +143,15 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           {/* Left Column - Contact Information */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={shouldAnimate ? { opacity: 0, x: -30 } : { opacity: 1, x: 0 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={shouldAnimate ? { delay: 0.2 } : { duration: 0 }}
             className="space-y-6"
           >
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 md:p-8 transition-colors duration-300">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4 gradient-text">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4 gradient-text">
                 Información de Contacto
-              </h2>
+              </h3>
               <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed">
                 Estoy disponible para oportunidades de colaboración, proyectos interesantes 
                 o simplemente para charlar sobre tecnología.
@@ -161,16 +162,16 @@ const Contact = () => {
                 {contactInfo.map((info, index) => (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={shouldAnimate ? { opacity: 0, x: -20 } : { opacity: 1, x: 0 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
+                    transition={shouldAnimate ? { delay: 0.3 + index * 0.1 } : { duration: 0 }}
                     className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
                   >
                     <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
-                      <info.icon className="text-primary-600 dark:text-primary-400" size={20} />
+                      <info.icon className="text-primary-600 dark:text-primary-400" size={20} aria-hidden="true" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-medium">{info.label}</p>
+                      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 font-medium">{info.label}</p>
                       {info.link ? (
                         <a
                           href={info.link}
@@ -198,12 +199,13 @@ const Contact = () => {
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      whileHover={{ scale: 1.1, y: -3 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={shouldAnimate ? { scale: 1.1, y: -3 } : undefined}
+                      whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
                       className="w-11 h-11 md:w-12 md:h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+                      aria-label={`Abrir ${social.label} en una nueva pestaña`}
                       title={social.label}
                     >
-                      <social.icon size={22} style={{ color: social.color }} className="w-5 h-5 md:w-6 md:h-6" />
+                      <social.icon size={22} style={{ color: social.color }} className="w-5 h-5 md:w-6 md:h-6" aria-hidden="true" />
                     </motion.a>
                   ))}
                 </div>
@@ -213,14 +215,14 @@ const Contact = () => {
 
           {/* Right Column - Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={shouldAnimate ? { opacity: 0, x: 30 } : { opacity: 1, x: 0 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={shouldAnimate ? { delay: 0.2 } : { duration: 0 }}
             className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 md:p-8 transition-colors duration-300"
           >
-            <h2 className="text-2xl md:text-3xl font-bold mb-5 md:mb-6 gradient-text">
+            <h3 className="text-2xl md:text-3xl font-bold mb-5 md:mb-6 gradient-text">
               Envíame un mensaje
-            </h2>
+            </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
               {/* Name Field */}
@@ -295,9 +297,10 @@ const Contact = () => {
               <motion.button
                 type="submit"
                 disabled={isSubmitting}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+                whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
                 className="w-full gradient-purple text-white py-3 md:py-4 rounded-xl font-semibold text-base md:text-lg flex items-center justify-center gap-2 shadow-purple hover:shadow-purple-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-live="polite"
               >
                 {isSubmitting ? (
                   <>
@@ -307,7 +310,7 @@ const Contact = () => {
                 ) : (
                   <>
                     Enviar mensaje
-                    <FiSend />
+                    <FiSend aria-hidden="true" />
                   </>
                 )}
               </motion.button>
@@ -318,6 +321,8 @@ const Contact = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 text-center font-medium"
+                  role="status"
+                  aria-live="polite"
                 >
                   ✅ ¡Mensaje enviado correctamente! Te responderé pronto.
                 </motion.div>
@@ -328,6 +333,7 @@ const Contact = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-center font-medium"
+                  role="alert"
                 >
                   ❌ Error al enviar el mensaje. Por favor, intenta de nuevo o contáctame directamente por email.
                 </motion.div>
@@ -338,6 +344,8 @@ const Contact = () => {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl text-yellow-700 dark:text-yellow-400 text-center font-medium"
+                  role="status"
+                  aria-live="assertive"
                 >
                   ⏱️ El servidor está despertando (puede tomar hasta 1 minuto). Por favor, intenta de nuevo en unos segundos.
                 </motion.div>
@@ -347,7 +355,7 @@ const Contact = () => {
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-sm text-gray-500 dark:text-gray-400 text-center italic"
+                       className="text-sm text-gray-600 dark:text-gray-400 text-center italic"
                 >
                   {/* Si tarda más de 5 segundos, mostrar mensaje de paciencia */}
                   El servidor gratuito puede tomar unos segundos en responder...

@@ -1,8 +1,9 @@
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion';
 import { useRef } from 'react';
 
 const TiltCard = ({ children, className = '' }) => {
   const ref = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
   
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -14,6 +15,7 @@ const TiltCard = ({ children, className = '' }) => {
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-7.5deg', '7.5deg']);
   
   const handleMouseMove = (e) => {
+    if (prefersReducedMotion) return;
     if (!ref.current) return;
     
     const rect = ref.current.getBoundingClientRect();
@@ -32,6 +34,7 @@ const TiltCard = ({ children, className = '' }) => {
   };
   
   const handleMouseLeave = () => {
+    if (prefersReducedMotion) return;
     x.set(0);
     y.set(0);
   };
@@ -41,14 +44,24 @@ const TiltCard = ({ children, className = '' }) => {
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformStyle: 'preserve-3d',
-      }}
+      style={
+        prefersReducedMotion
+          ? undefined
+          : {
+              rotateX,
+              rotateY,
+              transformStyle: 'preserve-3d',
+            }
+      }
       className={className}
     >
-      <div style={{ transform: 'translateZ(50px)', transformStyle: 'preserve-3d' }}>
+      <div
+        style={
+          prefersReducedMotion
+            ? undefined
+            : { transform: 'translateZ(50px)', transformStyle: 'preserve-3d' }
+        }
+      >
         {children}
       </div>
     </motion.div>

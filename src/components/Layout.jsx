@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion';
 import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
 
@@ -7,6 +7,8 @@ const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
   const { isDark, toggleTheme } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
+  const shouldAnimate = !prefersReducedMotion;
   
   // Scroll progress
   const { scrollYProgress } = useScroll();
@@ -71,31 +73,34 @@ const Layout = ({ children }) => {
             <motion.button 
               onClick={() => scrollToSection('inicio')}
               className="relative text-xl md:text-2xl font-bold cursor-pointer group font-mono"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
+              whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+              aria-label="Ir al inicio"
             >
               <span className="relative z-10 inline-flex items-center gap-1">
                 <motion.span 
                   className="text-primary-400 dark:text-primary-500"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  animate={shouldAnimate ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
+                  transition={shouldAnimate ? { duration: 2, repeat: Infinity } : { duration: 0 }}
                 >
                   {'<'}
                 </motion.span>
                 <motion.span
                   className="relative"
-                  animate={{
+                  animate={shouldAnimate ? {
                     textShadow: [
                       '0 0 5px rgba(168, 85, 247, 0.5)',
                       '0 0 15px rgba(168, 85, 247, 0.8), 0 0 25px rgba(147, 51, 234, 0.6)',
                       '0 0 5px rgba(168, 85, 247, 0.5)',
                     ],
+                  } : {
+                    textShadow: '0 0 10px rgba(168, 85, 247, 0.35)',
                   }}
-                  transition={{
+                  transition={shouldAnimate ? {
                     duration: 2,
                     repeat: Infinity,
                     ease: 'easeInOut',
-                  }}
+                  } : { duration: 0 }}
                 >
                   <span className="gradient-text bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-primary-600 to-primary-800">
                     CodeByNas
@@ -103,8 +108,8 @@ const Layout = ({ children }) => {
                 </motion.span>
                 <motion.span 
                   className="text-primary-400 dark:text-primary-500"
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                  animate={shouldAnimate ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
+                  transition={shouldAnimate ? { duration: 2, repeat: Infinity, delay: 0.5 } : { duration: 0 }}
                 >
                   {'/>'}
                 </motion.span>
@@ -116,7 +121,7 @@ const Layout = ({ children }) => {
                   background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)',
                 }}
                 initial={false}
-                whileHover={{ opacity: 0.6 }}
+                whileHover={shouldAnimate ? { opacity: 0.6 } : undefined}
               />
             </motion.button>
 
@@ -150,7 +155,7 @@ const Layout = ({ children }) => {
               <button
                 onClick={toggleTheme}
                 className="hidden md:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Toggle theme"
+                aria-label="Cambiar tema"
               >
                 <motion.div
                   initial={false}
@@ -158,9 +163,9 @@ const Layout = ({ children }) => {
                   transition={{ duration: 0.3 }}
                 >
                   {isDark ? (
-                    <FiSun className="w-5 h-5 text-yellow-500" />
+                    <FiSun className="w-5 h-5 text-yellow-500" aria-hidden="true" />
                   ) : (
-                    <FiMoon className="w-5 h-5 text-gray-700" />
+                    <FiMoon className="w-5 h-5 text-gray-700" aria-hidden="true" />
                   )}
                 </motion.div>
               </button>
@@ -172,12 +177,12 @@ const Layout = ({ children }) => {
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Toggle theme"
+                aria-label="Cambiar tema"
               >
                 {isDark ? (
-                  <FiSun className="w-5 h-5 text-yellow-500" />
+                  <FiSun className="w-5 h-5 text-yellow-500" aria-hidden="true" />
                 ) : (
-                  <FiMoon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <FiMoon className="w-5 h-5 text-gray-700 dark:text-gray-300" aria-hidden="true" />
                 )}
               </button>
 
@@ -230,6 +235,7 @@ const Layout = ({ children }) => {
       <motion.div
         className="fixed top-16 left-0 right-0 h-1 bg-gradient-to-r from-primary-400 via-primary-600 to-primary-800 origin-left z-50"
         style={{ scaleX }}
+        aria-hidden="true"
       />
 
       {/* Main Content */}
