@@ -48,17 +48,33 @@ const Layout = ({ children }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id) => {
+  const scrollToSection = (id, fromMobileMenu = false) => {
     const element = document.getElementById(id);
     if (element) {
-      const offset = 80; // Altura del navbar
-      const elementPosition = element.offsetTop - offset;
-      window.scrollTo({
-        top: elementPosition,
-        behavior: 'smooth'
-      });
+      const scroll = () => {
+        const navbar = document.getElementById('main-navbar');
+        const offset = navbar ? navbar.offsetHeight : 80;
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY - offset;
+
+        window.scrollTo({
+          top: elementPosition,
+          behavior: 'smooth'
+        });
+      };
+
+      if (fromMobileMenu) {
+        setIsMenuOpen(false);
+        // Esperar a que el menú se cierre para evitar saltos de scroll en pantallas pequeñas
+        window.requestAnimationFrame(() => {
+          setTimeout(scroll, 120);
+        });
+      } else {
+        scroll();
+      }
     }
-    setIsMenuOpen(false);
+    if (!fromMobileMenu) {
+      setIsMenuOpen(false);
+    }
   };
 
   const isActive = (id) => activeSection === id;
@@ -66,7 +82,10 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-background dark:bg-gray-900 transition-colors duration-300 w-full">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
+      <nav
+        id="main-navbar"
+        className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -132,6 +151,7 @@ const Layout = ({ children }) => {
                   <button
                     key={link.id}
                     onClick={() => scrollToSection(link.id)}
+                    type="button"
                     className={`relative px-3 py-2 text-sm font-medium transition-colors ${
                       isActive(link.id)
                         ? 'text-primary-600'
@@ -215,7 +235,8 @@ const Layout = ({ children }) => {
                 {navLinks.map((link) => (
                   <button
                     key={link.id}
-                    onClick={() => scrollToSection(link.id)}
+                    onClick={() => scrollToSection(link.id, true)}
+                    type="button"
                     className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       isActive(link.id)
                         ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
