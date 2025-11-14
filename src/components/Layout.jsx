@@ -50,29 +50,37 @@ const Layout = ({ children }) => {
 
   const scrollToSection = (id, fromMobileMenu = false) => {
     const element = document.getElementById(id);
-    if (element) {
-      const scroll = () => {
-        const navbar = document.getElementById('main-navbar');
-        const offset = navbar ? navbar.offsetHeight : 80;
-        const elementPosition = element.getBoundingClientRect().top + window.scrollY - offset;
+    if (!element) return;
 
-        window.scrollTo({
-          top: elementPosition,
-          behavior: 'smooth'
-        });
-      };
+    const performScroll = () => {
+      const navbar = document.getElementById('main-navbar');
+      const offset = navbar ? navbar.offsetHeight : 80;
 
-      if (fromMobileMenu) {
-        setIsMenuOpen(false);
-        // Esperar a que el menú se cierre para evitar saltos de scroll en pantallas pequeñas
-        window.requestAnimationFrame(() => {
-          setTimeout(scroll, 120);
-        });
-      } else {
-        scroll();
-      }
-    }
-    if (!fromMobileMenu) {
+      const targetElement =
+        element.querySelector('[data-scroll-anchor]') ||
+        element.querySelector('h1, h2, h3, h4, h5, h6') ||
+        element;
+
+      const rect = targetElement.getBoundingClientRect();
+      const desiredGap = 16;
+      const targetPosition = Math.max(
+        rect.top + window.scrollY - offset - desiredGap,
+        0
+      );
+
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
+    };
+
+    if (fromMobileMenu) {
+      setIsMenuOpen(false);
+      window.requestAnimationFrame(() => {
+        setTimeout(performScroll, 150);
+      });
+    } else {
+      performScroll();
       setIsMenuOpen(false);
     }
   };
