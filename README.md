@@ -206,11 +206,11 @@ PortafolioWeb/
 
 ## 👤 Autor
 
-**Christian Estrada**  
+**CodeByNas**  
 📍 Chihuahua, México  
 ✉️ christianmanuel1233@gmail.com  
 🔗 [LinkedIn](https://www.linkedin.com/in/christian-estrada-a59130386/) · [GitHub](https://github.com/christianestrada1102) · [X / Twitter](https://x.com/CodeByNAS)
 
 ---
 
-MIT © 2025 · Hecho con React y café ☕
+Código abierto bajo licencia **MIT** © 2025 · Hecho con React y café ☕
