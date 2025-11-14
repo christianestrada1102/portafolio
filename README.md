@@ -29,7 +29,7 @@ Portafolio web profesional y moderno construido con enfoque UI/UX, accesibilidad
 
 ## 🎥 Preview
 
-<video src="./src/assets/preview.webm" controls muted loop playsinline style="max-width: 420px; border-radius: 16px; box-shadow: 0 20px 45px rgba(89, 0, 188, 0.25);">
+<video src="https://raw.githubusercontent.com/christianestrada1102/portafolio/main/public/preview.webm" controls muted loop playsinline style="max-width: 420px; border-radius: 16px; box-shadow: 0 20px 45px rgba(89, 0, 188, 0.25);">
   Tu navegador no soporta la reproducción de video embebido.
 </video>
 
