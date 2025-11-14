@@ -29,9 +29,22 @@ Portafolio web profesional y moderno construido con enfoque UI/UX, accesibilidad
 
 ## 🎥 Preview
 
-<video src="./src/assets/iPhone-13-PRO-portafolio-seven-iota-56.vercel.app-v4m3a9ys0h8mug.webm" controls muted loop playsinline style="max-width: 420px; border-radius: 16px; box-shadow: 0 20px 45px rgba(89, 0, 188, 0.25);">
+<video src="./src/assets/preview.webm" controls muted loop playsinline style="max-width: 420px; border-radius: 16px; box-shadow: 0 20px 45px rgba(89, 0, 188, 0.25);">
   Tu navegador no soporta la reproducción de video embebido.
 </video>
+
+---
+
+## ♻️ Guía de reutilización rápida
+
+1. **Clona este repositorio** y ejecuta `npm install` en la raíz (usa `install-all.bat` si estás en Windows).
+2. Personaliza la información de las secciones en `src/pages/` (`Home.jsx`, `About.jsx`, `Projects.jsx`, etc.).
+3. Reemplaza imágenes dentro de `src/assets/`. Aprovecha el `<picture>` y el soporte WebP/AVIF para mantener el rendimiento.
+4. Ajusta las certificaciones/POAPs en `src/pages/Achievements.jsx` y los proyectos en `src/pages/Projects.jsx`.
+5. Para el backend, duplica la carpeta `server/`, cambia el remitente en `server/index.js` y configura tu API key en `server/.env`.
+6. Despliega usando la guía de la sección **☁️ Despliegue** (Vercel + Render) y actualiza URLs si apuntas a tus propios servicios.
+
+> El código está modularizado y documentado; puedes extraer componentes de `src/components/` (Navbar, Layout, TiltCard, TypingText) para usarlos en otros proyectos.
 
 ---
 
