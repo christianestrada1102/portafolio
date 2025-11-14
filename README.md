@@ -1,68 +1,203 @@
-# Christian Estrada – Portafolio Web
+# 🎨 Christian Estrada - Portafolio Web
 
-Portafolio profesional desarrollado con React + Vite y TailwindCSS. Incluye animaciones con Framer Motion, backend en Node/Express para el formulario de contacto y despliegue en Vercel (frontend) + Render (backend). El foco es UI/UX, accesibilidad y rendimiento.
+<div align="center">
 
-## Demo
-- Frontend: https://portafolio-seven-jota-56.vercel.app/
-- Backend: https://christian-estrada-backend.onrender.com/
+![Portfolio](https://img.shields.io/badge/Portfolio-Christian_Estrada-purple?style=for-the-badge)
+![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react)
+![Vite](https://img.shields.io/badge/Vite-5.4.0-646CFF?style=for-the-badge&logo=vite)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.0-0055FF?style=for-the-badge&logo=framer)
+![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=node.js)
 
-## Características
-- SPA con navegación suave, dark mode persistente y scroll progresivo.
-- Secciones: Inicio, Sobre mí, Logros (POAP + certificados), Proyectos, Contacto.
-- Animaciones configuradas para respetar `prefers-reduced-motion`.
-- Formulario de contacto con backend usando Resend API (antes Nodemailer).
-- Optimización Lighthouse: lazy loading, code splitting, imágenes WebP/AVIF, robots.txt, metadatos completos.
-- Accesibilidad: jerarquía de headings, aria-labels, contraste ajustado, animaciones degradables.
+Portafolio web profesional y moderno construido con enfoque UI/UX, accesibilidad y rendimiento.
 
-## Stack
-- **Frontend**: React 18, Vite 5, TailwindCSS 3, Framer Motion, React Icons.
-- **Backend**: Node.js, Express, Resend API, CORS, dotenv.
-- **Infraestructura**: Vercel (frontend), Render (backend).
+[Ver Demo](https://portafolio-seven-jota-56.vercel.app/) · [Reportar Bug](https://github.com/christianestrada1102/portafolio/issues)
 
-## Scripts
+</div>
+
+---
+
+## ✨ Características destacadas
+
+- 🎨 **Diseño moderno** con animaciones suaves (Framer Motion) y modo oscuro persistente.
+- 📱 **Responsive total**: experiencia consistente en desktop, tablet y smartphone.
+- ♿ **Accesibilidad cuidada**: `prefers-reduced-motion`, jerarquía de headings, aria-labels y contraste óptimo.
+- ⚡ **Alto rendimiento**: Vite, code-splitting, lazy loading e imágenes WebP/AVIF.
+- 📨 **Contacto funcional**: backend en Express + Resend API desplegado en Render.
+- 🧭 **Navegación fluida**: SPA con scroll suave, navbar inteligente y barra de progreso.
+- 🧩 **Contenido dinámico**: sección de POAPs, certificados, proyectos y logros con animaciones interactivas.
+
+## 🎥 Preview
+
+<video src="./src/assets/iPhone-13-PRO-portafolio-seven-iota-56.vercel.app-v4m3a9ys0h8mug.webm" controls muted loop playsinline style="max-width: 420px; border-radius: 16px; box-shadow: 0 20px 45px rgba(89, 0, 188, 0.25);">
+  Tu navegador no soporta la reproducción de video embebido.
+</video>
+
+---
+
+## 🚀 Tecnologías
+
+### Frontend
+- **React 18** · Librería de UI
+- **Vite 5** · Dev server & build tool
+- **TailwindCSS 3** · Estilos utilitarios
+- **Framer Motion 11** · Animaciones fluidas
+- **React Icons** · Íconos SVG accesibles
+- **Intersection Observer & hooks propios** · Animaciones por scroll
+
+### Backend
+- **Node.js + Express** · API REST para el formulario
+- **Resend API** · Envío de correos transaccionales
+- **CORS + dotenv** · Seguridad y configuración
+
+### Infraestructura
+- **Vercel** · Frontend
+- **Render** · Backend
+- **GitHub Actions** (opcional) · Integración continua
+
+---
+
+## 📦 Instalación rápida
+
+### Windows
 ```bash
-# Frontend
-npm install
-npm run dev       # http://localhost:3000
-npm run build     # genera dist/
-npm run preview
+install-all.bat   # Instala dependencias frontend + backend
+run-dev.bat       # Arranca Vite y el backend desde CMD
+```
 
-# Backend
+### macOS / Linux
+```bash
+npm install
+npm run install:all   # (opcional si quieres instalar backend también)
+
+# Frontend
+npm run dev            # http://localhost:3000
+
+# Backend (nueva terminal)
 cd server
 npm install
-npm run dev       # nodemon index.js
-npm start         # producción
+npm run dev            # nodemon / node index.js
 ```
 
-En Windows puedes usar `install-all.bat` y `run-dev.bat` para evitar restricciones de PowerShell.
+---
 
-## Variables de entorno (backend)
+## 🔐 Variables de entorno (backend)
+
 Crear `server/.env` basado en `server/ENV_TEMPLATE.txt`:
-```
+
+```env
 PORT=5000
 RESEND_API_KEY=tu_api_key_de_resend
+EMAIL_FROM=tu_correo_remitente
 ```
 
-## Despliegue
-- **Frontend (Vercel)**: conectar el repo, build `npm run build`, output `dist/`.
-- **Backend (Render)**: raíz `server/`, build `npm install`, start `npm start`, variables de entorno configuradas.
-- Después de desplegar el backend, la URL del formulario ya apunta a `https://christian-estrada-backend.onrender.com/api/sendEmail`.
+> Puedes generar la API key en [resend.com](https://resend.com). El formulario ya está configurado para usar Render en producción.
 
-Documentación adicional:
-- `DESPLEGAR_PASO_A_PASO.md`, `DESPLEGAR_VERCEL.md` y `EMPEZAR_AQUI_VERCEL.txt` para Vercel.
-- `PASOS_FINALES_CHRISTIAN.txt` y `CONFIGURAR_BACKEND_CHRISTIAN.txt` para Render y Resend.
+---
 
-## Accesibilidad y SEO
-- Headings corregidos (`h1` único, h2/h3 subsecuentes).
-- `prefers-reduced-motion` en animaciones y CSS global.
-- `aria-label` y roles en botones, iconos y badges.
-- Metadatos OG/Twitter, canonical y robots.txt.
+## 🧱 Estructura del proyecto
 
-## Autor
+```
+PortafolioWeb/
+├── public/                 # Archivos estáticos
+├── src/
+│   ├── assets/             # Imágenes y media (WebP/AVIF/GIF)
+│   ├── components/         # Componentes reutilizables (Layout, Navbar, etc.)
+│   ├── context/            # Contexto de tema (light/dark)
+│   ├── hooks/              # Hooks personalizados (useInView, etc.)
+│   ├── pages/              # Secciones: Home, About, Achievements, Projects, Contact
+│   ├── App.jsx             # Configura lazy loading de páginas
+│   └── index.css           # Estilos globales (Tailwind + ajustes)
+├── server/                 # Backend (Express + Resend)
+│   ├── index.js
+│   ├── package.json
+│   └── ENV_TEMPLATE.txt
+├── DESPLEGAR_PASO_A_PASO.md
+├── DESPLEGAR_VERCEL.md
+└── README.md               # Este archivo
+```
+
+---
+
+## 🎨 Paleta principal
+
+```css
+--primary-400: #D056F1;  /* Morado claro */
+--primary-500: #BD41DE;  /* Morado medio */
+--primary-600: #A92BCB;  /* Morado vibrante */
+--primary-700: #9616B8;  /* Morado profundo */
+--primary-800: #8200A5;  /* Morado oscuro */
+--background: #F9F9F9;   /* Fondo claro */
+--background-dark: #111827; /* Fondo dark mode */
+```
+
+---
+
+## 📄 Secciones principales
+
+1. **Inicio** — Hero con animaciones, CTA y efecto de tipeo.
+2. **Sobre mí** — Trayectoria, tecnologías, barras de progreso y métricas animadas.
+3. **Logros** — POAPs, certificados (NASA + ICATECH) con modal y efectos “breathing”.
+4. **Proyectos** — Cards 3D tilt, descripciones, objetivos y enlaces a demo/GitHub.
+5. **Contacto** — Formulario funcional con manejo de estados (timeout, cold start, error).
+
+---
+
+## 🛠 Scripts disponibles
+
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Inicia Vite en modo desarrollo |
+| `npm run build` | Genera la versión de producción (`dist/`) |
+| `npm run preview` | Sirve el build localmente |
+| `npm run server` | Ejecuta backend Express desde la raíz |
+| `npm run install:all` | Instala dependencias frontend + backend |
+
+---
+
+## ☁️ Despliegue
+
+### Frontend (Vercel)
+1. Conecta el repo en [vercel.com](https://vercel.com).
+2. Build command: `npm run build`.
+3. Output: `dist/`.
+4. Variables: no necesarias (usa las del backend).
+
+### Backend (Render)
+1. Servicio web apuntando a `server/`.
+2. Build command: `npm install`.
+3. Start command: `npm start`.
+4. Configura `RESEND_API_KEY`, `EMAIL_FROM` y `PORT`.
+
+> La app frontend ya apunta a `https://christian-estrada-backend.onrender.com/api/sendEmail`. Al redesplegar el backend no necesitas cambiar el frontend.
+
+---
+
+## 🧰 Troubleshooting
+
+- **El formulario tarda en responder**: Render en free tier puede “dormir” el servicio; se agregó timeout con mensaje informativo.
+- **Imágenes no cargan**: verifica que los assets estén en `src/assets` y que las importaciones usen la extensión correcta (`?format=webp&imagetools` cuando aplique).
+- **PowerShell bloquea scripts**: usa los `.bat` incluidos (`run-dev.bat`, `install-all.bat`) para evitar restricciones.
+- **Scroll móvil salta**: la navbar compensa la altura con un cálculo dinámico; revisa `src/components/Layout.jsx`.
+
+---
+
+## 📚 Documentación adicional
+
+- `DESPLEGAR_PASO_A_PASO.md` — Checklist completo para Vercel + Render.
+- `DESPLEGAR_VERCEL.md` — Guía técnica detallada de despliegue.
+- `CONFIGURAR_BACKEND_CHRISTIAN.txt` — Ajustes de Resend y Render.
+- `PASOS_FINALES_CHRISTIAN.txt` — Tareas finales antes de compartir el portafolio.
+
+---
+
+## 👤 Autor
+
 **Christian Estrada**  
-Email: christianmanuel1233@gmail.com  
-LinkedIn: https://www.linkedin.com/in/christian-estrada-a59130386/  
-GitHub: https://github.com/christianestrada1102  
-Twitter/X: https://x.com/CodeByNAS
+📍 Chihuahua, México  
+✉️ christianmanuel1233@gmail.com  
+🔗 [LinkedIn](https://www.linkedin.com/in/christian-estrada-a59130386/) · [GitHub](https://github.com/christianestrada1102) · [X / Twitter](https://x.com/CodeByNAS)
 
-MIT © 2025
+---
+
+MIT © 2025 · Hecho con React y café ☕
