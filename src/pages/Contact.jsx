@@ -66,7 +66,7 @@ const Contact = () => {
     {
       icon: FiInstagram,
       label: 'Instagram',
-      url: 'https://instagram.com/christianestrada1102',
+      url: 'https://www.instagram.com/christian_estrada1102?igsh=bmZueGZzcjJkc3Vp&utm_source=qr',
       color: '#000000',
     },
   ];
