@@ -61,7 +61,8 @@ const Home = () => {
             transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
             className="mb-8 inline-block"
           >
-            <div className="relative">
+            {/* Contenedor fijo para que el halo no se vea como un cuadro en móvil */}
+            <div className="relative w-48 h-48 mx-auto">
               <motion.div
                 aria-hidden="true"
                 className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-800 rounded-full blur-xl opacity-50"
@@ -79,7 +80,7 @@ const Home = () => {
                 <motion.img
                   src={profileImg}
                   alt="Retrato de Christian Estrada"
-                  className="relative w-48 h-48 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-purple-lg"
+                  className="relative w-full h-full rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-purple-lg"
                   whileHover={prefersReducedMotion ? undefined : { scale: 1.05, rotate: 5 }}
                   transition={prefersReducedMotion ? { duration: 0 } : { type: "spring", stiffness: 300 }}
                   loading="eager"
