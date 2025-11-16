@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { FiArrowRight, FiMail } from 'react-icons/fi';
 import profileImg from '../assets/Img.jpg';
+import profileImgWebp from '../assets/Img.jpg?format=webp&imagetools';
 import TypingText from '../components/TypingText';
 
 const Home = () => {
@@ -53,7 +54,7 @@ const Home = () => {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div className="text-center">
-          {/* Profile Media (Video promocional) */}
+          {/* Profile Image */}
           <motion.div
             initial={prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -73,21 +74,21 @@ const Home = () => {
                   ease: "easeInOut",
                 }}
               />
-              <motion.video
-                src="/preview.webm"
-                className="relative w-48 h-48 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-purple-lg"
-                autoPlay
-                muted
-                loop
-                playsInline
-                poster={profileImg}
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.05, rotate: 5 }}
-                transition={prefersReducedMotion ? { duration: 0 } : { type: "spring", stiffness: 300 }}
-                width={192}
-                height={192}
-                aria-label="Video de presentación del portafolio de Christian Estrada"
-                role="img"
-              />
+              <picture>
+                <source srcSet={profileImgWebp} type="image/webp" />
+                <motion.img
+                  src={profileImg}
+                  alt="Retrato de Christian Estrada"
+                  className="relative w-48 h-48 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-purple-lg"
+                  whileHover={prefersReducedMotion ? undefined : { scale: 1.05, rotate: 5 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { type: "spring", stiffness: 300 }}
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
+                  width={192}
+                  height={192}
+                />
+              </picture>
             </div>
           </motion.div>
 
