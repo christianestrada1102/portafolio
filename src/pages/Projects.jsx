@@ -73,6 +73,7 @@ const Projects = () => {
       statusText: 'Terminado',
       image: profileImg,
       imageWebp: profileImgWebp,
+      videoSrc: '/preview.webm',
       description: 'Este mismo sitio, que refleja mis habilidades, proyectos y crecimiento como desarrollador. Diseñado con enfoque UI/UX y Design Thinking.',
       goal: 'Mostrar mi trabajo y conectar con otros profesionales.',
       technologies: ['React', 'Vite', 'TailwindCSS', 'Framer Motion'],
@@ -159,7 +160,21 @@ const Projects = () => {
               >
               {/* Project Image */}
               <div className="relative h-64 bg-gradient-to-br from-primary-400 to-primary-800 overflow-hidden">
-                {project.image ? (
+                {project.videoSrc ? (
+                  <motion.video
+                    src={project.videoSrc}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    poster={project.image}
+                    whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 20 }}
+                    aria-label={`Video de presentación del proyecto ${project.title}`}
+                    role="img"
+                  />
+                ) : project.image ? (
                   <picture>
                     {project.imageWebp && <source srcSet={project.imageWebp} type="image/webp" />}
                     <img
