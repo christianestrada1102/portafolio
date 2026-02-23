@@ -236,4 +236,4 @@ Chihuahua, México
 
 ---
 
-MIT © 2026
+CodeByNas © 2026
