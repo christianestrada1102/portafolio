@@ -1,206 +1,160 @@
-import { motion, useReducedMotion } from 'framer-motion';
-import { FiArrowRight, FiMail } from 'react-icons/fi';
-import profileImg from '../assets/Img.jpg';
-import profileImgWebp from '../assets/Img.jpg?format=webp&imagetools';
-import TypingText from '../components/TypingText';
+import { useRef, useLayoutEffect, useCallback } from 'react';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import nasPhoto from '../assets/nas2.png';
+import ScrambleButton from '../components/ScrambleButton';
+import { useLanguage } from '../context/LanguageContext';
 
-const Home = () => {
-  const prefersReducedMotion = useReducedMotion();
+gsap.registerPlugin(ScrollTrigger);
 
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 80;
-      const elementPosition = element.offsetTop - offset;
-      window.scrollTo({
-        top: elementPosition,
-        behavior: 'smooth'
+export default function Home() {
+  const containerRef = useRef(null);
+  const nameRef      = useRef(null);
+  const subtitleRef  = useRef(null);
+  const ctaRef       = useRef(null);
+  const statsRef     = useRef(null);
+  const photoWrapRef = useRef(null);
+  const scrollIndRef = useRef(null);
+  const { t }        = useLanguage();
+
+  useLayoutEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    const ctx = gsap.context(() => {
+      const letters = nameRef.current?.querySelectorAll('.letter-char') ?? [];
+
+      const tl = gsap.timeline({ delay: 0.15, defaults: { ease: 'power2.out' } });
+
+      tl.from(letters, { y: 60, opacity: 0, stagger: 0.022, duration: 0.55 })
+        .from(subtitleRef.current, { y: 20, opacity: 0, duration: 0.45 }, '-=0.1')
+        .from(ctaRef.current,      { y: 16, opacity: 0, duration: 0.35 }, '-=0.15')
+        .from(statsRef.current,    { y: 10, opacity: 0, duration: 0.3  }, '-=0.1')
+        .from(scrollIndRef.current,{ opacity: 0, duration: 0.4 }, '-=0.2');
+
+      gsap.to(photoWrapRef.current, {
+        y: -40,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end:   'bottom top',
+          scrub: 1,
+        },
       });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const scrollTo = useCallback((href) => {
+    const target = document.querySelector(href);
+    if (!target) return;
+    if (window.lenis) {
+      window.lenis.scrollTo(target, { offset: -64, duration: 1.2 });
+    } else {
+      target.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, []);
 
   return (
-    <section id="inicio" className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
+    <section id="home" ref={containerRef} className="relative flex items-center pt-16 min-h-[100vh] overflow-hidden">
+      {/* ── Background texture ── */}
+      <div
+        ref={photoWrapRef}
+        style={{ position: 'absolute', inset: 0, zIndex: 0 }}
+      >
+        <img
+          src={nasPhoto}
+          alt=""
           aria-hidden="true"
-          className="absolute -top-40 -right-40 w-80 h-80 bg-primary-400/20 rounded-full blur-3xl"
-          animate={prefersReducedMotion ? { opacity: 0.25 } : {
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={prefersReducedMotion ? { duration: 0 } : {
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          aria-hidden="true"
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-800/20 rounded-full blur-3xl"
-          animate={prefersReducedMotion ? { opacity: 0.25 } : {
-            scale: [1.2, 1, 1.2],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={prefersReducedMotion ? { duration: 0 } : {
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', opacity: 0.25 }}
+          loading="eager"
         />
       </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-        <div className="text-center">
-          {/* Profile Image */}
-          <motion.div
-            initial={prefersReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
-            className="mb-8 inline-block"
-          >
-            {/* Contenedor fijo para que el halo no se vea como un cuadro en móvil */}
-            <div className="relative w-48 h-48 mx-auto">
-              <motion.div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-r from-primary-400 to-primary-800 rounded-full blur-xl opacity-50"
-                animate={prefersReducedMotion ? { opacity: 0.5 } : {
-                  scale: [1, 1.1, 1],
-                }}
-                transition={prefersReducedMotion ? { duration: 0 } : {
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-              <picture>
-                <source srcSet={profileImgWebp} type="image/webp" />
-                <motion.img
-                  src={profileImg}
-                  alt="Retrato de Christian Estrada"
-                  className="relative w-full h-full rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-purple-lg"
-                  whileHover={prefersReducedMotion ? undefined : { scale: 1.05, rotate: 5 }}
-                  transition={prefersReducedMotion ? { duration: 0 } : { type: "spring", stiffness: 300 }}
-                  loading="eager"
-                  decoding="async"
-                  fetchpriority="high"
-                  width={192}
-                  height={192}
-                />
-              </picture>
-            </div>
-          </motion.div>
+      <div className="max-w-6xl mx-auto px-4 md:px-6 w-full py-10 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-8 items-center">
 
-          {/* Name */}
-          <motion.h1
-            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.2, duration: 0.5 }}
-            className="text-5xl md:text-7xl font-bold mb-4"
-          >
-            <span className="gradient-text">Christian Estrada</span>
-          </motion.h1>
+          {/* ── Text ── */}
+          <div className="order-1 md:col-span-7 flex flex-col gap-4 md:gap-5" style={{ position: 'relative', zIndex: 3 }}>
 
-          {/* Subtitle */}
-          <motion.p
-            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.4, duration: 0.5 }}
-            className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto leading-relaxed"
-          >
-            Desarrollador de software de Chihuahua, México
-          </motion.p>
-          
-          <motion.p
-            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.5, duration: 0.5 }}
-            className="text-lg md:text-xl text-gray-500 dark:text-gray-400 mb-12 max-w-2xl mx-auto"
-          >
-            <TypingText 
-              text="apasionado por construir aplicaciones escalables y significativas."
-              speed={50}
-              delay={1500}
-            />
-          </motion.p>
-
-          {/* CTA Buttons */}
-          <motion.div
-            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.6, duration: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            <motion.button
-              onClick={() => scrollToSection('proyectos')}
-              whileHover={prefersReducedMotion ? undefined : { 
-                scale: 1.05,
-                boxShadow: "0 20px 40px rgba(160, 86, 241, 0.4)"
-              }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
-              className="gradient-purple text-white px-8 py-4 rounded-full font-medium text-lg shadow-purple flex items-center gap-2 transition-all relative overflow-hidden group"
-              aria-label="Ir a la sección de proyectos"
-            >
-              <span className="relative z-10">Ver proyectos</span>
-              <motion.span
-                className="relative z-10"
-                animate={prefersReducedMotion ? { x: 0 } : { x: [0, 5, 0] }}
-                transition={prefersReducedMotion ? { duration: 0 } : { duration: 1.5, repeat: Infinity }}
+            {/* Name */}
+            <div ref={nameRef} aria-label="Christian Estrada" className="relative flex flex-col items-start">
+              <div
+                className="font-display italic text-neutral-400 leading-none tracking-tight"
+                style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 300 }}
               >
-                <FiArrowRight aria-hidden="true" />
-              </motion.span>
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-800"
-                initial={prefersReducedMotion ? { x: 0 } : { x: '-100%' }}
-                whileHover={prefersReducedMotion ? undefined : { x: 0 }}
-                transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
-              />
-            </motion.button>
-            
-            <motion.button
-              onClick={() => scrollToSection('contacto')}
-              whileHover={prefersReducedMotion ? undefined : { 
-                scale: 1.05,
-                backgroundColor: 'rgba(160, 86, 241, 0.1)'
-              }}
-              whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
-              className="bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 px-8 py-4 rounded-full font-medium text-lg border-2 border-primary-600 dark:border-primary-400 transition-all flex items-center gap-2"
-              aria-label="Ir a la sección de contacto"
-            >
-              Contactarme
-              <FiMail aria-hidden="true" />
-            </motion.button>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { delay: 1, duration: 0.5 }}
-            className="mt-20"
-            aria-hidden="true"
-          >
-            <motion.div
-              animate={prefersReducedMotion ? { y: 0 } : { y: [0, 10, 0] }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 2, repeat: Infinity }}
-              className="inline-block"
-            >
-              <div className="w-6 h-10 border-2 border-primary-400 rounded-full flex justify-center">
-                <motion.div
-                  animate={prefersReducedMotion ? { y: 0 } : { y: [0, 12, 0] }}
-                  transition={prefersReducedMotion ? { duration: 0 } : { duration: 2, repeat: Infinity }}
-                  className="w-1.5 h-1.5 bg-primary-400 rounded-full mt-2"
-                />
+                {'Christian'.split('').map((char, i) => (
+                  <span key={i} className="letter-char">{char}</span>
+                ))}
               </div>
-            </motion.div>
-          </motion.div>
+              <div
+                className="accent-subtle leading-none mt-2"
+                style={{ fontSize: 'clamp(3.5rem, 8vw, 7rem)', fontWeight: 700 }}
+              >
+                {'Estrada'.split('').map((char, i) => (
+                  <span key={i} className="letter-char">{char}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Role badge */}
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-neutral-400">
+              {t('home.role')}
+            </p>
+
+            {/* Subtitle */}
+            <p ref={subtitleRef} className="text-neutral-400 font-light text-sm md:text-base leading-relaxed max-w-md">
+              {t('home.subtitle.pre')}{' '}
+              <span className="text-neutral-300">{t('home.location')}</span>
+            </p>
+
+            {/* CTAs */}
+            <div ref={ctaRef} className="flex flex-wrap gap-3">
+              <ScrambleButton
+                onClick={() => scrollTo('#projects')}
+                className="bg-white text-neutral-950 rounded-sm px-5 py-2.5 text-sm font-medium"
+              >
+                {t('home.cta.projects')} <span aria-hidden="true">→</span>
+              </ScrambleButton>
+              <ScrambleButton
+                onClick={() => scrollTo('#contact')}
+                className="border border-neutral-700 text-neutral-300 rounded-sm px-5 py-2.5 text-sm font-medium hover:border-neutral-500 hover:text-white transition-colors duration-200"
+              >
+                {t('home.cta.contact')}
+              </ScrambleButton>
+            </div>
+
+            {/* Stats */}
+            <div ref={statsRef} className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-neutral-400">
+              <span>{t('home.stats.projects')}</span>
+              <span className="text-neutral-600">·</span>
+              <span>{t('home.stats.hackathons')}</span>
+              <span className="text-neutral-600">·</span>
+              <span>NASA</span>
+              <span className="text-neutral-600">·</span>
+              <span>ETH México</span>
+            </div>
+          </div>
+
         </div>
       </div>
+
+      {/* ── Scroll indicator ── */}
+      <div
+        ref={scrollIndRef}
+        className="absolute bottom-8 right-6 hidden md:flex flex-col items-center gap-2 pointer-events-none"
+      >
+        <span className="font-mono text-[9px] uppercase tracking-[0.35em] text-neutral-600 [writing-mode:vertical-rl]">
+          {t('home.scroll')}
+        </span>
+        <div className="relative h-10 w-px bg-neutral-800 overflow-hidden">
+          <div className="scroll-shimmer absolute inset-0" />
+        </div>
+      </div>
+      {/* ── Bottom fade ── */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '120px', background: 'linear-gradient(to bottom, transparent 0%, #000000 100%)', zIndex: 2, pointerEvents: 'none' }} />
     </section>
   );
-};
-
-export default Home;
-
+}

@@ -1,293 +1,224 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion';
-import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
-import { useTheme } from '../context/ThemeContext';
+import { useState, useEffect, useCallback } from 'react';
+import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
+import ScrambleButton from './ScrambleButton';
+import { useLanguage } from '../context/LanguageContext';
 
-const Layout = ({ children }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('inicio');
-  const { isDark, toggleTheme } = useTheme();
-  const prefersReducedMotion = useReducedMotion();
-  const shouldAnimate = !prefersReducedMotion;
-  
-  // Scroll progress
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
+const NAV = [
+  { href: '#home',         key: 'nav.home'         },
+  { href: '#about',        key: 'nav.about'        },
+  { href: '#achievements', key: 'nav.achievements' },
+  { href: '#projects',     key: 'nav.projects'     },
+  { href: '#contact',      key: 'nav.contact'      },
+];
 
-  const navLinks = [
-    { name: 'Inicio', id: 'inicio' },
-    { name: 'Sobre mí', id: 'sobre-mi' },
-    { name: 'Logros', id: 'logros' },
-    { name: 'Proyectos', id: 'proyectos' },
-    { name: 'Contacto', id: 'contacto' },
-  ];
+const SOCIAL = [
+  { href: 'https://github.com/christianestrada1102',                   Icon: FaGithub,    label: 'GitHub'    },
+  { href: 'https://www.linkedin.com/in/christian-estrada-a59130386/', Icon: FaLinkedin,  label: 'LinkedIn'  },
+  { href: 'https://x.com/CodeByNAS',                                  Icon: FaXTwitter,  label: 'Twitter/X' },
+  { href: 'https://www.instagram.com/christian_estrada1102',          Icon: FaInstagram, label: 'Instagram' },
+];
 
-  // Detectar la sección activa con scroll
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+export default function Layout({ children }) {
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isScrolled,     setIsScrolled]     = useState(false);
+  const [mobileOpen,     setMobileOpen]     = useState(false);
+  const [active,         setActive]         = useState('#home');
+  const { lang, t, toggleLang }             = useLanguage();
+
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = navLinks.map(link => link.id);
-      const scrollPosition = window.scrollY + 100;
-
-      for (const sectionId of sections) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-          const { offsetTop, offsetHeight } = section;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(sectionId);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const saved = localStorage.getItem('theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
   }, []);
 
-  const scrollToSection = (id, fromMobileMenu = false) => {
-    const element = document.getElementById(id);
-    if (!element) return;
+  useEffect(() => {
+    const onScroll = () => {
+      const y   = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(max > 0 ? (y / max) * 100 : 0);
+      setIsScrolled(y > 20);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-    const performScroll = () => {
-      const navbar = document.getElementById('main-navbar');
-      const offset = navbar ? navbar.offsetHeight : 80;
-
-      const targetElement =
-        element.querySelector('[data-scroll-anchor]') ||
-        element.querySelector('h1, h2, h3, h4, h5, h6') ||
-        element;
-
-      const rect = targetElement.getBoundingClientRect();
-      const desiredGap = 16;
-      const targetPosition = Math.max(
-        rect.top + window.scrollY - offset - desiredGap,
-        0
+  useEffect(() => {
+    const observe = () => {
+      const sections = document.querySelectorAll('section[id]');
+      if (!sections.length) return null;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) setActive(`#${entry.target.id}`);
+          });
+        },
+        { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
       );
-
-      window.scrollTo({
-        top: targetPosition,
-        behavior: 'smooth'
-      });
+      sections.forEach((s) => observer.observe(s));
+      return observer;
     };
 
-    if (fromMobileMenu) {
-      setIsMenuOpen(false);
-      window.requestAnimationFrame(() => {
-        setTimeout(performScroll, 150);
-      });
-    } else {
-      performScroll();
-      setIsMenuOpen(false);
-    }
-  };
+    let obs = observe();
+    const retry = setTimeout(() => {
+      if (obs) obs.disconnect();
+      obs = observe();
+    }, 600);
 
-  const isActive = (id) => activeSection === id;
+    return () => {
+      clearTimeout(retry);
+      if (obs) obs.disconnect();
+    };
+  }, []);
+
+  const scrollTo = useCallback((href) => {
+    setMobileOpen(false);
+    const target = document.querySelector(href);
+    if (!target) return;
+    if (window.lenis) {
+      window.lenis.scrollTo(target, { offset: -64, duration: 1.2 });
+    } else {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
 
   return (
-    <div className="min-h-screen bg-background dark:bg-gray-900 transition-colors duration-300 w-full">
-      {/* Navbar */}
-      <nav
-        id="main-navbar"
-        className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 transition-colors duration-300"
+    <div className="min-h-screen bg-neutral-950 text-white">
+
+      {/* ── Navbar ── */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-neutral-950/90 backdrop-blur-md border-b border-neutral-800/60'
+            : 'bg-transparent'
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <motion.button 
-              onClick={() => scrollToSection('inicio')}
-              className="relative text-xl md:text-2xl font-bold cursor-pointer group font-mono"
-              whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-              whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-              aria-label="Ir al inicio"
+        {/* Scroll progress bar */}
+        <div
+          className="absolute bottom-0 left-0 h-px bg-brand-500"
+          style={{ width: `${scrollProgress}%`, transition: 'width 0.3s ease-out' }}
+        />
+
+        <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+
+          {/* Logo */}
+          <button
+            onClick={() => scrollTo('#home')}
+            className="font-sans font-bold text-base text-white tracking-tight hover:text-neutral-300 transition-colors duration-200 select-none cursor-pointer"
+          >
+            CodeByNas
+          </button>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-8">
+            {NAV.map(({ href, key }) => (
+              <ScrambleButton
+                key={href}
+                onClick={() => scrollTo(href)}
+                className={`text-sm transition-colors duration-200 cursor-pointer ${
+                  active === href
+                    ? 'font-medium text-white'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                {t(key)}
+              </ScrambleButton>
+            ))}
+            <button
+              onClick={toggleLang}
+              className="font-mono text-sm text-neutral-400 cursor-pointer select-none hover:text-white transition-colors duration-200"
+              aria-label="Toggle language"
             >
-              <span className="relative z-10 inline-flex items-center gap-1">
-                <motion.span 
-                  className="text-primary-400 dark:text-primary-500"
-                  animate={shouldAnimate ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
-                  transition={shouldAnimate ? { duration: 2, repeat: Infinity } : { duration: 0 }}
-                >
-                  {'<'}
-                </motion.span>
-                <motion.span
-                  className="relative"
-                  animate={shouldAnimate ? {
-                    textShadow: [
-                      '0 0 5px rgba(168, 85, 247, 0.5)',
-                      '0 0 15px rgba(168, 85, 247, 0.8), 0 0 25px rgba(147, 51, 234, 0.6)',
-                      '0 0 5px rgba(168, 85, 247, 0.5)',
-                    ],
-                  } : {
-                    textShadow: '0 0 10px rgba(168, 85, 247, 0.35)',
-                  }}
-                  transition={shouldAnimate ? {
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  } : { duration: 0 }}
-                >
-                  <span className="gradient-text bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-primary-600 to-primary-800">
-                    CodeByNas
-                  </span>
-                </motion.span>
-                <motion.span 
-                  className="text-primary-400 dark:text-primary-500"
-                  animate={shouldAnimate ? { opacity: [0.5, 1, 0.5] } : { opacity: 1 }}
-                  transition={shouldAnimate ? { duration: 2, repeat: Infinity, delay: 0.5 } : { duration: 0 }}
-                >
-                  {'/>'}
-                </motion.span>
-              </span>
-              {/* Efecto glow tecnológico */}
-              <motion.div
-                className="absolute -inset-2 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"
-                style={{
-                  background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)',
-                }}
-                initial={false}
-                whileHover={shouldAnimate ? { opacity: 0.6 } : undefined}
-              />
-            </motion.button>
+              {lang === 'es' ? 'EN' : 'ES'}
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="font-mono text-sm cursor-pointer select-none"
+              style={{ color: '#7c3aed' }}
+              aria-label="Toggle theme"
+            >
+              {'<Theme/>'}
+            </button>
+          </nav>
 
-            {/* Desktop Navigation */}
-            <div className="flex items-center gap-6">
-              <div className="hidden md:flex space-x-8">
-                {navLinks.map((link) => (
-                  <button
-                    key={link.id}
-                    onClick={() => scrollToSection(link.id)}
-                    type="button"
-                    className={`relative px-3 py-2 text-sm font-medium transition-colors ${
-                      isActive(link.id)
-                        ? 'text-primary-600'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
-                    }`}
-                  >
-                    {link.name}
-                    {isActive(link.id) && (
-                      <motion.div
-                        layoutId="navbar-indicator"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
-                        initial={false}
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Theme Toggle Button */}
-              <button
-                onClick={toggleTheme}
-                className="hidden md:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Cambiar tema"
-              >
-                <motion.div
-                  initial={false}
-                  animate={{ rotate: isDark ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {isDark ? (
-                    <FiSun className="w-5 h-5 text-yellow-500" aria-hidden="true" />
-                  ) : (
-                    <FiMoon className="w-5 h-5 text-gray-700" aria-hidden="true" />
-                  )}
-                </motion.div>
-              </button>
-            </div>
-
-            {/* Mobile buttons */}
-            <div className="flex items-center gap-2 md:hidden">
-              {/* Mobile Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Cambiar tema"
-              >
-                {isDark ? (
-                  <FiSun className="w-5 h-5 text-yellow-500" aria-hidden="true" />
-                ) : (
-                  <FiMoon className="w-5 h-5 text-gray-700 dark:text-gray-300" aria-hidden="true" />
-                )}
-              </button>
-
-              {/* Mobile menu button */}
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Toggle menu"
-              >
-                {isMenuOpen ? (
-                  <FiX size={24} className="text-gray-700 dark:text-gray-300" />
-                ) : (
-                  <FiMenu size={24} className="text-gray-700 dark:text-gray-300" />
-                )}
-              </button>
-            </div>
-          </div>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="md:hidden flex flex-col gap-[5px] p-2 text-neutral-400 hover:text-white transition-colors"
+            aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
+          >
+            <span className={`block h-px w-5 bg-current transition-all duration-300 origin-center ${mobileOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
+            <span className={`block h-px w-5 bg-current transition-all duration-300 ${mobileOpen ? 'opacity-0 scale-x-0' : ''}`} />
+            <span className={`block h-px w-5 bg-current transition-all duration-300 origin-center ${mobileOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
+          </button>
         </div>
 
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300"
+        {/* Mobile menu */}
+        <div className={`md:hidden overflow-hidden transition-all duration-300 ${mobileOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+          <nav className="border-t border-neutral-800/60 bg-neutral-950/95 backdrop-blur-md p-8 flex flex-col gap-6">
+            {NAV.map(({ href, key }) => (
+              <button
+                key={href}
+                onClick={() => scrollTo(href)}
+                className={`text-left text-xl transition-colors duration-200 cursor-pointer ${
+                  active === href
+                    ? 'font-medium text-white'
+                    : 'text-neutral-400 hover:text-white'
+                }`}
+              >
+                {t(key)}
+              </button>
+            ))}
+            <button
+              onClick={() => { toggleLang(); setMobileOpen(false); }}
+              className="font-mono text-xl text-left text-neutral-400 cursor-pointer select-none hover:text-white transition-colors duration-200"
+              aria-label="Toggle language"
             >
-              <div className="px-4 py-4 space-y-2">
-                {navLinks.map((link) => (
-                  <button
-                    key={link.id}
-                    onClick={() => scrollToSection(link.id, true)}
-                    type="button"
-                    className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      isActive(link.id)
-                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    {link.name}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+              {lang === 'es' ? 'EN' : 'ES'}
+            </button>
+            <button
+              onClick={() => { toggleTheme(); setMobileOpen(false); }}
+              className="font-mono text-xl text-left cursor-pointer select-none transition-colors duration-200"
+              style={{ color: '#7c3aed' }}
+              aria-label="Toggle theme"
+            >
+              {'<Theme/>'}
+            </button>
+          </nav>
+        </div>
+      </header>
 
-      {/* Scroll Progress Bar */}
-      <motion.div
-        className="fixed top-16 left-0 right-0 h-1 bg-gradient-to-r from-primary-400 via-primary-600 to-primary-800 origin-left z-50"
-        style={{ scaleX }}
-        aria-hidden="true"
-      />
+      {/* ── Page content ── */}
+      <main>{children}</main>
 
-      {/* Main Content */}
-      <main className="pt-16 min-h-screen bg-background dark:bg-gray-900">
-        {children}
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-background dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-20 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              © 2025 Christian Estrada. Todos los derechos reservados.
-            </p>
-            <p className="text-gray-500 dark:text-gray-500 text-xs mt-2">
-              Hecho con React y Café ☕
-            </p>
+      {/* ── Footer ── */}
+      <footer className="border-t border-neutral-800 py-6">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-neutral-500 text-sm">
+            © 2026 <span className="text-neutral-400 font-medium">Christian Estrada</span>
+          </p>
+          <div className="flex items-center gap-4">
+            {SOCIAL.map(({ href, Icon, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="text-neutral-500 hover:text-neutral-300 transition-colors duration-200"
+              >
+                <Icon size={16} />
+              </a>
+            ))}
           </div>
         </div>
       </footer>
     </div>
   );
-};
-
-export default Layout;
-
+}

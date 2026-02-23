@@ -1,373 +1,303 @@
-import { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { 
-  FiMail, 
-  FiPhone, 
-  FiMapPin, 
-  FiSend,
-  FiLinkedin,
-  FiGithub,
-  FiTwitter,
-  FiInstagram,
-} from 'react-icons/fi';
+import { useState, useRef, useLayoutEffect } from 'react';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
+import ScrambleButton from '../components/ScrambleButton';
+import { useLanguage } from '../context/LanguageContext';
 
-const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
-  const prefersReducedMotion = useReducedMotion();
-  const shouldAnimate = !prefersReducedMotion;
+gsap.registerPlugin(ScrollTrigger);
 
-  const contactInfo = [
-    {
-      icon: FiMail,
-      label: 'Email',
-      value: 'christianmanuel1233@gmail.com',
-      link: 'mailto:christianmanuel1233@gmail.com',
-    },
-    {
-      icon: FiPhone,
-      label: 'Teléfono',
-      value: '+52 614 107 0683',
-      link: 'tel:+526141070683',
-    },
-    {
-      icon: FiMapPin,
-      label: 'Ubicación',
-      value: 'Chihuahua, Chihuahua, México',
-      link: null,
-    },
-  ];
+const ENDPOINT = 'https://christian-estrada-backend.onrender.com/api/sendEmail';
 
-  const socialLinks = [
-    {
-      icon: FiLinkedin,
-      label: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/christian-estrada-a59130386/',
-      color: '#0077B5',
-    },
-    {
-      icon: FiGithub,
-      label: 'GitHub',
-      url: 'https://github.com/christianestrada1102',
-      color: '#181717',
-    },
-    {
-      icon: FiTwitter,
-      label: 'X (Twitter)',
-      url: 'https://x.com/CodeByNAS',
-      color: '#000000',
-    },
-    {
-      icon: FiInstagram,
-      label: 'Instagram',
-      url: 'https://www.instagram.com/christian_estrada1102?igsh=bmZueGZzcjJkc3Vp&utm_source=qr',
-      color: '#000000',
-    },
-  ];
+const SOCIAL = [
+  { Icon: FaGithub,    label: 'GitHub',    href: 'https://github.com/christianestrada1102' },
+  { Icon: FaLinkedin,  label: 'LinkedIn',  href: 'https://www.linkedin.com/in/christian-estrada-a59130386/' },
+  { Icon: FaXTwitter,  label: 'Twitter/X', href: 'https://x.com/CodeByNAS' },
+  { Icon: FaInstagram, label: 'Instagram', href: 'https://www.instagram.com/christian_estrada1102' },
+];
+
+export default function Contact() {
+  const [form,    setForm]    = useState({ name: '', email: '', subject: '', message: '' });
+  const [status,  setStatus]  = useState('idle');
+  const [errors,  setErrors]  = useState({});
+  const [touched, setTouched] = useState({});
+  const containerRef          = useRef(null);
+  const { t }                 = useLanguage();
+
+  const validate = (name, value) => {
+    if (name === 'name')    return value.length < 2    ? t('contact.validate.name')     : null;
+    if (name === 'email')   return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? t('contact.validate.email') : null;
+    if (name === 'subject') return !value.trim()       ? t('contact.validate.required') : null;
+    if (name === 'message') return value.length < 20   ? t('contact.validate.message')  : null;
+    return null;
+  };
+
+  useLayoutEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray('[data-reveal]').forEach((el) => {
+        gsap.from(el, {
+          y: 40,
+          opacity: 0,
+          duration: 0.65,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
+          },
+        });
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (touched[name]) {
+      setErrors((prev) => ({ ...prev, [name]: validate(name, value) }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: validate(name, value) }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus(null);
+    const allErrors = {};
+    Object.entries(form).forEach(([k, v]) => { allErrors[k] = validate(k, v); });
+    setErrors(allErrors);
+    setTouched({ name: true, email: true, subject: true, message: true });
+    if (Object.values(allErrors).some(Boolean)) return;
 
+    setStatus('loading');
     try {
-      // Timeout de 30 segundos para cold start de Render
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-      const response = await fetch('https://christian-estrada-backend.onrender.com/api/sendEmail', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-        signal: controller.signal,
+      const timeout    = setTimeout(() => controller.abort(), 30_000);
+      const res = await fetch(ENDPOINT, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(form),
+        signal:  controller.signal,
       });
-
-      clearTimeout(timeoutId);
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSubmitStatus('success');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-      } else {
-        setSubmitStatus('error');
-      }
-    } catch (error) {
-      console.error('Error completo:', error);
-      if (error.name === 'AbortError') {
-        setSubmitStatus('timeout');
-      } else {
-        setSubmitStatus('error');
-      }
-    } finally {
-      setIsSubmitting(false);
-      setTimeout(() => setSubmitStatus(null), 5000);
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error('Server error');
+      setStatus('success');
+      setForm({ name: '', email: '', subject: '', message: '' });
+      setErrors({});
+      setTouched({});
+    } catch {
+      setStatus('error');
     }
   };
 
+  const getInputCls = (field) => {
+    const hasError = touched[field] && errors[field];
+    return `w-full bg-transparent border-0 border-b ${
+      hasError ? 'border-red-500/50 focus:border-red-400' : 'border-neutral-800 focus:border-[#7c3aed]'
+    } text-white text-sm px-0 py-3 placeholder:text-neutral-600 focus:outline-none transition-colors duration-300`;
+  };
+
   return (
-    <section id="contacto" className="min-h-screen py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          initial={shouldAnimate ? { opacity: 0, y: -20 } : { opacity: 1, y: 0 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={shouldAnimate ? { duration: 0.6 } : { duration: 0 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold mb-4">
-            <span className="gradient-text">Contacto</span>
-          </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-primary-400 to-primary-800 mx-auto rounded-full mb-6" />
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            ¿Tienes alguna pregunta o propuesta? ¡Me encantaría saber de ti!
+    <section id="contact" ref={containerRef} className="pt-6 pb-12 md:pt-10 md:pb-16">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
+
+        {/* ── Header ── */}
+        <div data-reveal className="mb-8">
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
+            {t('contact.label')}
           </p>
-        </motion.div>
+          <h2 className="text-3xl md:text-4xl font-semibold text-white mb-3">
+            {t('contact.heading.pre')}<em className="not-italic accent-subtle">{t('contact.heading.accent')}</em>{t('contact.heading.post')}
+          </h2>
+          <p className="text-neutral-400 text-base max-w-md leading-relaxed">
+            {t('contact.description')}
+          </p>
+        </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-          {/* Left Column - Contact Information */}
-          <motion.div
-            initial={shouldAnimate ? { opacity: 0, x: -30 } : { opacity: 1, x: 0 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={shouldAnimate ? { delay: 0.2 } : { duration: 0 }}
-            className="space-y-6"
-          >
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 md:p-8 transition-colors duration-300">
-              <h3 className="text-2xl md:text-3xl font-bold mb-4 gradient-text">
-                Información de Contacto
-              </h3>
-              <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed">
-                Estoy disponible para oportunidades de colaboración, proyectos interesantes 
-                o simplemente para charlar sobre tecnología.
+        <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-10 md:gap-20">
+
+          {/* ── Form ── */}
+          <div data-reveal className="order-2 md:order-1">
+            <p className="text-neutral-400 text-sm mb-8 leading-relaxed">
+              {t('contact.form.description')}
+            </p>
+
+            {status === 'success' ? (
+              <div className="py-12 text-center space-y-3">
+                <div className="w-10 h-10 rounded-sm bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center mx-auto">
+                  <span className="text-emerald-400 text-lg">✓</span>
+                </div>
+                <p className="text-white font-medium">{t('contact.success.message')}</p>
+                <p className="text-neutral-400 text-sm">{t('contact.success.sub')}</p>
+                <button
+                  onClick={() => setStatus('idle')}
+                  className="mt-4 font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
+                >
+                  {t('contact.success.another')}
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-7" noValidate>
+                {/* Name + Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                  <div>
+                    <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
+                      {t('contact.form.name.label')}
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      placeholder={t('contact.form.name.ph')}
+                      minLength={2}
+                      required
+                      className={getInputCls('name')}
+                    />
+                    {touched.name && errors.name && (
+                      <p className="text-xs text-red-400 mt-1">{errors.name}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
+                      {t('contact.form.email.label')}
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      placeholder={t('contact.form.email.ph')}
+                      required
+                      className={getInputCls('email')}
+                    />
+                    {touched.email && errors.email && (
+                      <p className="text-xs text-red-400 mt-1">{errors.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Subject */}
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
+                    {t('contact.form.subject.label')}
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={form.subject}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder={t('contact.form.subject.ph')}
+                    required
+                    className={getInputCls('subject')}
+                  />
+                  {touched.subject && errors.subject && (
+                    <p className="text-xs text-red-400 mt-1">{errors.subject}</p>
+                  )}
+                </div>
+
+                {/* Message */}
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
+                    {t('contact.form.message.label')}
+                  </label>
+                  <textarea
+                    name="message"
+                    value={form.message}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder={t('contact.form.message.ph')}
+                    required
+                    rows={5}
+                    className={`${getInputCls('message')} resize-none`}
+                  />
+                  <div className="flex items-center justify-between mt-1">
+                    {touched.message && errors.message ? (
+                      <p className="text-xs text-red-400">{errors.message}</p>
+                    ) : (
+                      <span />
+                    )}
+                    <p className="text-xs font-mono text-neutral-500">
+                      {form.message.length}/20
+                    </p>
+                  </div>
+                </div>
+
+                {status === 'error' && (
+                  <p className="font-mono text-xs text-red-400">
+                    {t('contact.form.error')}
+                  </p>
+                )}
+
+                <ScrambleButton
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="bg-white hover:bg-neutral-200 text-neutral-950 text-sm font-medium rounded-sm px-8 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {status === 'loading' ? t('contact.form.submitting') : t('contact.form.submit')}
+                </ScrambleButton>
+              </form>
+            )}
+          </div>
+
+          {/* ── Contact info ── */}
+          <div data-reveal className="order-1 md:order-2 space-y-6 md:space-y-8">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-4">
+                {t('contact.direct.label')}
               </p>
-
-              {/* Contact Cards */}
-              <div className="space-y-3 md:space-y-4">
-                {contactInfo.map((info, index) => (
-                  <motion.div
-                    key={index}
-                    initial={shouldAnimate ? { opacity: 0, x: -20 } : { opacity: 1, x: 0 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={shouldAnimate ? { delay: 0.3 + index * 0.1 } : { duration: 0 }}
-                    className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
-                      <info.icon className="text-primary-600 dark:text-primary-400" size={20} aria-hidden="true" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 font-medium">{info.label}</p>
-                      {info.link ? (
-                        <a
-                          href={info.link}
-                          className="text-sm md:text-base text-gray-800 dark:text-gray-200 font-semibold hover:text-primary-600 dark:hover:text-primary-400 transition-colors break-words"
-                        >
-                          {info.value}
-                        </a>
-                      ) : (
-                        <p className="text-sm md:text-base text-gray-800 dark:text-gray-200 font-semibold break-words">{info.value}</p>
-                      )}
-                    </div>
-                  </motion.div>
+              <div className="space-y-3">
+                {[
+                  { labelKey: 'contact.direct.email', value: 'christianestrada1102.dev@gmail.com', href: 'mailto:christianestrada1102.dev@gmail.com' },
+                  { labelKey: 'contact.direct.phone', value: '+52 614 107 0683',                   href: 'tel:+526141070683' },
+                ].map(({ labelKey, value, href }) => (
+                  <div key={labelKey}>
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">
+                      {t(labelKey)}
+                    </p>
+                    <a href={href} className="text-neutral-300 text-sm hover:text-white transition-colors duration-200 break-all">
+                      {value}
+                    </a>
+                  </div>
                 ))}
               </div>
+            </div>
 
-              {/* Social Links */}
-              <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-gray-800 dark:text-gray-200">
-                  Redes Sociales
-                </h3>
-                <div className="flex flex-wrap gap-3 md:gap-4">
-                  {socialLinks.map((social, index) => (
-                    <motion.a
-                      key={index}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={shouldAnimate ? { scale: 1.1, y: -3 } : undefined}
-                      whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-                      className="w-11 h-11 md:w-12 md:h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-                      aria-label={`Abrir ${social.label} en una nueva pestaña`}
-                      title={social.label}
-                    >
-                      <social.icon size={22} style={{ color: social.color }} className="w-5 h-5 md:w-6 md:h-6" aria-hidden="true" />
-                    </motion.a>
-                  ))}
-                </div>
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-4">
+                {t('contact.social.label')}
+              </p>
+              <div className="flex items-center gap-4">
+                {SOCIAL.map(({ Icon, label, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="text-neutral-400 hover:text-white transition-colors duration-200"
+                  >
+                    <Icon className="w-5 h-5" />
+                  </a>
+                ))}
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right Column - Contact Form */}
-          <motion.div
-            initial={shouldAnimate ? { opacity: 0, x: 30 } : { opacity: 1, x: 0 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={shouldAnimate ? { delay: 0.2 } : { duration: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 md:p-8 transition-colors duration-300"
-          >
-            <h3 className="text-2xl md:text-3xl font-bold mb-5 md:mb-6 gradient-text">
-              Envíame un mensaje
-            </h3>
-
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-              {/* Name Field */}
-              <div>
-                <label htmlFor="name" className="block text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                  placeholder="Tu nombre completo"
-                />
-              </div>
-
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                  placeholder="tu@email.com"
-                />
-              </div>
-
-              {/* Subject Field */}
-              <div>
-                <label htmlFor="subject" className="block text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Asunto
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                  placeholder="Motivo de tu mensaje"
-                />
-              </div>
-
-              {/* Message Field */}
-              <div>
-                <label htmlFor="message" className="block text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Mensaje
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={5}
-                  className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
-                  placeholder="Escribe tu mensaje aquí..."
-                />
-              </div>
-
-              {/* Submit Button */}
-              <motion.button
-                type="submit"
-                disabled={isSubmitting}
-                whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
-                whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
-                className="w-full gradient-purple text-white py-3 md:py-4 rounded-xl font-semibold text-base md:text-lg flex items-center justify-center gap-2 shadow-purple hover:shadow-purple-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-live="polite"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    Enviar mensaje
-                    <FiSend aria-hidden="true" />
-                  </>
-                )}
-              </motion.button>
-
-              {/* Status Messages */}
-              {submitStatus === 'success' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl text-green-700 dark:text-green-400 text-center font-medium"
-                  role="status"
-                  aria-live="polite"
-                >
-                  ✅ ¡Mensaje enviado correctamente! Te responderé pronto.
-                </motion.div>
-              )}
-
-              {submitStatus === 'error' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-center font-medium"
-                  role="alert"
-                >
-                  ❌ Error al enviar el mensaje. Por favor, intenta de nuevo o contáctame directamente por email.
-                </motion.div>
-              )}
-
-              {submitStatus === 'timeout' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl text-yellow-700 dark:text-yellow-400 text-center font-medium"
-                  role="status"
-                  aria-live="assertive"
-                >
-                  ⏱️ El servidor está despertando (puede tomar hasta 1 minuto). Por favor, intenta de nuevo en unos segundos.
-                </motion.div>
-              )}
-
-              {isSubmitting && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                       className="text-sm text-gray-600 dark:text-gray-400 text-center italic"
-                >
-                  {/* Si tarda más de 5 segundos, mostrar mensaje de paciencia */}
-                  El servidor gratuito puede tomar unos segundos en responder...
-                </motion.p>
-              )}
-            </form>
-          </motion.div>
         </div>
       </div>
     </section>
   );
-};
-
-export default Contact;
-
+}

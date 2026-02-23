@@ -1,300 +1,259 @@
-import { motion, useReducedMotion } from 'framer-motion';
-import { FiExternalLink, FiGithub, FiClock, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
-import astroImg from '../assets/Astro.jpg';
-import astroImgWebp from '../assets/Astro.jpg?format=webp&imagetools';
-import safezoneImg from '../assets/safezone.png';
-import safezoneImgWebp from '../assets/safezone.png?format=webp&imagetools';
-import profileImg from '../assets/Img.jpg';
-import profileImgWebp from '../assets/Img.jpg?format=webp&imagetools';
+import { useRef, useEffect, useState } from 'react';
+import { FaGithub } from 'react-icons/fa';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 import settArbImg from '../assets/SettArb.png';
-import settArbImgWebp from '../assets/SettArb.png?format=webp&imagetools';
-import TiltCard from '../components/TiltCard';
-import { useInView } from '../hooks/useInView';
+import astroImg from '../assets/Astro.jpg';
+import safeZoneImg from '../assets/safezone.png';
+import { useLanguage } from '../context/LanguageContext';
 
-const Projects = () => {
-  const { ref: sectionRef, hasBeenInView } = useInView({ threshold: 0.1 });
-  const prefersReducedMotion = useReducedMotion();
-  const projects = [
-    {
-      id: 5,
-      title: 'SettArb',
-      status: 'completed',
-      statusText: 'Terminado',
-      image: settArbImg,
-      imageWebp: settArbImgWebp,
-      description: 'Plataforma Web3 desarrollada durante el hackathon EthMexico MTY 2025 que revoluciona los retiros de fondos desde Arbitrum Layer 2 hacia Ethereum. Mediante smart contracts desplegados en blockchain, el proyecto reduce el tiempo de espera de 7 días a menos de 2 minutos, permitiendo a los usuarios acceder a su liquidez de forma inmediata.',
-      goal: 'Revolucionar los retiros L2→L1, permitiendo acceso inmediato a la liquidez mediante tecnología blockchain.',
-      technologies: ['Web3', 'Arbitrum', 'Solidity', 'Blockchain', 'TypeScript', 'React', 'JavaScript', 'Next.js'],
-      link: 'https://eth-mexico.vercel.app/',
-      github: 'https://github.com/christianestrada1102/EthMexico',
-    },
-    {
-      id: 1,
-      title: 'Alera',
-      status: 'coming-soon',
-      statusText: 'Próximamente',
-      image: null,
-      description: 'Plataforma digital que conecta pacientes con médicos cercanos de forma rápida y segura. Permite solicitar consultas por videollamada, a domicilio o en consultorio, según la urgencia y preferencia del usuario. Ofrece geolocalización, historial de consultas y chat seguro.',
-      goal: 'Revolucionar el acceso a la salud en México.',
-      technologies: ['Por definir'],
-      link: null,
-      github: null,
-    },
-    {
-      id: 2,
-      title: 'Astro Yuyin',
-      status: 'in-progress',
-      statusText: 'En desarrollo',
-      image: astroImg,
-      imageWebp: astroImgWebp,
-      description: 'App para mejorar la concentración en niños y aprender de temas a la vez que se divierten. Surgida del hackathon de la NASA Space Apps Challenge. Enseña mediante juegos, retos y música con un enfoque en concentración y memoria. Personaje guía: Yuyin.',
-      goal: 'Convertir el aprendizaje en una experiencia positiva e inclusiva (considera daltonismo y TDAH).',
-      technologies: ['Unity', 'C#'],
-      link: null,
-      github: null,
-    },
-    {
-      id: 3,
-      title: 'SafeZone',
-      status: 'in-progress',
-      statusText: 'En desarrollo',
-      image: safezoneImg,
-      imageWebp: safezoneImgWebp,
-      description: 'App móvil de seguridad personal y comunitaria. Permite enviar alertas en tiempo real ante situaciones de riesgo o emergencia. Crea una red de apoyo entre usuarios, familiares y autoridades.',
-      goal: 'Prevenir, reaccionar y proteger con tecnología.',
-      technologies: ['React Native', 'Expo CLI', 'Django', 'PostgreSQL'],
-      link: null,
-      github: null,
-    },
-    {
-      id: 4,
-      title: 'Portafolio Web',
-      status: 'completed',
-      statusText: 'Terminado',
-      image: profileImg,
-      imageWebp: profileImgWebp,
-      description: 'Este mismo sitio, que refleja mis habilidades, proyectos y crecimiento como desarrollador. Diseñado con enfoque UI/UX y Design Thinking.',
-      goal: 'Mostrar mi trabajo y conectar con otros profesionales.',
-      technologies: ['React', 'Vite', 'TailwindCSS', 'Framer Motion'],
-      link: 'https://portafolio-seven-iota-56.vercel.app/',
-      github: 'https://github.com/christianestrada1102/portafolio',
-    },
-  ];
+gsap.registerPlugin(ScrollTrigger);
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'completed':
-        return <FiCheckCircle className="text-green-500" aria-hidden="true" />;
-      case 'in-progress':
-        return <FiClock className="text-yellow-500" aria-hidden="true" />;
-      case 'coming-soon':
-        return <FiAlertCircle className="text-blue-500" aria-hidden="true" />;
-      default:
-        return null;
-    }
-  };
+const PROJECTS = [
+  {
+    title: 'SettArb',
+    status: 'done',
+    image: settArbImg,
+    descriptionKey: 'projects.desc.settarb',
+    techs: ['Web3', 'Arbitrum', 'Solidity', 'TypeScript', 'React', 'Next.js'],
+    demo: 'https://eth-mexico.vercel.app/',
+    github: 'https://github.com/christianestrada1102/EthMexico',
+  },
+  {
+    title: 'Astro Yuyin',
+    status: 'wip',
+    image: astroImg,
+    descriptionKey: 'projects.desc.astro',
+    techs: ['Unity', 'C#'],
+    demo: null,
+    github: null,
+  },
+  {
+    title: 'SafeZone',
+    status: 'wip',
+    image: safeZoneImg,
+    descriptionKey: 'projects.desc.safezone',
+    techs: ['React Native', 'Expo', 'Django', 'PostgreSQL'],
+    demo: null,
+    github: null,
+  },
+  {
+    title: 'Alera',
+    status: 'soon',
+    image: null,
+    descriptionKey: 'projects.desc.alera',
+    techs: [],
+    demo: null,
+    github: null,
+  },
+  {
+    title: 'Portafolio Web',
+    status: 'done',
+    image: null,
+    descriptionKey: 'projects.desc.portfolio',
+    techs: ['React', 'Vite', 'TailwindCSS', 'GSAP'],
+    demo: 'https://portafolio-seven-iota-56.vercel.app/',
+    github: 'https://github.com/christianestrada1102/portafolio',
+  },
+];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-700 border-green-200';
-      case 'in-progress':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'coming-soon':
-        return 'bg-blue-100 text-blue-700 border-blue-200';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
+export default function Projects() {
+  const sectionRef     = useRef(null);
+  const trackRef       = useRef(null);
+  const animationRef   = useRef(null);
+  const modalRef       = useRef(null);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const { t }          = useLanguage();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    const isMobile = window.innerWidth < 768;
+    const section  = sectionRef.current;
+    const track    = trackRef.current;
+    if (!section || !track) return;
+
+    // Stride = offset from first original to first clone.
+    // JSX renders originals[0..N-1] then clones[N..2N-1], so children[N]
+    // is the first clone. offsetLeft gives the exact pixel stride regardless
+    // of CSS padding or gap values.
+    const stride = track.children[PROJECTS.length].offsetLeft
+                 - track.children[0].offsetLeft;
+
+    // Proxy + modulo: proxy.val runs 0→stride on repeat.
+    // x = -(val % stride) maps the wrap point to 0 in the same RAF frame,
+    // so the track is never rendered at x = -stride and no seam frame exists.
+    const proxy = { val: 0 };
+    const animation = gsap.to(proxy, {
+      val: stride,
+      duration: isMobile ? 18 : 30,
+      ease: 'none',
+      repeat: -1,
+      onUpdate() {
+        gsap.set(track, { x: -(proxy.val % stride) });
       },
-    },
+    });
+
+    animationRef.current = animation;
+    animation.pause();
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top center',
+      onEnter:     () => animation.play(),
+      onLeave:     () => animation.pause(),
+      onEnterBack: () => animation.play(),
+      onLeaveBack: () => animation.pause(),
+    });
+
+    return () => {
+      animation.kill();
+      ScrollTrigger.getAll().forEach((trigger) => {
+        if (trigger.vars?.trigger === section) trigger.kill();
+      });
+    };
+  }, []);
+
+  const handleCardHover = (isEntering) => {
+    if (animationRef.current) {
+      isEntering ? animationRef.current.pause() : animationRef.current.play();
+    }
   };
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0 },
+  const handleCardClick = (project) => {
+    if (project.demo) setSelectedProject(project);
+  };
+
+  useEffect(() => {
+    if (selectedProject && modalRef.current) {
+      gsap.fromTo(
+        modalRef.current,
+        { opacity: 0, scale: 0.95 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out' }
+      );
+    }
+  }, [selectedProject]);
+
+  const handleCloseModal = () => {
+    if (modalRef.current) {
+      gsap.to(modalRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        duration: 0.3,
+        ease: 'power2.in',
+        onComplete: () => setSelectedProject(null),
+      });
+    } else {
+      setSelectedProject(null);
+    }
+  };
+
+  const renderCard = (project, index, isClone = false) => {
+    const hasImage  = project.image !== null;
+    const hasLiveUrl = !!project.demo;
+    return (
+      <article
+        key={`${project.title}-${isClone ? 'clone' : 'original'}-${index}`}
+        className={`project-card card flex-shrink-0 w-[280px] h-[210px] md:w-[560px] md:h-[420px] rounded-[4px] relative overflow-hidden group ${
+          hasLiveUrl ? 'cursor-pointer' : 'cursor-default'
+        }`}
+        onMouseEnter={() => handleCardHover(true)}
+        onMouseLeave={() => handleCardHover(false)}
+        onClick={() => hasLiveUrl && handleCardClick(project)}
+      >
+        {hasImage ? (
+          <>
+            <img
+              src={project.image}
+              alt={project.title}
+              className="absolute inset-0 w-full h-full object-cover card-img"
+              loading="lazy"
+            />
+            <div className="card-overlay absolute inset-0" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900" />
+            <div className="card-overlay absolute inset-0 opacity-60" />
+          </>
+        )}
+        <div className="card-content relative z-10 h-full flex flex-col justify-end p-5 md:p-8 text-white">
+          <span className="project-number font-mono text-neutral-400 text-xs md:text-sm mb-1 md:mb-2">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+          <h3 className="text-lg md:text-3xl font-bold mb-1 md:mb-2">{project.title}</h3>
+          <p className="project-description text-xs md:text-sm opacity-90 mb-2 md:mb-3 line-clamp-2 md:line-clamp-3">
+            {t(project.descriptionKey)}
+          </p>
+          {project.techs.length > 0 && (
+            <div className="project-stack font-mono text-[10px] md:text-xs opacity-80 mb-2 md:mb-4">
+              {project.techs.join(' · ')}
+            </div>
+          )}
+          {hasLiveUrl ? (
+            <button className="text-sm font-medium opacity-90 hover:opacity-100 transition-opacity w-fit flex items-center gap-2 group/btn">
+              <span>{t('projects.cta.view')}</span>
+              <span className="group-hover/btn:translate-x-1 transition-transform inline-block">→</span>
+            </button>
+          ) : (
+            <span className="text-sm opacity-80">{t(`projects.status.${project.status}`)}</span>
+          )}
+        </div>
+      </article>
+    );
   };
 
   return (
-    <section id="proyectos" className="min-h-screen py-20" ref={sectionRef}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-5xl md:text-6xl font-bold mb-4">
-            <span className="gradient-text">Mis Proyectos</span>
+    <>
+      <section id="projects" ref={sectionRef} className="projects-section">
+        <div className="projects-header max-w-6xl mx-auto px-4 md:px-6">
+          <h2 className="text-3xl md:text-4xl font-semibold text-white">
+            {t('projects.heading')} <em className="not-italic accent-subtle">{t('projects.heading.accent')}</em>
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-primary-400 to-primary-800 mx-auto rounded-full mb-6" />
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Soluciones tecnológicas que buscan impactar positivamente en la sociedad
-          </p>
-        </motion.div>
-
-        {/* Projects Grid */}
-        <motion.div
-          variants={prefersReducedMotion ? undefined : containerVariants}
-          initial={prefersReducedMotion ? undefined : 'hidden'}
-          animate={prefersReducedMotion ? undefined : 'visible'}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
-        >
-          {projects.map((project) => (
-            <TiltCard
-              key={project.id}
-              className="perspective-1000"
-            >
-              <motion.div
-                variants={prefersReducedMotion ? undefined : cardVariants}
-                className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden hover:shadow-purple transition-all duration-300"
-              >
-              {/* Project Image */}
-              <div className="relative h-64 bg-gradient-to-br from-primary-400 to-primary-800 overflow-hidden">
-                {project.image ? (
-                  <picture>
-                    {project.imageWebp && <source srcSet={project.imageWebp} type="image/webp" />}
-                    <img
-                      src={project.image}
-                      alt={`Proyecto ${project.title}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </picture>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-white text-6xl font-bold opacity-20" aria-hidden="true">
-                      {project.title.charAt(0)}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Status Badge */}
-                <div className="absolute top-4 right-4">
-                  <span className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(project.status)}`}>
-                    {getStatusIcon(project.status)}
-                    {project.statusText}
-                  </span>
-                </div>
-              </div>
-
-              {/* Project Content */}
-              <div className="p-8">
-                <h3 className="text-3xl font-bold mb-4 gradient-text">
-                  {project.title}
-                </h3>
-                
-                <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
-                  {project.description}
-                </p>
-
-                <div className="bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-600 dark:border-primary-400 p-4 mb-6 rounded">
-                  <p className="text-sm font-semibold text-primary-900 dark:text-primary-300 mb-1">
-                    🎯 Objetivo:
-                  </p>
-                  <p className="text-sm text-primary-800 dark:text-primary-400">
-                    {project.goal}
-                  </p>
-                </div>
-
-                {/* Technologies */}
-                <div className="mb-6">
-                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Tecnologías:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-full border border-gray-200 dark:border-gray-600"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Links */}
-                {(project.link || project.github) && (
-                  <div className="flex gap-4">
-                    {project.link && (
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-6 py-3 gradient-purple text-white rounded-full font-medium hover:shadow-purple transition-shadow"
-                        aria-label={`Abrir demostración del proyecto ${project.title} en una nueva pestaña`}
-                      >
-                        <FiExternalLink aria-hidden="true" />
-                        Ver Demo
-                      </a>
-                    )}
-                    {project.github && (
-                      <a
-                        href={project.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
-                        aria-label={`Abrir repositorio de GitHub del proyecto ${project.title} en una nueva pestaña`}
-                      >
-                        <FiGithub aria-hidden="true" />
-                        GitHub
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-            </TiltCard>
-          ))}
-        </motion.div>
-
-        {/* Call to Action */}
-        <motion.div
-          initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.8 }}
-          className="mt-20 text-center"
-        >
-          <div className="bg-gradient-to-r from-primary-400 to-primary-800 rounded-3xl p-12 text-white">
-            <h3 className="text-3xl font-bold mb-4">
-              ¿Tienes un proyecto en mente?
-            </h3>
-            <p className="text-xl opacity-90 mb-8">
-              Estoy siempre abierto a colaborar en proyectos innovadores
-            </p>
-            <button
-              onClick={() => {
-                const element = document.getElementById('contacto');
-                if (element) {
-                  const offset = 80;
-                  const elementPosition = element.offsetTop - offset;
-                  window.scrollTo({
-                    top: elementPosition,
-                    behavior: 'smooth'
-                  });
-                }
-              }}
-              className="inline-block bg-white text-primary-600 px-8 py-4 rounded-full font-semibold hover:shadow-lg transition-shadow"
-              aria-label="Ir a la sección de contacto para iniciar una conversación"
-            >
-              Hablemos
-            </button>
+          <p className="text-neutral-400 mt-2">{t('projects.subtitle')}</p>
+        </div>
+        <div className="projects-carousel">
+          <div className="projects-viewport">
+            <div ref={trackRef} className="projects-track">
+              {PROJECTS.map((project, i) => renderCard(project, i, false))}
+              {PROJECTS.map((project, i) => renderCard(project, i, true))}
+            </div>
           </div>
-        </motion.div>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      {selectedProject && selectedProject.demo && (
+        <div
+          ref={modalRef}
+          className="project-modal"
+          onClick={handleCloseModal}
+          style={{ opacity: 0 }}
+        >
+          <button
+            type="button"
+            className="close-btn"
+            onClick={handleCloseModal}
+            aria-label={t('projects.modal.close')}
+          >
+            ×
+          </button>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <iframe src={selectedProject.demo} title={selectedProject.title} />
+          </div>
+          <div className="modal-actions">
+            <a href={selectedProject.demo} target="_blank" rel="noopener noreferrer">
+              {t('projects.cta.open')}
+            </a>
+            {selectedProject.github && (
+              <a href={selectedProject.github} target="_blank" rel="noopener noreferrer">
+                <FaGithub style={{ marginRight: '0.4rem', display: 'inline', verticalAlign: 'middle' }} />
+                {t('projects.cta.github')}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
-};
-
-export default Projects;
-
+}
