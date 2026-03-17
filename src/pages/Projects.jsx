@@ -4,7 +4,8 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import settArbImg from '../assets/SettArb.png';
 import astroImg from '../assets/Astro.jpg';
-import safeZoneImg from '../assets/safezone.png';
+import safeZoneImg from '../assets/safezone2.png';
+import portfolioImg from '../assets/portfolio2.png';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -14,26 +15,39 @@ const PROJECTS = [
     title: 'SettArb',
     status: 'done',
     image: settArbImg,
+    imagePosition: 'center top',
     descriptionKey: 'projects.desc.settarb',
     techs: ['Web3', 'Arbitrum', 'Solidity', 'TypeScript', 'React', 'Next.js'],
     demo: 'https://eth-mexico.vercel.app/',
     github: 'https://github.com/christianestrada1102/EthMexico',
   },
   {
-    title: 'Astro Yuyin',
-    status: 'wip',
-    image: astroImg,
-    descriptionKey: 'projects.desc.astro',
-    techs: ['Unity', 'C#'],
-    demo: null,
-    github: null,
-  },
-  {
     title: 'SafeZone',
     status: 'wip',
     image: safeZoneImg,
+    imagePosition: 'center center',
     descriptionKey: 'projects.desc.safezone',
     techs: ['React Native', 'Expo', 'Django', 'PostgreSQL'],
+    demo: 'https://safezone.codebynas.dev/',
+    github: 'https://github.com/christianestrada1102/SafeZone.git',
+  },
+  {
+    title: 'Portafolio Web',
+    status: 'done',
+    image: portfolioImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.portfolio',
+    techs: ['React', 'Vite', 'TailwindCSS', 'GSAP'],
+    demo: 'https://portafolio-seven-iota-56.vercel.app/',
+    github: 'https://github.com/christianestrada1102/portafolio',
+  },
+  {
+    title: 'Yuyin',
+    status: 'wip',
+    image: astroImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.astro',
+    techs: ['Unity', 'C#'],
     demo: null,
     github: null,
   },
@@ -41,19 +55,11 @@ const PROJECTS = [
     title: 'Alera',
     status: 'soon',
     image: null,
+    imagePosition: 'center center',
     descriptionKey: 'projects.desc.alera',
     techs: [],
     demo: null,
     github: null,
-  },
-  {
-    title: 'Portafolio Web',
-    status: 'done',
-    image: null,
-    descriptionKey: 'projects.desc.portfolio',
-    techs: ['React', 'Vite', 'TailwindCSS', 'GSAP'],
-    demo: 'https://portafolio-seven-iota-56.vercel.app/',
-    github: 'https://github.com/christianestrada1102/portafolio',
   },
 ];
 
@@ -164,12 +170,15 @@ export default function Projects() {
       >
         {hasImage ? (
           <>
-            <img
-              src={project.image}
-              alt={project.title}
-              className="absolute inset-0 w-full h-full object-cover card-img"
-              loading="lazy"
-            />
+            <div className="card-img-wrapper">
+              <img
+                src={project.image}
+                alt={project.title}
+                className="card-img"
+                style={{ objectPosition: project.imagePosition || 'center center' }}
+                loading="lazy"
+              />
+            </div>
             <div className="card-overlay absolute inset-0" />
           </>
         ) : (
