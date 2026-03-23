@@ -133,8 +133,8 @@ export default function Contact() {
 
             {status === 'success' ? (
               <div className="py-12 text-center space-y-3">
-                <div className="w-10 h-10 rounded-sm bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center mx-auto">
-                  <span className="text-emerald-400 text-lg">✓</span>
+                <div className="w-10 h-10 rounded-sm bg-brand-400/10 border border-brand-400/20 flex items-center justify-center mx-auto">
+                  <span className="text-brand-400 text-lg">✓</span>
                 </div>
                 <p className="text-white font-medium">{t('contact.success.message')}</p>
                 <p className="text-neutral-400 text-sm">{t('contact.success.sub')}</p>

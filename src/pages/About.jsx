@@ -16,8 +16,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 const TECHS = [
   { name: 'React',   Icon: SiReact     },
+  { name: 'Vite.js', Icon: SiVite     },
   { name: 'Node.js', Icon: SiNodedotjs },
-  { name: 'Node.js', Icon: SiVite },
   { name: 'C#',      Icon: null, symbol: 'C#' },
   { name: 'C++',     Icon: SiCplusplus },
   { name: 'HTML5',   Icon: SiHtml5     },

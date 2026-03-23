@@ -117,7 +117,26 @@ function buildOwnerEmail(name, email, subject, message) {
 
 // ─── Email: confirmación al usuario ──────────────────────────────────────────
 
-function buildConfirmationEmail(name, subject) {
+function buildConfirmationEmail(name, email, subject) {
+  const now = new Date().toLocaleDateString('es-MX', {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+
+  const field = (label, value, isLink = false) => `
+    <tr>
+      <td style="padding:0 0 16px 0;">
+        <p style="margin:0 0 6px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:0.15em;">${label}</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+          <tr>
+            <td style="background-color:#141414;border-left:2px solid #A855F7;border-radius:0 6px 6px 0;padding:12px 16px;">
+              <p style="margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#ffffff;line-height:1.6;word-break:break-word;">${isLink ? `<a href="mailto:${value}" style="color:#C084FC;text-decoration:none;">${value}</a>` : value}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>`;
+
   return `<!DOCTYPE html>
 <html lang="es" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -151,30 +170,12 @@ function buildConfirmationEmail(name, subject) {
           <tr>
             <td style="padding:36px 40px 28px;">
               <p style="margin:0 0 8px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.4px;">Mensaje recibido</p>
-              <p style="margin:0 0 32px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#a3a3a3;line-height:1.65;">Gracias por contactarme, ${name}. Te respondere pronto.</p>
+              <p style="margin:0 0 28px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#a3a3a3;line-height:1.65;">Gracias por contactarme, ${name}. Te responderé pronto.</p>
 
-              <!-- Summary block -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="border:1px solid #1a1a1a;border-radius:8px;overflow:hidden;">
-                <tr>
-                  <td style="padding:0;">
-                    <!-- Row: Nombre -->
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
-                      <tr>
-                        <td style="padding:14px 20px;border-bottom:1px solid #1a1a1a;">
-                          <p style="margin:0 0 3px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:0.15em;">De</p>
-                          <p style="margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#ffffff;">${name}</p>
-                        </td>
-                      </tr>
-                      <!-- Row: Asunto -->
-                      <tr>
-                        <td style="padding:14px 20px;">
-                          <p style="margin:0 0 3px 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10px;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:0.15em;">Asunto</p>
-                          <p style="margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;color:#ffffff;">${subject}</p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
+                ${field('Nombre', name)}
+                ${field('Correo', email, true)}
+                ${field('Asunto', subject)}
               </table>
 
               <p style="margin:28px 0 0 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#525252;line-height:1.6;">Si no enviaste este mensaje puedes ignorar este correo.</p>
@@ -190,6 +191,11 @@ function buildConfirmationEmail(name, subject) {
                     <a href="https://github.com/ChristianEMV" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#A855F7;text-decoration:none;margin-right:16px;">GitHub</a>
                     <a href="https://www.linkedin.com/in/christian-estrada-mvz/" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#A855F7;text-decoration:none;margin-right:16px;">LinkedIn</a>
                     <a href="https://twitter.com/ChrisEMV" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#A855F7;text-decoration:none;">Twitter / X</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top:12px;">
+                    <p style="margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:11px;color:#525252;line-height:1.6;">Recibido desde portafolio web &mdash; ${now}</p>
                   </td>
                 </tr>
                 <tr>
@@ -238,7 +244,7 @@ app.post('/api/sendEmail', async (req, res) => {
       from: FROM_ADDRESS,
       to: [email],
       subject: 'He recibido tu mensaje — CodeByNas',
-      html: buildConfirmationEmail(name, subject),
+      html: buildConfirmationEmail(name, email, subject),
     });
 
     console.log(`✅ Notificación enviada al dueño | id: ${ownerResult?.data?.id}`);
