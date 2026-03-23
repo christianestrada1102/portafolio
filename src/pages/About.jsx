@@ -7,6 +7,8 @@ import {
   SiCplusplus,
   SiHtml5,
   SiCss3,
+  SiFlutter,
+  SiVite,
 } from 'react-icons/si';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -15,10 +17,12 @@ gsap.registerPlugin(ScrollTrigger);
 const TECHS = [
   { name: 'React',   Icon: SiReact     },
   { name: 'Node.js', Icon: SiNodedotjs },
+  { name: 'Node.js', Icon: SiVite },
   { name: 'C#',      Icon: null, symbol: 'C#' },
   { name: 'C++',     Icon: SiCplusplus },
   { name: 'HTML5',   Icon: SiHtml5     },
   { name: 'CSS3',    Icon: SiCss3      },
+  { name: 'Flutter', Icon: SiFlutter   },
 ];
 
 const TOOLS = ['Visual Studio', 'VS Code', 'Cursor', 'Git', 'GitHub'];
