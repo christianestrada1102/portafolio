@@ -9,6 +9,7 @@ import {
   SiCss3,
   SiFlutter,
   SiVite,
+  SiJavascript,
 } from 'react-icons/si';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -18,6 +19,7 @@ const TECHS = [
   { name: 'React',   Icon: SiReact     },
   { name: 'Vite.js', Icon: SiVite     },
   { name: 'Node.js', Icon: SiNodedotjs },
+  { name: 'JavaScript', Icon: SiJavascript },
   { name: 'C#',      Icon: null, symbol: 'C#' },
   { name: 'C++',     Icon: SiCplusplus },
   { name: 'HTML5',   Icon: SiHtml5     },
