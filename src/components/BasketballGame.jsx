@@ -2,13 +2,11 @@ import { Physics, useSphere, useBox } from '@react-three/cannon';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useState, useEffect } from 'react';
 
-// Ball sits in front of the hoop, visible from basket-view camera [-1.2, 0.5, 0.2]
-export const BALL_START   = [-2.5, 0.12, -0.8];
-// Approximate hoop rim — basket model at [-2.5, 0, -2.5] scale 1.5
-export const HOOP_CENTER  = [-2.5, 0.95, -2.35];
-const HOOP_RADIUS = 0.2;
+export const BALL_START  = [-2.5, 0.12, -0.8];
+export const HOOP_CENTER = [-2.5, 0.95, -2.35];
+const HOOP_RADIUS = 0.18;
 
-// Ball remounts with a new key each throw/reset so we can switch mass (mass=0 → Static in cannon-es)
+// Ball remounts (via key) to switch mass: 0 = Static, 0.6 = Dynamic
 function Ball({ mass, initialVelocity, onScore, onReset }) {
   const [ref, api] = useSphere(() => ({
     mass,
@@ -16,7 +14,7 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
     position: BALL_START,
     linearDamping: 0.15,
     angularDamping: 0.05,
-    material: { restitution: 0.5, friction: 0.4 },
+    material: { restitution: 0.7, friction: 0.4 },
   }));
 
   const pos        = useRef([...BALL_START]);
@@ -33,7 +31,6 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
     return unsub;
   }, [api]);
 
-  // Apply velocity and schedule reset only for dynamic launches
   useEffect(() => {
     if (mass <= 0 || !initialVelocity) return;
 
@@ -49,10 +46,10 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []); // intentionally empty — runs once on mount (each key = fresh mount)
+  }, []); // runs once per mount (key forces remount on each throw)
 
   useFrame(() => {
-    if (mass <= 0) return; // static ball — nothing to track
+    if (mass <= 0) return;
 
     const [x, y, z] = pos.current;
     const [hx, hy, hz] = HOOP_CENTER;
@@ -88,24 +85,71 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
   );
 }
 
+// ── STATIC COLLIDERS ──────────────────────────────────────────────────────────
+
 function PhysicsFloor() {
   const [ref] = useBox(() => ({
-    type: 'Static',
-    position: [0, -0.52, 0],
-    args: [20, 0.1, 20],
+    type: 'Static', position: [0, -0.52, 0], args: [20, 0.1, 20],
   }));
   return <mesh ref={ref} visible={false} />;
 }
 
+// Walls — match the visual mesh positions/sizes in Arcade.jsx (6 wide, 3 tall)
+function PhysicsWalls() {
+  const [back]  = useBox(() => ({ type: 'Static', position: [0,  1, -3],  args: [6, 3, 0.2] }));
+  const [front] = useBox(() => ({ type: 'Static', position: [0,  1,  3],  args: [6, 3, 0.2] }));
+  const [left]  = useBox(() => ({ type: 'Static', position: [-3, 1,  0],  args: [0.2, 3, 6] }));
+  const [right] = useBox(() => ({ type: 'Static', position: [3,  1,  0],  args: [0.2, 3, 6] }));
+  return (
+    <>
+      <mesh ref={back}  visible={false} />
+      <mesh ref={front} visible={false} />
+      <mesh ref={left}  visible={false} />
+      <mesh ref={right} visible={false} />
+    </>
+  );
+}
+
+// Backboard — behind the rim at 45° (basket model rotation = Math.PI/4)
 function PhysicsBackboard() {
   const [ref] = useBox(() => ({
     type: 'Static',
-    position: [-2.55, 1.1, -2.55],
-    args: [0.7, 0.5, 0.05],
+    position: [-2.7, 1.15, -2.7],
+    args: [0.7, 0.55, 0.06],
     rotation: [0, Math.PI / 4, 0],
   }));
   return <mesh ref={ref} visible={false} />;
 }
+
+// Rim — 4 thin boxes forming a square ring around the hoop opening
+// HOOP_CENTER = [-2.5, 0.95, -2.35], inner radius ≈ 0.18
+function PhysicsRim() {
+  const r = 0.18;
+  const [cx, cy, cz] = HOOP_CENTER;
+  const seg = { type: 'Static', args: [0.05, 0.05, 0.05] };
+
+  const [n]  = useBox(() => ({ ...seg, position: [cx,      cy, cz - r] })); // back
+  const [s]  = useBox(() => ({ ...seg, position: [cx,      cy, cz + r] })); // front
+  const [ww] = useBox(() => ({ ...seg, position: [cx - r,  cy, cz    ] })); // left
+  const [e]  = useBox(() => ({ ...seg, position: [cx + r,  cy, cz    ] })); // right
+
+  // Elongated side pieces to fill the gaps
+  const [ns] = useBox(() => ({ type: 'Static', position: [cx,     cy, cz], args: [r * 2, 0.04, 0.04] }));
+  const [ew] = useBox(() => ({ type: 'Static', position: [cx,     cy, cz], args: [0.04, 0.04, r * 2] }));
+
+  return (
+    <>
+      <mesh ref={n}  visible={false} />
+      <mesh ref={s}  visible={false} />
+      <mesh ref={ww} visible={false} />
+      <mesh ref={e}  visible={false} />
+      <mesh ref={ns} visible={false} />
+      <mesh ref={ew} visible={false} />
+    </>
+  );
+}
+
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
 export default function BasketballGame({ active, throwTrigger, onScore, onReset }) {
   const [ballConfig, setBallConfig] = useState({ key: 0, mass: 0, velocity: null });
@@ -137,7 +181,9 @@ export default function BasketballGame({ active, throwTrigger, onScore, onReset 
         onReset={onReset}
       />
       <PhysicsFloor />
+      <PhysicsWalls />
       <PhysicsBackboard />
+      <PhysicsRim />
     </Physics>
   );
 }
