@@ -1,7 +1,6 @@
 import { useRef, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon';
-import { Line } from '@react-three/drei';
 import * as THREE from 'three';
 
 function createBasketballTexture() {
@@ -284,55 +283,7 @@ function Ball({ throwTrigger, onScore, onReset }) {
   );
 }
 
-// Camera right vector for the basket view (pos [-1.2,0.5,0.2] → target [-2,0.3,-2]):
-// forward ≈ (-0.34, -0.085, -0.936), right ≈ (0.940, 0, -0.341)
-const CAM_RIGHT_X = 0.940;
-const CAM_RIGHT_Z = -0.341;
-
-function TrajectoryLine({ aimDrag }) {
-  if (!aimDrag) return null;
-
-  const screenDx = aimDrag.x2 - aimDrag.x1;
-  const screenDy = aimDrag.y1 - aimDrag.y2; // positive = dragged up
-
-  if (screenDy < 8) return null;
-
-  const [sx, sy, sz] = BALL_START;
-  const [hx, hy, hz] = HOOP_CENTER;
-  const T = 0.85;
-
-  // Map screen horizontal drag to world-space lateral offset using camera right vector
-  const aimSigned = screenDx / Math.max(Math.abs(screenDy), 1);
-  const tx = hx + aimSigned * CAM_RIGHT_X;
-  const tz = hz + aimSigned * CAM_RIGHT_Z;
-
-  const vx = (tx - sx) / T;
-  const vz = (tz - sz) / T;
-  const vy = ((hy - sy) + 0.5 * GRAVITY * T * T) / T;
-
-  const points = [];
-  for (let i = 0; i <= 14; i++) {
-    const t = (i / 14) * T;
-    points.push([
-      sx + vx * t,
-      sy + vy * t - 0.5 * GRAVITY * t * t,
-      sz + vz * t,
-    ]);
-  }
-
-  return (
-    <Line
-      points={points}
-      color="#A855F7"
-      lineWidth={2}
-      dashed
-      dashSize={0.06}
-      gapSize={0.04}
-    />
-  );
-}
-
-export default function BasketballGame({ active, throwTrigger, onScore, onReset, aimDrag }) {
+export default function BasketballGame({ active, throwTrigger, onScore, onReset }) {
   if (!active) return null;
   return (
     <Physics
@@ -343,7 +294,6 @@ export default function BasketballGame({ active, throwTrigger, onScore, onReset,
       allowSleep={false}
     >
       <Ball throwTrigger={throwTrigger} onScore={onScore} onReset={onReset} />
-      <TrajectoryLine aimDrag={aimDrag} />
       <HoopRing />
       <Backboard />
       <Post />

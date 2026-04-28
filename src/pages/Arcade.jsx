@@ -270,7 +270,6 @@ export default function Arcade() {
           throwTrigger={throwTrigger}
           onScore={handleScore}
           onReset={handleReset}
-          aimDrag={aimLine}
         />
 
         <Suspense fallback={<Loader />}>
@@ -466,7 +465,26 @@ export default function Arcade() {
         </>
       )}
 
-
+      {activeView === 'basket' && aimLine && (
+        <svg style={{
+          position: 'fixed', inset: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none', zIndex: 15,
+        }}>
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#f97316" opacity="0.9" />
+            </marker>
+          </defs>
+          <line
+            x1={aimLine.x1} y1={aimLine.y1}
+            x2={aimLine.x2} y2={aimLine.y2}
+            stroke="#f97316" strokeWidth={2} strokeDasharray="6 3"
+            opacity={0.8} markerEnd="url(#arrow)"
+          />
+          <circle cx={aimLine.x1} cy={aimLine.y1} r={7} fill="#f97316" opacity={0.5} />
+        </svg>
+      )}
 
       {activeView !== 'overview' && (
         <div style={{
