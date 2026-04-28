@@ -40,6 +40,21 @@ function Loader() {
   );
 }
 
+function BasketModel() {
+  const { scene } = useGLTF('/models/basket.glb', true);
+
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (child.isMesh) {
+        child.material.vertexColors = true;
+        child.material.needsUpdate = true;
+      }
+    });
+  }, [scene]);
+
+  return <primitive object={scene} position={[-2, -0.5, -2]} scale={1.5} rotation={[0, Math.PI / 4, 0]} />;
+}
+
 function ArcadeModel() {
   const { scene } = useGLTF('/models/arcade.glb', true);
 
@@ -73,6 +88,7 @@ export default function Arcade() {
         <pointLight position={[0, -0.3, 0.8]} intensity={0.5} color="#7c3aed" distance={2} decay={2} />
         <Suspense fallback={<Loader />}>
           <ArcadeModel />
+          <BasketModel />
 
           {/* ── CUARTO ── */}
 
@@ -147,3 +163,4 @@ export default function Arcade() {
 }
 
 useGLTF.preload('/models/arcade.glb');
+useGLTF.preload('/models/basket.glb', true);
