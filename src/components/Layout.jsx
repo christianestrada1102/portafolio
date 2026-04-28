@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import ScrambleButton from './ScrambleButton';
@@ -27,7 +27,7 @@ function toggleTheme() {
 }
 
 export default function Layout({ children }) {
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const progressRef                          = useRef(null);
   const [isScrolled,     setIsScrolled]     = useState(false);
   const [mobileOpen,     setMobileOpen]     = useState(false);
   const [active,         setActive]         = useState('#home');
@@ -42,7 +42,9 @@ export default function Layout({ children }) {
     const onScroll = () => {
       const y   = window.scrollY;
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress(max > 0 ? (y / max) * 100 : 0);
+      if (progressRef.current) {
+        progressRef.current.style.width = `${max > 0 ? (y / max) * 100 : 0}%`;
+      }
       setIsScrolled(y > 20);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -101,8 +103,9 @@ export default function Layout({ children }) {
       >
         {/* Scroll progress bar */}
         <div
+          ref={progressRef}
           className="absolute bottom-0 left-0 h-px bg-brand-500"
-          style={{ width: `${scrollProgress}%`, transition: 'width 0.3s ease-out' }}
+          style={{ width: '0%' }}
         />
 
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
