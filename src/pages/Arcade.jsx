@@ -8,11 +8,11 @@ import gsap from 'gsap';
 
 const VIEWS = {
   overview: {
-    pos:    [0, 0.3, 2.5],
+    pos:    [0, 0.8, 3.5],
     target: [0, 0.1, 0],
   },
   arcade: {
-    pos:    [1.0, 0.15, -0.3],
+    pos:    [0.5, 0.15, -0.3],
     target: [0.8, 0.15, -1],
   },
   basket: {
@@ -20,19 +20,19 @@ const VIEWS = {
     target: [-2, 0.3, -2],
   },
   poster_devmode: {
-    pos:    [-2.2, 0.7, -1],
+    pos:    [-1.5, 0.7, -1],
     target: [-2.98, 0.7, -1],
   },
   poster_gameover: {
-    pos:    [1.5, 0.8, -2.2],
+    pos:    [1.5, 0.8, -1.5],
     target: [1.5, 0.8, -2.98],
   },
   poster_cuadro: {
-    pos:    [-0.7, 0.8, -2.2],
+    pos:    [-0.7, 0.8, -1.5],
     target: [-0.7, 0.8, -2.98],
   },
   poster_poster2: {
-    pos:    [2.2, 0.7, -1.5],
+    pos:    [1.5, 0.7, -1.5],
     target: [2.98, 0.7, -1.5],
   },
 };
@@ -340,7 +340,7 @@ export default function Arcade() {
         <Suspense fallback={null}>
           <group
             position={[0.8, -0.5, -1]}
-            rotation={[0, 0.3, 0]}
+            rotation={[0, -0.3, 0]}
             onClick={(e) => { e.stopPropagation(); setActiveView('arcade'); }}
             onPointerOver={() => document.body.style.cursor = 'pointer'}
             onPointerOut={() => document.body.style.cursor = 'default'}
