@@ -2,11 +2,19 @@ import { Physics, useSphere, useBox } from '@react-three/cannon';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useState, useEffect } from 'react';
 
-export const BALL_START  = [-2.5, -0.3, -1];
-export const HOOP_CENTER = [-2.5, 0.95, -2.35];
-const HOOP_RADIUS = 0.18;
+// Ball starts in front of hoop, visible from basket-view camera
+export const BALL_START = [-1.5, -0.35, -1.5];
 
-// Ball remounts (via key) to switch mass: 0 = Static, 0.6 = Dynamic
+// Basket model: position=[-2.5, 0, -2.5], scale=1.5, rotation=[0, PI/4, 0]
+// The arm extends ~0.4u in the [+x, +z] direction (toward room center at 45°)
+// Rim center ≈ base + 0.4 * [sin(PI/4), 0, cos(PI/4)] * 1.5 ≈ base + [0.42, 0, 0.42]
+export const HOOP_CENTER = [-2.08, 0.85, -2.08];
+const HOOP_RADIUS = 0.22; // slightly generous for detection
+
+const S = Math.SQRT1_2; // sin/cos of 45° ≈ 0.707
+
+// ── BALL ─────────────────────────────────────────────────────────────────────
+
 function Ball({ mass, initialVelocity, onScore, onReset }) {
   const [ref, api] = useSphere(() => ({
     mass,
@@ -31,22 +39,20 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
     return unsub;
   }, [api]);
 
+  // Apply velocity + schedule auto-reset (runs once per mount = once per throw)
   useEffect(() => {
     if (mass <= 0 || !initialVelocity) return;
-
     api.velocity.set(...initialVelocity);
     api.angularVelocity.set(
       (Math.random() - 0.5) * 5,
       (Math.random() - 0.5) * 3,
       (Math.random() - 0.5) * 5
     );
-
     const timer = setTimeout(() => {
       if (!didReset.current) { didReset.current = true; onResetRef.current?.(); }
     }, 3000);
-
     return () => clearTimeout(timer);
-  }, []); // runs once per mount (key forces remount on each throw)
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useFrame(() => {
     if (mass <= 0) return;
@@ -55,8 +61,10 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
     const [hx, hy, hz] = HOOP_CENTER;
     const horizDist = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
 
-    if (!scored.current && y < hy && y > hy - 0.3 && horizDist < HOOP_RADIUS) {
+    // Score detection: ball passes through hoop zone going downward
+    if (!scored.current && y < hy && y > hy - 0.35 && horizDist < HOOP_RADIUS) {
       scored.current = true;
+      console.log('SCORE! ball at', x.toFixed(2), y.toFixed(2), z.toFixed(2), 'hoop at', hx, hy, hz);
       onScoreRef.current?.();
     }
 
@@ -88,18 +96,15 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
 // ── STATIC COLLIDERS ──────────────────────────────────────────────────────────
 
 function PhysicsFloor() {
-  const [ref] = useBox(() => ({
-    type: 'Static', position: [0, -0.52, 0], args: [20, 0.1, 20],
-  }));
+  const [ref] = useBox(() => ({ type: 'Static', position: [0, -0.52, 0], args: [20, 0.1, 20] }));
   return <mesh ref={ref} visible={false} />;
 }
 
-// Walls — match the visual mesh positions/sizes in Arcade.jsx (6 wide, 3 tall)
 function PhysicsWalls() {
-  const [back]  = useBox(() => ({ type: 'Static', position: [0,  1, -3],  args: [6, 3, 0.2] }));
-  const [front] = useBox(() => ({ type: 'Static', position: [0,  1,  3],  args: [6, 3, 0.2] }));
-  const [left]  = useBox(() => ({ type: 'Static', position: [-3, 1,  0],  args: [0.2, 3, 6] }));
-  const [right] = useBox(() => ({ type: 'Static', position: [3,  1,  0],  args: [0.2, 3, 6] }));
+  const [back]  = useBox(() => ({ type: 'Static', position: [0,  1, -3], args: [6, 3, 0.2] }));
+  const [front] = useBox(() => ({ type: 'Static', position: [0,  1,  3], args: [6, 3, 0.2] }));
+  const [left]  = useBox(() => ({ type: 'Static', position: [-3, 1,  0], args: [0.2, 3, 6] }));
+  const [right] = useBox(() => ({ type: 'Static', position: [3,  1,  0], args: [0.2, 3, 6] }));
   return (
     <>
       <mesh ref={back}  visible={false} />
@@ -110,41 +115,72 @@ function PhysicsWalls() {
   );
 }
 
-// Backboard — behind the rim at 45° (basket model rotation = Math.PI/4)
+// Vertical post at model base
+function PhysicsPost() {
+  const [ref] = useBox(() => ({
+    type: 'Static', position: [-2.5, 0.15, -2.5], args: [0.07, 0.4, 0.07],
+  }));
+  return <mesh ref={ref} visible={false} />;
+}
+
+// Backboard — behind HOOP_CENTER in the [-x, -z] direction at 45°
 function PhysicsBackboard() {
   const [ref] = useBox(() => ({
     type: 'Static',
-    position: [-2.7, 1.15, -2.7],
-    args: [0.7, 0.55, 0.06],
+    // Place backboard 0.3u behind the rim center along [-S, 0, -S] direction
+    position: [HOOP_CENTER[0] - 0.3 * S, 1.0, HOOP_CENTER[2] - 0.3 * S],
+    args: [0.65, 0.5, 0.05],
     rotation: [0, Math.PI / 4, 0],
   }));
   return <mesh ref={ref} visible={false} />;
 }
 
-// Rim — 4 thin boxes forming a square ring around the hoop opening
-// HOOP_CENTER = [-2.5, 0.95, -2.35], inner radius ≈ 0.18
+// Rim — 4 elongated boxes forming a square ring at 45° around HOOP_CENTER
+// Hoop plane axes: u = [-S, 0, S] (left-right), v = [S, 0, S] (front-back)
 function PhysicsRim() {
-  const r = 0.18;
+  const r  = HOOP_RADIUS;
   const [cx, cy, cz] = HOOP_CENTER;
-  const seg = { type: 'Static', args: [0.05, 0.05, 0.05] };
+  const th = 0.05; // rim thickness
+  const len = r * 2 + th;
 
-  const [n]  = useBox(() => ({ ...seg, position: [cx,      cy, cz - r] })); // back
-  const [s]  = useBox(() => ({ ...seg, position: [cx,      cy, cz + r] })); // front
-  const [ww] = useBox(() => ({ ...seg, position: [cx - r,  cy, cz    ] })); // left
-  const [e]  = useBox(() => ({ ...seg, position: [cx + r,  cy, cz    ] })); // right
+  // Front (toward room center along [+S, 0, +S])
+  const [front] = useBox(() => ({
+    type: 'Static',
+    position: [cx + r * S, cy, cz + r * S],
+    args: [len, th, th],
+    rotation: [0, -Math.PI / 4, 0], // elongated along [-S, 0, S] axis
+  }));
 
-  // Elongated side pieces to fill the gaps
-  const [ns] = useBox(() => ({ type: 'Static', position: [cx,     cy, cz], args: [r * 2, 0.04, 0.04] }));
-  const [ew] = useBox(() => ({ type: 'Static', position: [cx,     cy, cz], args: [0.04, 0.04, r * 2] }));
+  // Back (toward wall along [-S, 0, -S])
+  const [back] = useBox(() => ({
+    type: 'Static',
+    position: [cx - r * S, cy, cz - r * S],
+    args: [len, th, th],
+    rotation: [0, -Math.PI / 4, 0],
+  }));
+
+  // Left (along [-S, 0, +S])
+  const [ll] = useBox(() => ({
+    type: 'Static',
+    position: [cx - r * S, cy, cz + r * S],
+    args: [len, th, th],
+    rotation: [0, Math.PI / 4, 0], // elongated along [+S, 0, +S] axis
+  }));
+
+  // Right (along [+S, 0, -S])
+  const [rr] = useBox(() => ({
+    type: 'Static',
+    position: [cx + r * S, cy, cz - r * S],
+    args: [len, th, th],
+    rotation: [0, Math.PI / 4, 0],
+  }));
 
   return (
     <>
-      <mesh ref={n}  visible={false} />
-      <mesh ref={s}  visible={false} />
-      <mesh ref={ww} visible={false} />
-      <mesh ref={e}  visible={false} />
-      <mesh ref={ns} visible={false} />
-      <mesh ref={ew} visible={false} />
+      <mesh ref={front} visible={false} />
+      <mesh ref={back}  visible={false} />
+      <mesh ref={ll}    visible={false} />
+      <mesh ref={rr}    visible={false} />
     </>
   );
 }
@@ -182,6 +218,7 @@ export default function BasketballGame({ active, throwTrigger, onScore, onReset 
       />
       <PhysicsFloor />
       <PhysicsWalls />
+      <PhysicsPost />
       <PhysicsBackboard />
       <PhysicsRim />
     </Physics>
