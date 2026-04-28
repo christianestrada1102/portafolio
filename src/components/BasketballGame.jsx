@@ -1,91 +1,174 @@
 import { useRef, useEffect } from 'react';
-import { useThree } from '@react-three/fiber';
-import gsap from 'gsap';
+import { useFrame } from '@react-three/fiber';
+import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon';
 
 export const BALL_START  = [-1.5, -0.35, -1.5];
 export const HOOP_CENTER = [-2.08, 0.85, -2.08];
 
-function Ball({ throwTrigger, onScore, onReset }) {
-  const meshRef    = useRef();
-  const isFlying   = useRef(false);
-  const { invalidate } = useThree();
+const HOOP_RADIUS = 0.20;
+const GRAVITY     = 10;
+const SEG_ARGS    = [0.03, 0.05, 0.03];
 
-  // Keep callbacks fresh without re-triggering the effect
+function HoopSegment({ position }) {
+  const [ref] = useBox(() => ({ type: 'Static', position, args: SEG_ARGS }));
+  return (
+    <mesh ref={ref} visible={false}>
+      <boxGeometry args={SEG_ARGS} />
+    </mesh>
+  );
+}
+
+function HoopRing() {
+  const [hx, hy, hz] = HOOP_CENTER;
+  return (
+    <>
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = (i / 8) * Math.PI * 2;
+        return (
+          <HoopSegment
+            key={i}
+            position={[hx + HOOP_RADIUS * Math.cos(a), hy, hz + HOOP_RADIUS * Math.sin(a)]}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+function Backboard() {
+  const args = [0.5, 0.38, 0.04];
+  const [ref] = useBox(() => ({
+    type: 'Static',
+    position: [-2.42, 1.05, -2.42],
+    rotation: [0, Math.PI / 4, 0],
+    args,
+  }));
+  return <mesh ref={ref} visible={false}><boxGeometry args={args} /></mesh>;
+}
+
+function Post() {
+  const args = [0.07, 0.6, 0.07];
+  const [ref] = useBox(() => ({
+    type: 'Static',
+    position: [-2.5, 0.1, -2.5],
+    args,
+  }));
+  return <mesh ref={ref} visible={false}><boxGeometry args={args} /></mesh>;
+}
+
+function Floor() {
+  const [ref] = usePlane(() => ({
+    type: 'Static',
+    rotation: [-Math.PI / 2, 0, 0],
+    position: [0, -0.49, 0],
+  }));
+  return <mesh ref={ref} visible={false} />;
+}
+
+function Ball({ throwTrigger, onScore, onReset }) {
+  const [ballRef, ballApi] = useSphere(() => ({
+    mass: 0.6,
+    position: BALL_START,
+    args: [0.08],
+    linearDamping: 0.3,
+    angularDamping: 0.4,
+    allowSleep: false,
+  }));
+
+  const ballPos   = useRef([...BALL_START]);
+  const wasAbove  = useRef(false);
+  const hasScored = useRef(false);
+  const isActive  = useRef(false);
+  const resetId   = useRef(null);
+
   const onScoreRef = useRef(onScore);
   const onResetRef = useRef(onReset);
   onScoreRef.current = onScore;
   onResetRef.current = onReset;
 
-  // Kill tweens and remove ticker on unmount
   useEffect(() => {
-    return () => {
-      if (meshRef.current) gsap.killTweensOf(meshRef.current.position);
-      gsap.ticker.remove(invalidate);
-    };
-  }, [invalidate]);
+    const unsub = ballApi.position.subscribe(v => { ballPos.current = [...v]; });
+    return unsub;
+  }, [ballApi]);
 
   useEffect(() => {
-    if (!throwTrigger || isFlying.current || !meshRef.current) return;
-    isFlying.current = true;
+    if (!throwTrigger) return;
 
-    const pos = meshRef.current.position;
-    const { isScore, power } = throwTrigger;
+    const { isScore } = throwTrigger;
     const [sx, sy, sz] = BALL_START;
     const [hx, hy, hz] = HOOP_CENTER;
+    const T = 0.85;
 
-    // Drive R3F re-renders on every GSAP tick while animating
-    gsap.ticker.add(invalidate);
+    ballApi.position.set(sx, sy, sz);
+    ballApi.velocity.set(0, 0, 0);
+    ballApi.angularVelocity.set(0, 0, 0);
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        gsap.ticker.remove(invalidate);
-        isFlying.current = false;
-        onResetRef.current?.();
-      },
-    });
+    isActive.current  = true;
+    hasScored.current = false;
+    wasAbove.current  = false;
 
+    let tx = hx, tz = hz;
     if (isScore) {
-      const peak = hy + 0.9 + power * 0.4;
-
-      // Horizontal: linear glide to hoop
-      tl.to(pos, { x: hx, z: hz, duration: 0.9, ease: 'none' }, 0);
-      // Vertical: parabola up then drop to rim
-      tl.to(pos, { y: peak, duration: 0.45, ease: 'power2.out' }, 0);
-      tl.to(pos, { y: hy,   duration: 0.45, ease: 'power2.in'  }, 0.45);
-      // Ball drops through net
-      tl.to(pos, { y: sy - 0.05, duration: 0.28, ease: 'power2.in' }, 0.9);
-      // Count the point at rim-crossing moment
-      tl.call(() => onScoreRef.current?.(), [], 0.9);
-      // Roll back to start
-      tl.to(pos, { x: sx, y: sy, z: sz, duration: 0.5, ease: 'power2.inOut' });
+      tx += (Math.random() - 0.5) * 0.06;
+      tz += (Math.random() - 0.5) * 0.06;
     } else {
-      // Miss: arc toward near-hoop but off-target
-      const offX = hx + (Math.random() - 0.5) * 0.55;
-      const offZ = hz + (Math.random() - 0.5) * 0.55;
-      const peak = hy + 0.5 + power * 0.3;
-
-      // Arc to miss point
-      tl.to(pos, { x: offX, z: offZ, duration: 0.75, ease: 'none' }, 0);
-      tl.to(pos, { y: peak,        duration: 0.375, ease: 'power2.out' }, 0);
-      tl.to(pos, { y: hy - 0.05,  duration: 0.375, ease: 'power2.in'  }, 0.375);
-      // Bounce off rim
-      tl.to(pos, {
-        x: offX + (Math.random() - 0.5) * 0.5,
-        y: sy + 0.45,
-        z: offZ + 0.45,
-        duration: 0.35,
-        ease: 'power1.out',
-      });
-      // Hit floor
-      tl.to(pos, { y: sy - 0.02, duration: 0.18, ease: 'power2.in' });
-      // Roll back to start
-      tl.to(pos, { x: sx, y: sy, z: sz, duration: 0.5, ease: 'power2.inOut' });
+      const a = Math.random() * Math.PI * 2;
+      const d = HOOP_RADIUS + 0.12 + Math.random() * 0.25;
+      tx = hx + Math.cos(a) * d;
+      tz = hz + Math.sin(a) * d;
     }
-  }, [throwTrigger, invalidate]);
+
+    const vx = (tx - sx) / T;
+    const vz = (tz - sz) / T;
+    const vy = ((hy - sy) + 0.5 * GRAVITY * T * T) / T;
+
+    ballApi.velocity.set(vx, vy, vz);
+    ballApi.angularVelocity.set(
+      (Math.random() - 0.5) * 4,
+      (Math.random() - 0.5) * 4,
+      (Math.random() - 0.5) * 4,
+    );
+
+    resetId.current = setTimeout(() => {
+      if (!isActive.current) return;
+      isActive.current = false;
+      ballApi.position.set(sx, sy, sz);
+      ballApi.velocity.set(0, 0, 0);
+      ballApi.angularVelocity.set(0, 0, 0);
+      onResetRef.current?.();
+    }, 4000);
+
+    return () => clearTimeout(resetId.current);
+  }, [throwTrigger, ballApi]);
+
+  useFrame(() => {
+    if (!isActive.current) return;
+
+    const [bx, by, bz] = ballPos.current;
+    const [hx, hy, hz] = HOOP_CENTER;
+
+    const above = by > hy + 0.02;
+    if (wasAbove.current && !above && !hasScored.current) {
+      const d = Math.sqrt((bx - hx) ** 2 + (bz - hz) ** 2);
+      if (d < HOOP_RADIUS * 0.85) {
+        hasScored.current = true;
+        onScoreRef.current?.();
+      }
+    }
+    wasAbove.current = above;
+
+    if (by < -0.47) {
+      isActive.current = false;
+      clearTimeout(resetId.current);
+      ballApi.position.set(...BALL_START);
+      ballApi.velocity.set(0, 0, 0);
+      ballApi.angularVelocity.set(0, 0, 0);
+      onResetRef.current?.();
+    }
+  });
 
   return (
-    // pointLight is a child of the mesh so it follows the ball automatically
-    <mesh ref={meshRef} position={BALL_START}>
+    <mesh ref={ballRef}>
       <sphereGeometry args={[0.08, 16, 16]} />
       <meshStandardMaterial
         color="#f97316"
@@ -101,5 +184,19 @@ function Ball({ throwTrigger, onScore, onReset }) {
 
 export default function BasketballGame({ active, throwTrigger, onScore, onReset }) {
   if (!active) return null;
-  return <Ball throwTrigger={throwTrigger} onScore={onScore} onReset={onReset} />;
+  return (
+    <Physics
+      gravity={[0, -10, 0]}
+      iterations={5}
+      tolerance={0.001}
+      defaultContactMaterial={{ restitution: 0.35, friction: 0.6 }}
+      allowSleep={false}
+    >
+      <Ball throwTrigger={throwTrigger} onScore={onScore} onReset={onReset} />
+      <HoopRing />
+      <Backboard />
+      <Post />
+      <Floor />
+    </Physics>
+  );
 }

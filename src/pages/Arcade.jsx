@@ -171,12 +171,17 @@ function ArcadeModel() {
 export default function Arcade() {
   const [activeView, setActiveView] = useState('overview');
   const [score, setScore] = useState(0);
+  const [scoreFeedback, setScoreFeedback] = useState(false);
   const [throwTrigger, setThrowTrigger] = useState(null);
   const [aimLine, setAimLine] = useState(null);
   const dragStartRef = useRef(null);
   const canThrowRef  = useRef(true);
 
-  const handleScore = useCallback(() => setScore(s => s + 1), []);
+  const handleScore = useCallback(() => {
+    setScore(s => s + 1);
+    setScoreFeedback(true);
+    setTimeout(() => setScoreFeedback(false), 1000);
+  }, []);
   const handleReset = useCallback(() => {
     setThrowTrigger(null);
     canThrowRef.current = true;
@@ -186,6 +191,7 @@ export default function Arcade() {
   useEffect(() => {
     if (activeView !== 'basket') {
       setAimLine(null);
+      setThrowTrigger(null);
       dragStartRef.current = null;
       canThrowRef.current = true;
       return;
@@ -428,6 +434,35 @@ export default function Arcade() {
             ARRASTRA Y SUELTA PARA LANZAR
           </div>
         </div>
+      )}
+
+      {activeView === 'basket' && scoreFeedback && (
+        <>
+          <style>{`
+            @keyframes niceFeedback {
+              0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+              25%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+              70%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+              100% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+            }
+          `}</style>
+          <div style={{
+            position: 'fixed',
+            top: '45%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: '52px',
+            color: '#A855F7',
+            textShadow: '0 0 20px #A855F7, 0 0 40px #7c3aed',
+            zIndex: 20,
+            pointerEvents: 'none',
+            animation: 'niceFeedback 1s ease-out forwards',
+            whiteSpace: 'nowrap',
+          }}>
+            NICE!
+          </div>
+        </>
       )}
 
       {activeView === 'basket' && aimLine && (
