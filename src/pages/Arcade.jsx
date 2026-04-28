@@ -325,19 +325,19 @@ export default function Arcade() {
             height={1}
           />
 
-          {/* Pared izquierda - "GAME OVER" neon */}
+          {/* Pared trasera - "GAME OVER" neon, a la derecha del cuadro central */}
           <WallPoster
             url="/images/game-over.png"
-            position={[-2.98, 0.7, 1]}
-            rotation={[0, Math.PI / 2, 0]}
+            position={[1.5, 0.8, -2.98]}
+            rotation={[0, 0, 0]}
             width={1}
             height={0.6}
           />
 
-          {/* Pared derecha - "CODE FIGHTER" dev poster */}
+          {/* Pared derecha - "CODE FIGHTER" dev poster, hacia el frente para ser visible */}
           <WallPoster
             url="/images/code-fighters.png"
-            position={[2.98, 0.7, 0]}
+            position={[2.98, 0.7, 1]}
             rotation={[0, -Math.PI / 2, 0]}
             width={0.9}
             height={0.9}
