@@ -3,9 +3,9 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 
-// Ball start: near the basket-view camera position
-const BALL_START = [-1.5, 0.2, -0.5];
-// Hoop center: approximate rim position of the basket model at [-2.5, 0, -2.5] scale 1.5
+// Ball starts in front of the hoop, visible from basket view camera
+const BALL_START = [-2.5, 0, -0.5];
+// Approximate rim center of basket model at [-2.5, 0, -2.5] scale 1.5
 const HOOP_CENTER = [-2.5, 0.95, -2.35];
 const HOOP_RADIUS = 0.2;
 
@@ -14,12 +14,13 @@ function Ball({ throwTrigger, onScore }) {
     mass: 0.6,
     args: [0.12],
     position: BALL_START,
-    linearDamping: 0.1,
+    linearDamping: 0.15,
     angularDamping: 0.05,
     material: { restitution: 0.5, friction: 0.4 },
   }));
 
   const pos = useRef([...BALL_START]);
+  const lightRef = useRef();
   const scored = useRef(false);
   const resetTimer = useRef(null);
 
@@ -31,11 +32,12 @@ function Ball({ throwTrigger, onScore }) {
   useEffect(() => {
     if (!throwTrigger) return;
     scored.current = false;
+
     api.velocity.set(throwTrigger.vx, throwTrigger.vy, throwTrigger.vz);
     api.angularVelocity.set(
-      (Math.random() - 0.5) * 10,
-      (Math.random() - 0.5) * 6,
-      (Math.random() - 0.5) * 10
+      (Math.random() - 0.5) * 5,
+      (Math.random() - 0.5) * 3,
+      (Math.random() - 0.5) * 5
     );
 
     if (resetTimer.current) clearTimeout(resetTimer.current);
@@ -67,13 +69,33 @@ function Ball({ throwTrigger, onScore }) {
       api.angularVelocity.set(0, 0, 0);
       scored.current = false;
     }
+
+    // Move light with ball
+    if (lightRef.current) {
+      lightRef.current.position.set(x, y, z);
+    }
   });
 
   return (
-    <mesh ref={ref}>
-      <sphereGeometry args={[0.12, 16, 16]} />
-      <meshStandardMaterial color="#f97316" roughness={0.7} metalness={0.1} />
-    </mesh>
+    <>
+      <mesh ref={ref}>
+        <sphereGeometry args={[0.12, 16, 16]} />
+        <meshStandardMaterial
+          color="#f97316"
+          emissive="#f97316"
+          emissiveIntensity={0.3}
+          roughness={0.7}
+          metalness={0.1}
+        />
+      </mesh>
+      <pointLight
+        ref={lightRef}
+        color="#f97316"
+        intensity={0.8}
+        distance={1.5}
+        decay={2}
+      />
+    </>
   );
 }
 
@@ -115,15 +137,17 @@ export default function BasketballGame({ active, onScore }) {
 
       if (Math.abs(dy) < 5 && Math.abs(dx) < 5) return;
 
+      // Direction from ball toward hoop
       const from = new THREE.Vector3(...BALL_START);
       const to = new THREE.Vector3(...HOOP_CENTER);
       const dir = to.clone().sub(from).normalize();
 
-      const power = Math.min(Math.max(dy * 0.04, 1.5), 5);
-      const upward = Math.max(dy * 0.07, 3.5);
+      // Halved multipliers for gentle arc
+      const power = Math.min(Math.max(dy * 0.02, 0.75), 2.5);
+      const upward = Math.max(dy * 0.035, 1.75);
 
       setThrowTrigger({
-        vx: dir.x * power + dx * 0.008,
+        vx: dir.x * power + dx * 0.004,
         vy: upward,
         vz: dir.z * power,
       });
