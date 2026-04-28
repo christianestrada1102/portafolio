@@ -13,9 +13,9 @@ function createBasketballTexture() {
 
   // Purple gradient base
   const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0.0, '#a855f7');
-  grad.addColorStop(0.5, '#7c3aed');
-  grad.addColorStop(1.0, '#5b21b6');
+  grad.addColorStop(0.0, '#e87828');
+  grad.addColorStop(0.5, '#d46818');
+  grad.addColorStop(1.0, '#c05810');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 
@@ -126,6 +126,21 @@ function Floor() {
   return <mesh ref={ref} visible={false} />;
 }
 
+function Walls() {
+  const [back]  = useBox(() => ({ type: 'Static', position: [ 0, 1, -3], args: [6, 4, 0.1] }));
+  const [front] = useBox(() => ({ type: 'Static', position: [ 0, 1,  3], args: [6, 4, 0.1] }));
+  const [left]  = useBox(() => ({ type: 'Static', position: [-3, 1,  0], args: [0.1, 4, 6] }));
+  const [right] = useBox(() => ({ type: 'Static', position: [ 3, 1,  0], args: [0.1, 4, 6] }));
+  return (
+    <>
+      <mesh ref={back}  visible={false} />
+      <mesh ref={front} visible={false} />
+      <mesh ref={left}  visible={false} />
+      <mesh ref={right} visible={false} />
+    </>
+  );
+}
+
 function Ball({ throwTrigger, onScore, onReset }) {
   const texture = useMemo(() => createBasketballTexture(), []);
 
@@ -144,6 +159,7 @@ function Ball({ throwTrigger, onScore, onReset }) {
   const wasAbove  = useRef(false);
   const hasScored = useRef(false);
   const isActive  = useRef(false);
+  const wallHit   = useRef(false);
   const resetId   = useRef(null);
 
   const onScoreRef = useRef(onScore);
@@ -171,6 +187,7 @@ function Ball({ throwTrigger, onScore, onReset }) {
     isActive.current  = true;
     hasScored.current = false;
     wasAbove.current  = false;
+    wallHit.current   = false;
 
     let tx = hx, tz = hz;
     if (isScore) {
@@ -222,13 +239,32 @@ function Ball({ throwTrigger, onScore, onReset }) {
     }
     wasAbove.current = above;
 
+    // Floor reset
     if (by < -0.47) {
       isActive.current = false;
+      wallHit.current  = false;
       clearTimeout(resetId.current);
       ballApi.position.set(...BALL_START);
       ballApi.velocity.set(0, 0, 0);
       ballApi.angularVelocity.set(0, 0, 0);
       onResetRef.current?.();
+    }
+
+    // Wall hit: stop ball and return to start after short delay
+    if (!wallHit.current && (Math.abs(bx) > 2.82 || Math.abs(bz) > 2.82)) {
+      wallHit.current = true;
+      ballApi.velocity.set(0, 0, 0);
+      ballApi.angularVelocity.set(0, 0, 0);
+      setTimeout(() => {
+        if (!isActive.current) return;
+        isActive.current = false;
+        wallHit.current  = false;
+        clearTimeout(resetId.current);
+        ballApi.position.set(...BALL_START);
+        ballApi.velocity.set(0, 0, 0);
+        ballApi.angularVelocity.set(0, 0, 0);
+        onResetRef.current?.();
+      }, 450);
     }
   });
 
@@ -242,7 +278,7 @@ function Ball({ throwTrigger, onScore, onReset }) {
         bumpMap={texture}
         bumpScale={0.006}
       />
-      <pointLight color="#a855f7" intensity={1.2} distance={1.5} decay={2} />
+      <pointLight color="#f97316" intensity={1} distance={1.5} decay={2} />
     </mesh>
   );
 }
@@ -262,6 +298,7 @@ export default function BasketballGame({ active, throwTrigger, onScore, onReset 
       <Backboard />
       <Post />
       <Floor />
+      <Walls />
     </Physics>
   );
 }
