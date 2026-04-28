@@ -12,12 +12,28 @@ const VIEWS = {
     target: [0, 0.1, 0],
   },
   arcade: {
-    pos:    [0, 0.15, 0.7],
-    target: [0, 0.15, 0],
+    pos:    [1.0, 0.15, -0.3],
+    target: [0.8, 0.15, -1],
   },
   basket: {
     pos:    [-1.2, 0.5, 0.2],
     target: [-2, 0.3, -2],
+  },
+  poster_devmode: {
+    pos:    [-2.2, 0.7, -1],
+    target: [-2.98, 0.7, -1],
+  },
+  poster_gameover: {
+    pos:    [1.5, 0.8, -2.2],
+    target: [1.5, 0.8, -2.98],
+  },
+  poster_cuadro: {
+    pos:    [-0.7, 0.8, -2.2],
+    target: [-0.7, 0.8, -2.98],
+  },
+  poster_poster2: {
+    pos:    [2.2, 0.7, -1.5],
+    target: [2.98, 0.7, -1.5],
   },
 };
 
@@ -170,10 +186,16 @@ function Carpet() {
   );
 }
 
-function WallPoster({ url, position, rotation, width = 0.8, height = 0.6 }) {
+function WallPoster({ url, position, rotation, width = 0.8, height = 0.6, id, onSelect }) {
   const texture = useTexture(url);
   return (
-    <mesh position={position} rotation={rotation}>
+    <mesh
+      position={position}
+      rotation={rotation}
+      onClick={(e) => { e.stopPropagation(); if (onSelect) onSelect(id); }}
+      onPointerOver={() => document.body.style.cursor = 'pointer'}
+      onPointerOut={() => document.body.style.cursor = 'default'}
+    >
       <planeGeometry args={[width, height]} />
       <meshStandardMaterial map={texture} roughness={0.8} metalness={0.1} />
     </mesh>
@@ -317,6 +339,8 @@ export default function Arcade() {
 
         <Suspense fallback={null}>
           <group
+            position={[0.8, -0.5, -1]}
+            rotation={[0, 0.3, 0]}
             onClick={(e) => { e.stopPropagation(); setActiveView('arcade'); }}
             onPointerOver={() => document.body.style.cursor = 'pointer'}
             onPointerOut={() => document.body.style.cursor = 'default'}
@@ -424,10 +448,12 @@ export default function Arcade() {
           {/* Pared trasera - "Arcade Room" cuadro grande centrado */}
           <WallPoster
             url="/images/cuadro.png"
-            position={[0, 0.8, -2.98]}
+            position={[-0.7, 0.8, -2.98]}
             rotation={[0, 0, 0]}
             width={1.4}
             height={0.9}
+            id="poster_cuadro"
+            onSelect={setActiveView}
           />
 
           {/* Pared izquierda - "DEV MODE" poster */}
@@ -437,6 +463,8 @@ export default function Arcade() {
             rotation={[0, Math.PI / 2, 0]}
             width={0.8}
             height={1}
+            id="poster_devmode"
+            onSelect={setActiveView}
           />
 
           {/* Pared trasera - "GAME OVER" neon, a la derecha del cuadro central */}
@@ -446,24 +474,19 @@ export default function Arcade() {
             rotation={[0, 0, 0]}
             width={1}
             height={0.6}
-          />
-
-          {/* Pared derecha - "CODE FIGHTER" dev poster */}
-          <WallPoster
-            url="/images/code-fighters.png"
-            position={[2.98, 0.7, -1.5]}
-            rotation={[0, -Math.PI / 2, 0]}
-            width={0.9}
-            height={0.9}
+            id="poster_gameover"
+            onSelect={setActiveView}
           />
 
           {/* Pared derecha - poster2 */}
           <WallPoster
             url="/images/poster2.png"
-            position={[2.98, 0.7, -1]}
+            position={[2.98, 0.7, -1.5]}
             rotation={[0, -Math.PI / 2, 0]}
             width={0.8}
             height={1}
+            id="poster_poster2"
+            onSelect={setActiveView}
           />
         </Suspense>
       </Canvas>
@@ -564,5 +587,4 @@ useTexture.preload('/images/alfombra.png');
 useTexture.preload('/images/cuadro.png');
 useTexture.preload('/images/poster.png');
 useTexture.preload('/images/game-over.png');
-useTexture.preload('/images/code-fighters.png');
 useTexture.preload('/images/poster2.png');
