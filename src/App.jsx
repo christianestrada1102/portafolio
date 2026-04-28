@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLanguage } from './context/LanguageContext';
 import Layout from './components/Layout';
 import Preloader from './components/Preloader';
@@ -6,11 +7,12 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 
-const Home = lazy(() => import('./pages/Home'));
-const About = lazy(() => import('./pages/About'));
+const Home         = lazy(() => import('./pages/Home'));
+const About        = lazy(() => import('./pages/About'));
 const Achievements = lazy(() => import('./pages/Achievements'));
-const Projects = lazy(() => import('./pages/Projects'));
-const Contact = lazy(() => import('./pages/Contact'));
+const Projects     = lazy(() => import('./pages/Projects'));
+const Contact      = lazy(() => import('./pages/Contact'));
+const Arcade       = lazy(() => import('./pages/Arcade'));
 
 function initLenis() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -58,24 +60,33 @@ function App() {
   }, []);
 
   return (
-    <>
-      {showPreloader && <Preloader onComplete={initLenis} />}
-      <Layout>
-        <Suspense
-          fallback={(
-            <span className="sr-only" role="status" aria-live="polite">
-              {t('app.loading')}
-            </span>
-          )}
-        >
-          <Home />
-          <About />
-          <Achievements />
-          <Projects />
-          <Contact />
-        </Suspense>
-      </Layout>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/arcade" element={
+          <Suspense fallback={null}><Arcade /></Suspense>
+        } />
+        <Route path="*" element={
+          <>
+            {showPreloader && <Preloader onComplete={initLenis} />}
+            <Layout>
+              <Suspense
+                fallback={(
+                  <span className="sr-only" role="status" aria-live="polite">
+                    {t('app.loading')}
+                  </span>
+                )}
+              >
+                <Home />
+                <About />
+                <Achievements />
+                <Projects />
+                <Contact />
+              </Suspense>
+            </Layout>
+          </>
+        } />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
