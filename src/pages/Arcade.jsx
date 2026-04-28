@@ -337,7 +337,7 @@ export default function Arcade() {
           {/* Pared derecha - "CODE FIGHTER" dev poster */}
           <WallPoster
             url="/images/code-fighters.png"
-            position={[2.98, 0.7, -1]}
+            position={[2.98, 0.7, -1.5]}
             rotation={[0, -Math.PI / 2, 0]}
             width={0.9}
             height={0.9}
