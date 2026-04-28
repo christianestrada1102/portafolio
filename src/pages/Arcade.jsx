@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useThree, useFrame } from '@react-three/fiber';
 import BasketballGame from '../components/BasketballGame';
-import { useGLTF, useProgress, Html, useTexture } from '@react-three/drei';
+import { useGLTF, useProgress, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -21,41 +21,83 @@ const VIEWS = {
   },
 };
 
-function Loader() {
-  const { progress } = useProgress();
+function LoadingOverlay() {
+  const { progress }    = useProgress();
+  const progressRef     = useRef(0);
+  const [displayed, setDisplayed] = useState(0);
+  const [phase, setPhase]         = useState('loading'); // 'loading' | 'fading' | 'done'
+
+  // Keep a ref in sync so the interval always reads the latest value
+  useEffect(() => { progressRef.current = progress; }, [progress]);
+
+  // Lerp displayed toward real progress — starts at 0 regardless of where progress begins
+  useEffect(() => {
+    if (phase !== 'loading') return;
+    const id = setInterval(() => {
+      setDisplayed(d => {
+        const target = progressRef.current;
+        const next   = d + Math.max((target - d) * 0.12, 0.4);
+        return next >= target ? target : next;
+      });
+    }, 16);
+    return () => clearInterval(id);
+  }, [phase]);
+
+  // Once displayed hits 100, wait 500 ms then begin CSS fade
+  useEffect(() => {
+    if (displayed < 100 || phase !== 'loading') return;
+    const id = setTimeout(() => setPhase('fading'), 500);
+    return () => clearTimeout(id);
+  }, [displayed, phase]);
+
+  // After the 0.5 s CSS transition finishes, unmount completely
+  useEffect(() => {
+    if (phase !== 'fading') return;
+    const id = setTimeout(() => setPhase('done'), 500);
+    return () => clearTimeout(id);
+  }, [phase]);
+
+  if (phase === 'done') return null;
+
   return (
-    <Html center>
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      background: '#050505',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '16px',
+      zIndex: 100,
+      opacity: phase === 'fading' ? 0 : 1,
+      transition: 'opacity 0.5s ease',
+      pointerEvents: phase === 'fading' ? 'none' : 'auto',
+      fontFamily: "'Space Grotesk', sans-serif",
+    }}>
+      <style>{`
+        @keyframes breathe {
+          0%, 100% { opacity: 0.3; transform: scale(0.95); }
+          50%       { opacity: 1;   transform: scale(1.05); }
+        }
+      `}</style>
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '16px',
-        fontFamily: "'Space Grotesk', sans-serif",
+        fontSize: '48px',
+        fontWeight: 700,
+        color: '#A855F7',
+        animation: 'breathe 1.5s ease-in-out infinite',
       }}>
-        <div style={{
-          fontSize: '48px',
-          fontWeight: 700,
-          color: '#A855F7',
-          animation: 'breathe 1.5s ease-in-out infinite',
-        }}>
-          {'</>'}
-        </div>
-        <div style={{
-          fontSize: '12px',
-          color: '#737373',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-        }}>
-          {Math.round(progress)}%
-        </div>
-        <style>{`
-          @keyframes breathe {
-            0%, 100% { opacity: 0.3; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1.05); }
-          }
-        `}</style>
+        {'</>'}
       </div>
-    </Html>
+      <div style={{
+        fontSize: '12px',
+        color: '#737373',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+      }}>
+        {Math.round(displayed)}%
+      </div>
+    </div>
   );
 }
 
@@ -245,6 +287,7 @@ export default function Arcade() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#050505' }}>
+      <LoadingOverlay />
       <Canvas
         camera={{ position: [0, 0.3, 2.5], fov: 50 }}
         style={{ background: '#050505' }}
@@ -272,7 +315,7 @@ export default function Arcade() {
           onReset={handleReset}
         />
 
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={null}>
           <group
             onClick={(e) => { e.stopPropagation(); setActiveView('arcade'); }}
             onPointerOver={() => document.body.style.cursor = 'pointer'}
