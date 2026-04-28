@@ -62,7 +62,7 @@ export default function Arcade() {
         camera={{ position: [0, 0.2, 1.8], fov: 50 }}
         style={{ background: '#050505' }}
       >
-        <fog attach="fog" args={['#050505', 2, 10]} />
+        <fog attach="fog" args={['#050505', 3, 8]} />
         <ambientLight intensity={1.2} />
         <directionalLight position={[2, 3, 2]} intensity={2} />
         <directionalLight position={[-2, 2, -1]} intensity={0.8} />
@@ -74,39 +74,67 @@ export default function Arcade() {
         <Suspense fallback={<Loader />}>
           <ArcadeModel />
 
+          {/* ── CUARTO ── */}
+
           {/* Piso */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
-            <planeGeometry args={[20, 20]} />
-            <meshStandardMaterial color="#060606" roughness={0.7} metalness={0.3} />
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
+            <planeGeometry args={[6, 6]} />
+            <meshStandardMaterial color="#080808" roughness={0.8} metalness={0.2} />
           </mesh>
 
           {/* Pared trasera */}
-          <mesh position={[0, 1, -2]} receiveShadow>
-            <planeGeometry args={[8, 4]} />
+          <mesh position={[0, 1, -3]}>
+            <planeGeometry args={[6, 3]} />
             <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
           </mesh>
 
           {/* Pared izquierda */}
-          <mesh position={[-4, 1, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-            <planeGeometry args={[6, 4]} />
+          <mesh position={[-3, 1, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <planeGeometry args={[6, 3]} />
             <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
           </mesh>
 
           {/* Pared derecha */}
-          <mesh position={[4, 1, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-            <planeGeometry args={[6, 4]} />
+          <mesh position={[3, 1, 0]} rotation={[0, -Math.PI / 2, 0]}>
+            <planeGeometry args={[6, 3]} />
             <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
           </mesh>
 
-          {/* Línea neón en pared trasera */}
-          <mesh position={[0, 1.8, -1.99]}>
-            <boxGeometry args={[6, 0.02, 0.01]} />
-            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={2} />
+          {/* Pared frontal (detrás de la cámara) */}
+          <mesh position={[0, 1, 3]} rotation={[0, Math.PI, 0]}>
+            <planeGeometry args={[6, 3]} />
+            <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
+          </mesh>
+
+          {/* ── LEDS en TODAS las paredes ── */}
+
+          {/* LED pared trasera */}
+          <mesh position={[0, 2.49, -2.99]}>
+            <boxGeometry args={[5.9, 0.03, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
+          </mesh>
+
+          {/* LED pared frontal */}
+          <mesh position={[0, 2.49, 2.99]} rotation={[0, Math.PI, 0]}>
+            <boxGeometry args={[5.9, 0.03, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
+          </mesh>
+
+          {/* LED pared izquierda */}
+          <mesh position={[-2.99, 2.49, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <boxGeometry args={[5.9, 0.03, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
+          </mesh>
+
+          {/* LED pared derecha */}
+          <mesh position={[2.99, 2.49, 0]} rotation={[0, -Math.PI / 2, 0]}>
+            <boxGeometry args={[5.9, 0.03, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
 
           <OrbitControls
             minDistance={0.8}
-            maxDistance={3}
+            maxDistance={2.8}
             minPolarAngle={0.3}
             maxPolarAngle={Math.PI / 2 - 0.05}
             enablePan={false}
