@@ -1,6 +1,67 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Physics, useSphere, useBox, usePlane } from '@react-three/cannon';
+import * as THREE from 'three';
+
+function createBasketballTexture() {
+  const size = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const w = size, h = size;
+
+  // Orange gradient base
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0.0, '#e87828');
+  grad.addColorStop(0.5, '#d46818');
+  grad.addColorStop(1.0, '#c05810');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Pebble grain: random small dots
+  for (let i = 0; i < 14000; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const r = Math.random() * 1.3 + 0.3;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,0,0,${(Math.random() * 0.1 + 0.04).toFixed(2)})`;
+    ctx.fill();
+  }
+
+  // Seam lines
+  ctx.strokeStyle = '#1a0800';
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // 1. Horizontal equator at v=0.5
+  ctx.beginPath();
+  ctx.moveTo(0, h / 2);
+  ctx.lineTo(w, h / 2);
+  ctx.stroke();
+
+  // 2. Cosine seam — crosses equator at x=w/4 and x=3w/4
+  ctx.beginPath();
+  for (let x = 0; x <= w; x++) {
+    const y = h / 2 + (h * 0.31) * Math.cos((2 * Math.PI * x) / w);
+    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // 3. Inverted cosine seam (mirror)
+  ctx.beginPath();
+  for (let x = 0; x <= w; x++) {
+    const y = h / 2 - (h * 0.31) * Math.cos((2 * Math.PI * x) / w);
+    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
 
 export const BALL_START  = [-1.5, -0.35, -1.5];
 export const HOOP_CENTER = [-2.08, 0.85, -2.08];
@@ -66,6 +127,10 @@ function Floor() {
 }
 
 function Ball({ throwTrigger, onScore, onReset }) {
+  const texture = useMemo(() => createBasketballTexture(), []);
+
+  useEffect(() => () => texture.dispose(), [texture]);
+
   const [ballRef, ballApi] = useSphere(() => ({
     mass: 0.6,
     position: BALL_START,
@@ -169,13 +234,13 @@ function Ball({ throwTrigger, onScore, onReset }) {
 
   return (
     <mesh ref={ballRef}>
-      <sphereGeometry args={[0.08, 16, 16]} />
+      <sphereGeometry args={[0.08, 32, 32]} />
       <meshStandardMaterial
-        color="#f97316"
-        emissive="#f97316"
-        emissiveIntensity={0.1}
-        roughness={0.6}
-        metalness={0.1}
+        map={texture}
+        roughness={0.9}
+        metalness={0}
+        bumpMap={texture}
+        bumpScale={0.006}
       />
       <pointLight color="#f97316" intensity={1} distance={1.5} decay={2} />
     </mesh>
