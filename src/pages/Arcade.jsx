@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useThree, useFrame } from '@react-three/fiber';
-import BasketballGame from '../components/BasketballGame';
+import BasketballGame, { BALL_START, HOOP_CENTER } from '../components/BasketballGame';
 import { useGLTF, useProgress, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -171,7 +171,64 @@ function ArcadeModel() {
 export default function Arcade() {
   const [activeView, setActiveView] = useState('overview');
   const [score, setScore] = useState(0);
+  const [throwTrigger, setThrowTrigger] = useState(null);
+  const [aimLine, setAimLine] = useState(null);
+  const dragStartRef = useRef(null);
+  const canThrowRef  = useRef(true);
+
   const handleScore = useCallback(() => setScore(s => s + 1), []);
+  const handleReset = useCallback(() => {
+    setThrowTrigger(null);
+    canThrowRef.current = true;
+  }, []);
+
+  // Drag-to-throw interaction — only active in basket view
+  useEffect(() => {
+    if (activeView !== 'basket') {
+      setAimLine(null);
+      dragStartRef.current = null;
+      canThrowRef.current = true;
+      return;
+    }
+
+    const onDown = (e) => {
+      if (!canThrowRef.current) return;
+      dragStartRef.current = { x: e.clientX, y: e.clientY };
+      setAimLine({ x1: e.clientX, y1: e.clientY, x2: e.clientX, y2: e.clientY });
+    };
+
+    const onMove = (e) => {
+      if (!dragStartRef.current) return;
+      setAimLine({ x1: dragStartRef.current.x, y1: dragStartRef.current.y, x2: e.clientX, y2: e.clientY });
+    };
+
+    const onUp = (e) => {
+      if (!dragStartRef.current || !canThrowRef.current) return;
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = dragStartRef.current.y - e.clientY; // positive = dragged up
+      dragStartRef.current = null;
+      setAimLine(null);
+      if (Math.abs(dy) < 5 && Math.abs(dx) < 5) return;
+
+      const from = new THREE.Vector3(...BALL_START);
+      const to   = new THREE.Vector3(...HOOP_CENTER);
+      const dir  = to.clone().sub(from).normalize();
+      const power  = Math.min(Math.max(dy * 0.02, 0.75), 2.5);
+      const upward = Math.max(dy * 0.035, 1.75);
+
+      canThrowRef.current = false;
+      setThrowTrigger({ vx: dir.x * power + dx * 0.004, vy: upward, vz: dir.z * power });
+    };
+
+    window.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    return () => {
+      window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+  }, [activeView]);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -203,7 +260,12 @@ export default function Arcade() {
         <pointLight position={[-2, 0.5, -0.5]} intensity={1} color="#ffffff" distance={2.5} decay={2} />
 
         <CameraController activeView={activeView} />
-        <BasketballGame active={activeView === 'basket'} onScore={handleScore} />
+        <BasketballGame
+          active={activeView === 'basket'}
+          throwTrigger={throwTrigger}
+          onScore={handleScore}
+          onReset={handleReset}
+        />
 
         <Suspense fallback={<Loader />}>
           <group
@@ -367,6 +429,27 @@ export default function Arcade() {
             ARRASTRA Y SUELTA PARA LANZAR
           </div>
         </div>
+      )}
+
+      {activeView === 'basket' && aimLine && (
+        <svg style={{
+          position: 'fixed', inset: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none', zIndex: 15,
+        }}>
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#f97316" opacity="0.9" />
+            </marker>
+          </defs>
+          <line
+            x1={aimLine.x1} y1={aimLine.y1}
+            x2={aimLine.x2} y2={aimLine.y2}
+            stroke="#f97316" strokeWidth={2} strokeDasharray="6 3"
+            opacity={0.8} markerEnd="url(#arrow)"
+          />
+          <circle cx={aimLine.x1} cy={aimLine.y1} r={7} fill="#f97316" opacity={0.5} />
+        </svg>
       )}
 
       {activeView !== 'overview' && (

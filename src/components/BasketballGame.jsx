@@ -1,17 +1,17 @@
 import { Physics, useSphere, useBox } from '@react-three/cannon';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useState, useEffect } from 'react';
-import * as THREE from 'three';
 
-// Ball starts in front of the hoop, visible from basket view camera
-const BALL_START = [-2.5, 0, -0.5];
-// Approximate rim center of basket model at [-2.5, 0, -2.5] scale 1.5
-const HOOP_CENTER = [-2.5, 0.95, -2.35];
+// Ball sits in front of the hoop, visible from basket-view camera [-1.2, 0.5, 0.2]
+export const BALL_START   = [-2.5, 0.12, -0.8];
+// Approximate hoop rim — basket model at [-2.5, 0, -2.5] scale 1.5
+export const HOOP_CENTER  = [-2.5, 0.95, -2.35];
 const HOOP_RADIUS = 0.2;
 
-function Ball({ throwTrigger, onScore }) {
+// Ball remounts with a new key each throw/reset so we can switch mass (mass=0 → Static in cannon-es)
+function Ball({ mass, initialVelocity, onScore, onReset }) {
   const [ref, api] = useSphere(() => ({
-    mass: 0.6,
+    mass,
     args: [0.12],
     position: BALL_START,
     linearDamping: 0.15,
@@ -19,61 +19,56 @@ function Ball({ throwTrigger, onScore }) {
     material: { restitution: 0.5, friction: 0.4 },
   }));
 
-  const pos = useRef([...BALL_START]);
-  const lightRef = useRef();
-  const scored = useRef(false);
-  const resetTimer = useRef(null);
+  const pos        = useRef([...BALL_START]);
+  const lightRef   = useRef();
+  const scored     = useRef(false);
+  const didReset   = useRef(false);
+  const onScoreRef = useRef(onScore);
+  const onResetRef = useRef(onReset);
+  onScoreRef.current = onScore;
+  onResetRef.current = onReset;
 
   useEffect(() => {
     const unsub = api.position.subscribe(v => { pos.current = [...v]; });
     return unsub;
   }, [api]);
 
+  // Apply velocity and schedule reset only for dynamic launches
   useEffect(() => {
-    if (!throwTrigger) return;
-    scored.current = false;
+    if (mass <= 0 || !initialVelocity) return;
 
-    api.velocity.set(throwTrigger.vx, throwTrigger.vy, throwTrigger.vz);
+    api.velocity.set(...initialVelocity);
     api.angularVelocity.set(
       (Math.random() - 0.5) * 5,
       (Math.random() - 0.5) * 3,
       (Math.random() - 0.5) * 5
     );
 
-    if (resetTimer.current) clearTimeout(resetTimer.current);
-    resetTimer.current = setTimeout(() => {
-      api.position.set(...BALL_START);
-      api.velocity.set(0, 0, 0);
-      api.angularVelocity.set(0, 0, 0);
-      scored.current = false;
+    const timer = setTimeout(() => {
+      if (!didReset.current) { didReset.current = true; onResetRef.current?.(); }
     }, 3000);
 
-    return () => { if (resetTimer.current) clearTimeout(resetTimer.current); };
-  }, [throwTrigger, api]);
+    return () => clearTimeout(timer);
+  }, []); // intentionally empty — runs once on mount (each key = fresh mount)
 
   useFrame(() => {
+    if (mass <= 0) return; // static ball — nothing to track
+
     const [x, y, z] = pos.current;
     const [hx, hy, hz] = HOOP_CENTER;
     const horizDist = Math.sqrt((x - hx) ** 2 + (z - hz) ** 2);
 
-    // Score: ball passes through hoop area going downward
     if (!scored.current && y < hy && y > hy - 0.3 && horizDist < HOOP_RADIUS) {
       scored.current = true;
-      onScore();
+      onScoreRef.current?.();
     }
 
-    // Reset if ball falls below floor
-    if (y < -1) {
-      api.position.set(...BALL_START);
-      api.velocity.set(0, 0, 0);
-      api.angularVelocity.set(0, 0, 0);
-      scored.current = false;
+    if (!didReset.current && y < -1) {
+      didReset.current = true;
+      onResetRef.current?.();
     }
 
-    // Move light with ball
-    if (lightRef.current) {
-      lightRef.current.position.set(x, y, z);
-    }
+    if (lightRef.current) lightRef.current.position.set(x, y, z);
   });
 
   return (
@@ -83,18 +78,12 @@ function Ball({ throwTrigger, onScore }) {
         <meshStandardMaterial
           color="#f97316"
           emissive="#f97316"
-          emissiveIntensity={0.3}
-          roughness={0.7}
+          emissiveIntensity={0.4}
+          roughness={0.6}
           metalness={0.1}
         />
       </mesh>
-      <pointLight
-        ref={lightRef}
-        color="#f97316"
-        intensity={0.8}
-        distance={1.5}
-        decay={2}
-      />
+      <pointLight ref={lightRef} color="#f97316" intensity={1} distance={1.5} decay={2} />
     </>
   );
 }
@@ -118,54 +107,35 @@ function PhysicsBackboard() {
   return <mesh ref={ref} visible={false} />;
 }
 
-export default function BasketballGame({ active, onScore }) {
-  const [throwTrigger, setThrowTrigger] = useState(null);
-  const dragStart = useRef(null);
+export default function BasketballGame({ active, throwTrigger, onScore, onReset }) {
+  const [ballConfig, setBallConfig] = useState({ key: 0, mass: 0, velocity: null });
+  const wasThrowing = useRef(false);
 
   useEffect(() => {
-    if (!active) return;
-
-    const onDown = (e) => {
-      dragStart.current = { x: e.clientX, y: e.clientY };
-    };
-
-    const onUp = (e) => {
-      if (!dragStart.current) return;
-      const dx = e.clientX - dragStart.current.x;
-      const dy = dragStart.current.y - e.clientY; // positive = drag up
-      dragStart.current = null;
-
-      if (Math.abs(dy) < 5 && Math.abs(dx) < 5) return;
-
-      // Direction from ball toward hoop
-      const from = new THREE.Vector3(...BALL_START);
-      const to = new THREE.Vector3(...HOOP_CENTER);
-      const dir = to.clone().sub(from).normalize();
-
-      // Halved multipliers for gentle arc
-      const power = Math.min(Math.max(dy * 0.02, 0.75), 2.5);
-      const upward = Math.max(dy * 0.035, 1.75);
-
-      setThrowTrigger({
-        vx: dir.x * power + dx * 0.004,
-        vy: upward,
-        vz: dir.z * power,
-      });
-    };
-
-    window.addEventListener('pointerdown', onDown);
-    window.addEventListener('pointerup', onUp);
-    return () => {
-      window.removeEventListener('pointerdown', onDown);
-      window.removeEventListener('pointerup', onUp);
-    };
-  }, [active]);
+    if (throwTrigger) {
+      wasThrowing.current = true;
+      setBallConfig(prev => ({
+        key: prev.key + 1,
+        mass: 0.6,
+        velocity: [throwTrigger.vx, throwTrigger.vy, throwTrigger.vz],
+      }));
+    } else if (wasThrowing.current) {
+      wasThrowing.current = false;
+      setBallConfig(prev => ({ key: prev.key + 1, mass: 0, velocity: null }));
+    }
+  }, [throwTrigger]);
 
   if (!active) return null;
 
   return (
     <Physics gravity={[0, -9.81, 0]}>
-      <Ball throwTrigger={throwTrigger} onScore={onScore} />
+      <Ball
+        key={ballConfig.key}
+        mass={ballConfig.mass}
+        initialVelocity={ballConfig.velocity}
+        onScore={onScore}
+        onReset={onReset}
+      />
       <PhysicsFloor />
       <PhysicsBackboard />
     </Physics>
