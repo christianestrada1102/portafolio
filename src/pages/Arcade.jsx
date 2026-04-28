@@ -334,11 +334,11 @@ export default function Arcade() {
             height={0.6}
           />
 
-          {/* Pared trasera - "CODE FIGHTER" dev poster, enseguida del game-over */}
+          {/* Pared derecha - "CODE FIGHTER" dev poster */}
           <WallPoster
             url="/images/code-fighters.png"
-            position={[3.2, 0.7, -2.98]}
-            rotation={[0, 0, 0]}
+            position={[2.98, 0.7, -1]}
+            rotation={[0, -Math.PI / 2, 0]}
             width={0.9}
             height={0.9}
           />
