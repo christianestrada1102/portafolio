@@ -168,12 +168,16 @@ export default function Arcade() {
         onPointerMissed={() => setActiveView('overview')}
       >
         <fog attach="fog" args={['#050505', 3, 8]} />
-        <ambientLight intensity={1.2} />
+        <ambientLight intensity={1.5} />
         <directionalLight position={[2, 3, 2]} intensity={2} />
         <directionalLight position={[-2, 2, -1]} intensity={0.8} />
         <pointLight position={[0, 0.5, 1.5]} intensity={1.5} color="#A855F7" distance={4} />
         <pointLight position={[0, 2.5, 0]} intensity={0.3} color="#1a1a2e" distance={6} />
         <pointLight position={[0, -0.3, 0.8]} intensity={0.5} color="#7c3aed" distance={2} decay={2} />
+
+        {/* Luz canasta */}
+        <pointLight position={[-2, 1, -1.5]} intensity={1.5} color="#A855F7" distance={3} decay={2} />
+        <pointLight position={[-2, 0.5, -0.5]} intensity={1} color="#ffffff" distance={2.5} decay={2} />
 
         <CameraController activeView={activeView} />
 
@@ -229,27 +233,53 @@ export default function Arcade() {
           {/* ── LEDS en TODAS las paredes ── */}
 
           {/* LED pared trasera */}
-          <mesh position={[0, 2.49, -2.99]} frustumCulled={true}>
+          <mesh position={[0, 1.8, -2.99]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
 
           {/* LED pared frontal */}
-          <mesh position={[0, 2.49, 2.99]} rotation={[0, Math.PI, 0]} frustumCulled={true}>
+          <mesh position={[0, 1.8, 2.99]} rotation={[0, Math.PI, 0]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
 
           {/* LED pared izquierda */}
-          <mesh position={[-2.99, 2.49, 0]} rotation={[0, Math.PI / 2, 0]} frustumCulled={true}>
+          <mesh position={[-2.99, 1.8, 0]} rotation={[0, Math.PI / 2, 0]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
 
           {/* LED pared derecha */}
-          <mesh position={[2.99, 2.49, 0]} rotation={[0, -Math.PI / 2, 0]} frustumCulled={true}>
+          <mesh position={[2.99, 1.8, 0]} rotation={[0, -Math.PI / 2, 0]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
+          </mesh>
+
+          {/* ── LEDS BASE (nivel del piso) ── */}
+
+          {/* LED base pared trasera */}
+          <mesh position={[0, -0.49, -2.99]} frustumCulled={true}>
+            <boxGeometry args={[5.9, 0.02, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={2} />
+          </mesh>
+
+          {/* LED base pared frontal */}
+          <mesh position={[0, -0.49, 2.99]} rotation={[0, Math.PI, 0]} frustumCulled={true}>
+            <boxGeometry args={[5.9, 0.02, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={2} />
+          </mesh>
+
+          {/* LED base pared izquierda */}
+          <mesh position={[-2.99, -0.49, 0]} rotation={[0, Math.PI / 2, 0]} frustumCulled={true}>
+            <boxGeometry args={[5.9, 0.02, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={2} />
+          </mesh>
+
+          {/* LED base pared derecha */}
+          <mesh position={[2.99, -0.49, 0]} rotation={[0, -Math.PI / 2, 0]} frustumCulled={true}>
+            <boxGeometry args={[5.9, 0.02, 0.02]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={2} />
           </mesh>
         </Suspense>
       </Canvas>
