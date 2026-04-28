@@ -59,7 +59,7 @@ function Loader() {
 }
 
 function CameraController({ activeView }) {
-  const { camera } = useThree();
+  const { camera, invalidate } = useThree();
   const targetRef    = useRef(new THREE.Vector3(...VIEWS.overview.target));
   const isAnimating  = useRef(false);
 
@@ -71,8 +71,8 @@ function CameraController({ activeView }) {
       x: view.pos[0],
       y: view.pos[1],
       z: view.pos[2],
-      duration: 1.2,
-      ease: 'power3.inOut',
+      duration: 0.8,
+      ease: 'power2.out',
       onComplete: () => { isAnimating.current = false; },
     });
 
@@ -80,13 +80,14 @@ function CameraController({ activeView }) {
       x: view.target[0],
       y: view.target[1],
       z: view.target[2],
-      duration: 1.2,
-      ease: 'power3.inOut',
+      duration: 0.8,
+      ease: 'power2.out',
     });
   }, [activeView, camera]);
 
   useFrame(() => {
     camera.lookAt(targetRef.current);
+    invalidate();
   });
 
   useEffect(() => {
@@ -162,6 +163,8 @@ export default function Arcade() {
       <Canvas
         camera={{ position: [0, 0.3, 2.5], fov: 50 }}
         style={{ background: '#050505' }}
+        frameloop="demand"
+        dpr={[1, 1.5]}
         onPointerMissed={() => setActiveView('overview')}
       >
         <fog attach="fog" args={['#050505', 3, 8]} />
@@ -194,31 +197,31 @@ export default function Arcade() {
           {/* ── CUARTO ── */}
 
           {/* Piso */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} frustumCulled={true}>
             <planeGeometry args={[6, 6]} />
             <meshStandardMaterial color="#080808" roughness={0.8} metalness={0.2} />
           </mesh>
 
           {/* Pared trasera */}
-          <mesh position={[0, 1, -3]}>
+          <mesh position={[0, 1, -3]} frustumCulled={true}>
             <planeGeometry args={[6, 3]} />
             <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
           </mesh>
 
           {/* Pared izquierda */}
-          <mesh position={[-3, 1, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <mesh position={[-3, 1, 0]} rotation={[0, Math.PI / 2, 0]} frustumCulled={true}>
             <planeGeometry args={[6, 3]} />
             <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
           </mesh>
 
           {/* Pared derecha */}
-          <mesh position={[3, 1, 0]} rotation={[0, -Math.PI / 2, 0]}>
+          <mesh position={[3, 1, 0]} rotation={[0, -Math.PI / 2, 0]} frustumCulled={true}>
             <planeGeometry args={[6, 3]} />
             <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
           </mesh>
 
           {/* Pared frontal (detrás de la cámara) */}
-          <mesh position={[0, 1, 3]} rotation={[0, Math.PI, 0]}>
+          <mesh position={[0, 1, 3]} rotation={[0, Math.PI, 0]} frustumCulled={true}>
             <planeGeometry args={[6, 3]} />
             <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
           </mesh>
@@ -226,25 +229,25 @@ export default function Arcade() {
           {/* ── LEDS en TODAS las paredes ── */}
 
           {/* LED pared trasera */}
-          <mesh position={[0, 2.49, -2.99]}>
+          <mesh position={[0, 2.49, -2.99]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
 
           {/* LED pared frontal */}
-          <mesh position={[0, 2.49, 2.99]} rotation={[0, Math.PI, 0]}>
+          <mesh position={[0, 2.49, 2.99]} rotation={[0, Math.PI, 0]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
 
           {/* LED pared izquierda */}
-          <mesh position={[-2.99, 2.49, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <mesh position={[-2.99, 2.49, 0]} rotation={[0, Math.PI / 2, 0]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
 
           {/* LED pared derecha */}
-          <mesh position={[2.99, 2.49, 0]} rotation={[0, -Math.PI / 2, 0]}>
+          <mesh position={[2.99, 2.49, 0]} rotation={[0, -Math.PI / 2, 0]} frustumCulled={true}>
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
