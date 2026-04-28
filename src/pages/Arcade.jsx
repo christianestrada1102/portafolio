@@ -1,6 +1,8 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF, OrbitControls, useProgress, Html } from '@react-three/drei';
+import { useThree, useFrame } from '@react-three/fiber';
+import { useGLTF, useProgress, Html } from '@react-three/drei';
+import * as THREE from 'three';
 
 function Loader() {
   const { progress } = useProgress();
@@ -40,6 +42,37 @@ function Loader() {
   );
 }
 
+function CameraController() {
+  const { camera } = useThree();
+  const scrollProgress = useRef(0);
+
+  const startPos    = new THREE.Vector3(0, 0.2, 1.8);
+  const endPos      = new THREE.Vector3(0, 0.15, 0.55);
+  const startLookAt = new THREE.Vector3(0, 0, 0);
+  const endLookAt   = new THREE.Vector3(0, 0.15, 0);
+
+  useEffect(() => {
+    const handleWheel = (e) => {
+      e.preventDefault();
+      scrollProgress.current = Math.max(0, Math.min(1,
+        scrollProgress.current + e.deltaY * 0.001
+      ));
+    };
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  useFrame(() => {
+    const t = scrollProgress.current;
+    const smoothT = t * t * (3 - 2 * t);
+    camera.position.lerpVectors(startPos, endPos, smoothT);
+    const lookAt = new THREE.Vector3().lerpVectors(startLookAt, endLookAt, smoothT);
+    camera.lookAt(lookAt);
+  });
+
+  return null;
+}
+
 function ArcadeModel() {
   const { scene } = useGLTF('/models/arcade.glb', true);
 
@@ -62,19 +95,48 @@ export default function Arcade() {
         camera={{ position: [0, 0.2, 1.8], fov: 50 }}
         style={{ background: '#050505' }}
       >
-        <fog attach="fog" args={['#050505', 3, 8]} />
+        <fog attach="fog" args={['#050505', 2, 10]} />
         <ambientLight intensity={1.2} />
         <directionalLight position={[2, 3, 2]} intensity={2} />
         <directionalLight position={[-2, 2, -1]} intensity={0.8} />
         <pointLight position={[0, 0.5, 1.5]} intensity={1.5} color="#A855F7" distance={4} />
+        {/* Luz de techo tenue */}
+        <pointLight position={[0, 2.5, 0]} intensity={0.3} color="#1a1a2e" distance={6} />
+        {/* Glow morado en el suelo frente a la maquinita */}
+        <pointLight position={[0, -0.3, 0.8]} intensity={0.5} color="#7c3aed" distance={2} decay={2} />
+        <CameraController />
         <Suspense fallback={<Loader />}>
           <ArcadeModel />
+
           {/* Piso */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
-            <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#080808" roughness={0.8} metalness={0.2} />
+            <planeGeometry args={[20, 20]} />
+            <meshStandardMaterial color="#060606" roughness={0.7} metalness={0.3} />
           </mesh>
-          <OrbitControls makeDefault />
+
+          {/* Pared trasera */}
+          <mesh position={[0, 1, -2]} receiveShadow>
+            <planeGeometry args={[8, 4]} />
+            <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
+          </mesh>
+
+          {/* Pared izquierda */}
+          <mesh position={[-4, 1, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
+            <planeGeometry args={[6, 4]} />
+            <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
+          </mesh>
+
+          {/* Pared derecha */}
+          <mesh position={[4, 1, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
+            <planeGeometry args={[6, 4]} />
+            <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
+          </mesh>
+
+          {/* Línea neón horizontal en pared trasera */}
+          <mesh position={[0, 1.8, -1.99]}>
+            <boxGeometry args={[6, 0.02, 0.01]} />
+            <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={2} />
+          </mesh>
         </Suspense>
       </Canvas>
     </div>
