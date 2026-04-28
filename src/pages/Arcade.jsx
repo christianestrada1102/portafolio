@@ -213,11 +213,11 @@ export default function Arcade() {
       const from = new THREE.Vector3(...BALL_START);
       const to   = new THREE.Vector3(...HOOP_CENTER);
       const dir  = to.clone().sub(from).normalize();
-      const power  = Math.min(Math.max(dy * 0.007, 0.25), 0.85);
-      const upward = Math.max(dy * 0.012, 0.6);
+      const power  = Math.min(Math.max(dy * 0.014, 0.5), 1.7);
+      const upward = Math.max(dy * 0.024, 1.2);
 
       canThrowRef.current = false;
-      setThrowTrigger({ vx: dir.x * power + dx * 0.001, vy: upward, vz: dir.z * power });
+      setThrowTrigger({ vx: dir.x * power + dx * 0.002, vy: upward, vz: dir.z * power });
     };
 
     window.addEventListener('pointerdown', onDown);

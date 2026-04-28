@@ -2,7 +2,7 @@ import { Physics, useSphere, useBox } from '@react-three/cannon';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useState, useEffect } from 'react';
 
-export const BALL_START  = [-2.5, 0.12, -0.8];
+export const BALL_START  = [-2.5, -0.3, -1];
 export const HOOP_CENTER = [-2.5, 0.95, -2.35];
 const HOOP_RADIUS = 0.18;
 
@@ -10,7 +10,7 @@ const HOOP_RADIUS = 0.18;
 function Ball({ mass, initialVelocity, onScore, onReset }) {
   const [ref, api] = useSphere(() => ({
     mass,
-    args: [0.12],
+    args: [0.08],
     position: BALL_START,
     linearDamping: 0.15,
     angularDamping: 0.05,
@@ -71,11 +71,11 @@ function Ball({ mass, initialVelocity, onScore, onReset }) {
   return (
     <>
       <mesh ref={ref}>
-        <sphereGeometry args={[0.12, 16, 16]} />
+        <sphereGeometry args={[0.08, 16, 16]} />
         <meshStandardMaterial
           color="#f97316"
           emissive="#f97316"
-          emissiveIntensity={0.4}
+          emissiveIntensity={0.1}
           roughness={0.6}
           metalness={0.1}
         />
