@@ -40,3 +40,7 @@ server/.env
 Thumbs.db
 .DS_Store
 
+# Internal docs
+*.bat
+CONTEXTO_PROYECTO.md
+
