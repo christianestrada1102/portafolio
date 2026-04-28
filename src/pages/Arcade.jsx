@@ -456,6 +456,15 @@ export default function Arcade() {
             width={0.9}
             height={0.9}
           />
+
+          {/* Pared derecha - poster2 */}
+          <WallPoster
+            url="/images/poster2.png"
+            position={[2.98, 0.7, -1]}
+            rotation={[0, -Math.PI / 2, 0]}
+            width={0.8}
+            height={1}
+          />
         </Suspense>
       </Canvas>
 
@@ -556,3 +565,4 @@ useTexture.preload('/images/cuadro.png');
 useTexture.preload('/images/poster.png');
 useTexture.preload('/images/game-over.png');
 useTexture.preload('/images/code-fighters.png');
+useTexture.preload('/images/poster2.png');
