@@ -52,7 +52,7 @@ function BasketModel() {
     });
   }, [scene]);
 
-  return <primitive object={scene} position={[-2, -0.5, -2]} scale={1.5} rotation={[0, Math.PI / 4, 0]} />;
+  return <primitive object={scene} position={[-2, 0.5, -2]} scale={1.5} rotation={[0, Math.PI / 4, 0]} />;
 }
 
 function ArcadeModel() {
