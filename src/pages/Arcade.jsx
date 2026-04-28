@@ -117,6 +117,16 @@ function CameraController({ activeView }) {
   return null;
 }
 
+function Carpet() {
+  const alfombraTexture = useTexture('/images/alfombra.png');
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.49, 0.3]}>
+      <planeGeometry args={[3, 2.5]} />
+      <meshStandardMaterial map={alfombraTexture} roughness={0.95} />
+    </mesh>
+  );
+}
+
 function WallPoster({ url, position, rotation, width = 0.8, height = 0.6 }) {
   const texture = useTexture(url);
   return (
@@ -215,6 +225,9 @@ export default function Arcade() {
             <planeGeometry args={[6, 6]} />
             <meshStandardMaterial color="#080808" roughness={0.8} metalness={0.2} />
           </mesh>
+
+          {/* Alfombra */}
+          <Carpet />
 
           {/* Pared trasera */}
           <mesh position={[0, 1, -3]} frustumCulled={true}>
@@ -354,6 +367,7 @@ export default function Arcade() {
 useGLTF.preload('/models/arcade.glb');
 useGLTF.preload('/models/basket.glb', true);
 
+useTexture.preload('/images/alfombra.png');
 useTexture.preload('/images/cuadro.png');
 useTexture.preload('/images/poster.png');
 useTexture.preload('/images/game-over.png');
