@@ -11,11 +11,11 @@ function createBasketballTexture() {
   const ctx = canvas.getContext('2d');
   const w = size, h = size;
 
-  // Orange gradient base
+  // Purple gradient base
   const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0.0, '#e87828');
-  grad.addColorStop(0.5, '#d46818');
-  grad.addColorStop(1.0, '#c05810');
+  grad.addColorStop(0.0, '#a855f7');
+  grad.addColorStop(0.5, '#7c3aed');
+  grad.addColorStop(1.0, '#5b21b6');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 
@@ -26,12 +26,12 @@ function createBasketballTexture() {
     const r = Math.random() * 1.3 + 0.3;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0,0,0,${(Math.random() * 0.1 + 0.04).toFixed(2)})`;
+    ctx.fillStyle = `rgba(0,0,0,${(Math.random() * 0.12 + 0.05).toFixed(2)})`;
     ctx.fill();
   }
 
   // Seam lines
-  ctx.strokeStyle = '#1a0800';
+  ctx.strokeStyle = '#0d000d';
   ctx.lineWidth = 7;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -242,7 +242,7 @@ function Ball({ throwTrigger, onScore, onReset }) {
         bumpMap={texture}
         bumpScale={0.006}
       />
-      <pointLight color="#f97316" intensity={1} distance={1.5} decay={2} />
+      <pointLight color="#a855f7" intensity={1.2} distance={1.5} decay={2} />
     </mesh>
   );
 }
