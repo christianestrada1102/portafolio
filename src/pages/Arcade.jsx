@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useThree, useFrame } from '@react-three/fiber';
-import BasketballGame, { BALL_START, HOOP_CENTER } from '../components/BasketballGame';
+import BasketballGame from '../components/BasketballGame';
 import { useGLTF, useProgress, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -210,14 +210,13 @@ export default function Arcade() {
       setAimLine(null);
       if (Math.abs(dy) < 5 && Math.abs(dx) < 5) return;
 
-      const from = new THREE.Vector3(...BALL_START);
-      const to   = new THREE.Vector3(...HOOP_CENTER);
-      const dir  = to.clone().sub(from).normalize();
-      const power  = Math.min(Math.max(dy * 0.014, 0.5), 1.7);
-      const upward = Math.max(dy * 0.024, 1.2);
+      // Score if dragged mostly upward (aim < 0.5 = within ~27° of vertical)
+      const power   = Math.min(dy / 150, 1);
+      const aim     = Math.abs(dx) / Math.max(dy, 1);
+      const isScore = power > 0.12 && aim < 0.5;
 
       canThrowRef.current = false;
-      setThrowTrigger({ vx: dir.x * power + dx * 0.002, vy: upward, vz: dir.z * power });
+      setThrowTrigger({ isScore, power });
     };
 
     window.addEventListener('pointerdown', onDown);
