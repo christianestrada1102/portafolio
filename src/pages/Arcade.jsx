@@ -1,6 +1,23 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF, OrbitControls, useProgress, Html } from '@react-three/drei';
+import { useThree, useFrame } from '@react-three/fiber';
+import { useGLTF, useProgress, Html } from '@react-three/drei';
+import * as THREE from 'three';
+
+const VIEWS = {
+  overview: {
+    pos:    [0, 0.3, 2.5],
+    target: [0, 0.1, 0],
+  },
+  arcade: {
+    pos:    [0, 0.15, 0.7],
+    target: [0, 0.15, 0],
+  },
+  basket: {
+    pos:    [-1.2, 0.5, 0.2],
+    target: [-2, 0.3, -2],
+  },
+};
 
 function Loader() {
   const { progress } = useProgress();
@@ -40,6 +57,49 @@ function Loader() {
   );
 }
 
+function CameraController({ activeView }) {
+  const { camera } = useThree();
+  const currentPos    = useRef(new THREE.Vector3(...VIEWS.overview.pos));
+  const currentTarget = useRef(new THREE.Vector3(...VIEWS.overview.target));
+  const scrollOffset  = useRef(0);
+
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (activeView === 'overview') return;
+      e.preventDefault();
+      scrollOffset.current = Math.max(0, Math.min(1,
+        scrollOffset.current + e.deltaY * 0.002
+      ));
+    };
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [activeView]);
+
+  useEffect(() => {
+    scrollOffset.current = 0;
+  }, [activeView]);
+
+  useFrame(() => {
+    const view = VIEWS[activeView];
+    const targetPos    = new THREE.Vector3(...view.pos);
+    const targetLookAt = new THREE.Vector3(...view.target);
+
+    if (activeView !== 'overview') {
+      const zoomDir   = new THREE.Vector3().subVectors(targetLookAt, targetPos).normalize();
+      const zoomAmount = scrollOffset.current * 0.5;
+      targetPos.add(zoomDir.multiplyScalar(zoomAmount));
+    }
+
+    currentPos.current.lerp(targetPos, 0.05);
+    currentTarget.current.lerp(targetLookAt, 0.05);
+
+    camera.position.copy(currentPos.current);
+    camera.lookAt(currentTarget.current);
+  });
+
+  return null;
+}
+
 function BasketModel() {
   const { scene } = useGLTF('/models/basket.glb', true);
 
@@ -71,24 +131,49 @@ function ArcadeModel() {
 }
 
 export default function Arcade() {
+  const [activeView, setActiveView] = useState('overview');
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setActiveView('overview');
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#050505' }}>
       <Canvas
-        camera={{ position: [0, 0.2, 1.8], fov: 50 }}
+        camera={{ position: [0, 0.3, 2.5], fov: 50 }}
         style={{ background: '#050505' }}
+        onPointerMissed={() => setActiveView('overview')}
       >
         <fog attach="fog" args={['#050505', 3, 8]} />
         <ambientLight intensity={1.2} />
         <directionalLight position={[2, 3, 2]} intensity={2} />
         <directionalLight position={[-2, 2, -1]} intensity={0.8} />
         <pointLight position={[0, 0.5, 1.5]} intensity={1.5} color="#A855F7" distance={4} />
-        {/* Luz techo tenue */}
         <pointLight position={[0, 2.5, 0]} intensity={0.3} color="#1a1a2e" distance={6} />
-        {/* Glow morado frente a la maquinita */}
         <pointLight position={[0, -0.3, 0.8]} intensity={0.5} color="#7c3aed" distance={2} decay={2} />
+
+        <CameraController activeView={activeView} />
+
         <Suspense fallback={<Loader />}>
-          <ArcadeModel />
-          <BasketModel />
+          <group
+            onClick={(e) => { e.stopPropagation(); setActiveView('arcade'); }}
+            onPointerOver={() => document.body.style.cursor = 'pointer'}
+            onPointerOut={() => document.body.style.cursor = 'default'}
+          >
+            <ArcadeModel />
+          </group>
+
+          <group
+            onClick={(e) => { e.stopPropagation(); setActiveView('basket'); }}
+            onPointerOver={() => document.body.style.cursor = 'pointer'}
+            onPointerOut={() => document.body.style.cursor = 'default'}
+          >
+            <BasketModel />
+          </group>
 
           {/* ── CUARTO ── */}
 
@@ -147,17 +232,24 @@ export default function Arcade() {
             <boxGeometry args={[5.9, 0.03, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={3} />
           </mesh>
-
-          <OrbitControls
-            minDistance={0.8}
-            maxDistance={2.8}
-            minPolarAngle={0.3}
-            maxPolarAngle={Math.PI / 2 - 0.05}
-            enablePan={false}
-            target={[0, 0.1, 0]}
-          />
         </Suspense>
       </Canvas>
+
+      {activeView !== 'overview' && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: '8px',
+          color: '#737373',
+          letterSpacing: '1px',
+          zIndex: 10,
+        }}>
+          ESC / CLICK FUERA PARA VOLVER
+        </div>
+      )}
     </div>
   );
 }
