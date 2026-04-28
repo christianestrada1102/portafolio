@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useThree, useFrame } from '@react-three/fiber';
-import { useGLTF, useProgress, Html } from '@react-three/drei';
+import { useGLTF, useProgress, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -115,6 +115,16 @@ function CameraController({ activeView }) {
   }, [activeView, camera]);
 
   return null;
+}
+
+function WallPoster({ url, position, rotation, width = 0.8, height = 0.6 }) {
+  const texture = useTexture(url);
+  return (
+    <mesh position={position} rotation={rotation}>
+      <planeGeometry args={[width, height]} />
+      <meshStandardMaterial map={texture} roughness={0.8} metalness={0.1} />
+    </mesh>
+  );
 }
 
 function BasketModel() {
@@ -281,6 +291,44 @@ export default function Arcade() {
             <boxGeometry args={[5.9, 0.02, 0.02]} />
             <meshStandardMaterial color="#A855F7" emissive="#A855F7" emissiveIntensity={2} />
           </mesh>
+
+          {/* ── POSTERS ── */}
+
+          {/* Pared trasera - "Arcade Room" cuadro grande centrado */}
+          <WallPoster
+            url="/images/cuadro.png"
+            position={[0, 0.8, -2.98]}
+            rotation={[0, 0, 0]}
+            width={1.4}
+            height={0.9}
+          />
+
+          {/* Pared izquierda - "DEV MODE" poster */}
+          <WallPoster
+            url="/images/poster.png"
+            position={[-2.98, 0.7, -1]}
+            rotation={[0, Math.PI / 2, 0]}
+            width={0.8}
+            height={1}
+          />
+
+          {/* Pared izquierda - "GAME OVER" neon */}
+          <WallPoster
+            url="/images/game_over.png"
+            position={[-2.98, 0.7, 1]}
+            rotation={[0, Math.PI / 2, 0]}
+            width={1}
+            height={0.6}
+          />
+
+          {/* Pared derecha - "CODE FIGHTER" dev poster */}
+          <WallPoster
+            url="/images/code_fighters.png"
+            position={[2.98, 0.7, 0]}
+            rotation={[0, -Math.PI / 2, 0]}
+            width={0.9}
+            height={0.9}
+          />
         </Suspense>
       </Canvas>
 
@@ -305,3 +353,8 @@ export default function Arcade() {
 
 useGLTF.preload('/models/arcade.glb');
 useGLTF.preload('/models/basket.glb', true);
+
+useTexture.preload('/images/cuadro.png');
+useTexture.preload('/images/poster.png');
+useTexture.preload('/images/game_over.png');
+useTexture.preload('/images/code_fighters.png');
