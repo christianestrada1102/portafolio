@@ -149,7 +149,7 @@ function BasketModel() {
     });
   }, [scene]);
 
-  return <primitive object={scene} position={[-2, 0, -2]} scale={1.5} rotation={[0, Math.PI / 4, 0]} />;
+  return <primitive object={scene} position={[-2.2, -0.15, -2.2]} scale={1.5} rotation={[0, Math.PI / 4, 0]} />;
 }
 
 function ArcadeModel() {
@@ -164,7 +164,7 @@ function ArcadeModel() {
     });
   }, [scene]);
 
-  return <primitive object={scene} />;
+  return <primitive object={scene} position={[0.5, -0.5, -1.5]} />;
 }
 
 export default function Arcade() {
