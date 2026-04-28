@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { useThree, useFrame } from '@react-three/fiber';
 import { useGLTF, useProgress, Html } from '@react-three/drei';
 import * as THREE from 'three';
+import gsap from 'gsap';
 
 const VIEWS = {
   overview: {
@@ -59,43 +60,58 @@ function Loader() {
 
 function CameraController({ activeView }) {
   const { camera } = useThree();
-  const currentPos    = useRef(new THREE.Vector3(...VIEWS.overview.pos));
-  const currentTarget = useRef(new THREE.Vector3(...VIEWS.overview.target));
-  const scrollOffset  = useRef(0);
+  const targetRef    = useRef(new THREE.Vector3(...VIEWS.overview.target));
+  const isAnimating  = useRef(false);
+
+  useEffect(() => {
+    const view = VIEWS[activeView];
+    isAnimating.current = true;
+
+    gsap.to(camera.position, {
+      x: view.pos[0],
+      y: view.pos[1],
+      z: view.pos[2],
+      duration: 1.2,
+      ease: 'power3.inOut',
+      onComplete: () => { isAnimating.current = false; },
+    });
+
+    gsap.to(targetRef.current, {
+      x: view.target[0],
+      y: view.target[1],
+      z: view.target[2],
+      duration: 1.2,
+      ease: 'power3.inOut',
+    });
+  }, [activeView, camera]);
+
+  useFrame(() => {
+    camera.lookAt(targetRef.current);
+  });
 
   useEffect(() => {
     const handleWheel = (e) => {
-      if (activeView === 'overview') return;
+      if (activeView === 'overview' || isAnimating.current) return;
       e.preventDefault();
-      scrollOffset.current = Math.max(0, Math.min(1,
-        scrollOffset.current + e.deltaY * 0.002
-      ));
+
+      const view = VIEWS[activeView];
+      const dir = new THREE.Vector3(
+        view.target[0] - view.pos[0],
+        view.target[1] - view.pos[1],
+        view.target[2] - view.pos[2]
+      ).normalize();
+
+      const zoomSpeed = e.deltaY * 0.0008;
+      const newPos = camera.position.clone().add(dir.multiplyScalar(zoomSpeed));
+
+      const dist = newPos.distanceTo(new THREE.Vector3(...view.target));
+      if (dist > 0.3 && dist < 2.5) {
+        camera.position.copy(newPos);
+      }
     };
     window.addEventListener('wheel', handleWheel, { passive: false });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [activeView]);
-
-  useEffect(() => {
-    scrollOffset.current = 0;
-  }, [activeView]);
-
-  useFrame(() => {
-    const view = VIEWS[activeView];
-    const targetPos    = new THREE.Vector3(...view.pos);
-    const targetLookAt = new THREE.Vector3(...view.target);
-
-    if (activeView !== 'overview') {
-      const zoomDir   = new THREE.Vector3().subVectors(targetLookAt, targetPos).normalize();
-      const zoomAmount = scrollOffset.current * 0.5;
-      targetPos.add(zoomDir.multiplyScalar(zoomAmount));
-    }
-
-    currentPos.current.lerp(targetPos, 0.05);
-    currentTarget.current.lerp(targetLookAt, 0.05);
-
-    camera.position.copy(currentPos.current);
-    camera.lookAt(currentTarget.current);
-  });
+  }, [activeView, camera]);
 
   return null;
 }
