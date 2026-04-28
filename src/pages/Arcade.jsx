@@ -1,6 +1,7 @@
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useThree, useFrame } from '@react-three/fiber';
+import BasketballGame from '../components/BasketballGame';
 import { useGLTF, useProgress, Html, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -169,6 +170,8 @@ function ArcadeModel() {
 
 export default function Arcade() {
   const [activeView, setActiveView] = useState('overview');
+  const [score, setScore] = useState(0);
+  const handleScore = useCallback(() => setScore(s => s + 1), []);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -200,6 +203,7 @@ export default function Arcade() {
         <pointLight position={[-2, 0.5, -0.5]} intensity={1} color="#ffffff" distance={2.5} decay={2} />
 
         <CameraController activeView={activeView} />
+        <BasketballGame active={activeView === 'basket'} onScore={handleScore} />
 
         <Suspense fallback={<Loader />}>
           <group
@@ -344,6 +348,26 @@ export default function Arcade() {
           />
         </Suspense>
       </Canvas>
+
+      {activeView === 'basket' && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: '14px',
+          color: '#A855F7',
+          zIndex: 10,
+          textAlign: 'center',
+          pointerEvents: 'none',
+        }}>
+          <div>SCORE: {score}</div>
+          <div style={{ fontSize: '8px', color: '#737373', marginTop: '6px' }}>
+            ARRASTRA Y SUELTA PARA LANZAR
+          </div>
+        </div>
+      )}
 
       {activeView !== 'overview' && (
         <div style={{
