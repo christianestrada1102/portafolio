@@ -314,7 +314,7 @@ export default function Arcade() {
 
           {/* Pared izquierda - "GAME OVER" neon */}
           <WallPoster
-            url="/images/game_over.png"
+            url="/images/game-over.png"
             position={[-2.98, 0.7, 1]}
             rotation={[0, Math.PI / 2, 0]}
             width={1}
@@ -323,7 +323,7 @@ export default function Arcade() {
 
           {/* Pared derecha - "CODE FIGHTER" dev poster */}
           <WallPoster
-            url="/images/code_fighters.png"
+            url="/images/code-fighters.png"
             position={[2.98, 0.7, 0]}
             rotation={[0, -Math.PI / 2, 0]}
             width={0.9}
@@ -356,5 +356,5 @@ useGLTF.preload('/models/basket.glb', true);
 
 useTexture.preload('/images/cuadro.png');
 useTexture.preload('/images/poster.png');
-useTexture.preload('/images/game_over.png');
-useTexture.preload('/images/code_fighters.png');
+useTexture.preload('/images/game-over.png');
+useTexture.preload('/images/code-fighters.png');
