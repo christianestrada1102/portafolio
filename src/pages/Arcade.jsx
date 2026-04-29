@@ -12,8 +12,8 @@ const VIEWS = {
     target: [0, 0.1, 0],
   },
   arcade: {
-    pos:    [0.12, 0.35, 1.25],
-    target: [0, 0.15, 0.3],
+    pos:    [0.3, 0.15, -0.2],
+    target: [0.3, 0.15, -1],
   },
   basket: {
     pos:    [-1.2, 0.5, 0.2],
@@ -278,12 +278,14 @@ function ArcadeModel() {
 
 export default function Arcade() {
   const [activeView, setActiveView] = useState('overview');
+  const [isPlaying, setIsPlaying] = useState(false);
   const [score, setScore] = useState(0);
   const [scoreFeedback, setScoreFeedback] = useState(false);
   const [throwTrigger, setThrowTrigger] = useState(null);
   const [aimLine, setAimLine] = useState(null);
-  const dragStartRef = useRef(null);
-  const canThrowRef  = useRef(true);
+  const dragStartRef  = useRef(null);
+  const canThrowRef   = useRef(true);
+  const gameCanvasRef = useRef(null);
 
   const handleScore = useCallback(() => {
     setScore(s => s + 1);
@@ -343,13 +345,42 @@ export default function Arcade() {
     };
   }, [activeView]);
 
+  // Reset isPlaying when leaving arcade view
+  useEffect(() => {
+    if (activeView !== 'arcade') setIsPlaying(false);
+  }, [activeView]);
+
+  // ESC: two-level exit — game first, then overview
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === 'Escape') setActiveView('overview');
+      if (e.key !== 'Escape') return;
+      if (isPlaying) { setIsPlaying(false); return; }
+      setActiveView('overview');
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, []);
+  }, [isPlaying]);
+
+  // Draw idle screen on game canvas
+  useEffect(() => {
+    if (!isPlaying || !gameCanvasRef.current) return;
+    const canvas = gameCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#A855F7';
+    ctx.shadowColor = '#A855F7';
+    ctx.shadowBlur = 24;
+    ctx.font = '16px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PRESS ENTER TO START', w / 2, h / 2);
+  }, [isPlaying]);
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#050505' }}>
@@ -359,7 +390,7 @@ export default function Arcade() {
         style={{ background: '#050505' }}
         frameloop="demand"
         dpr={[1, 1.5]}
-        onPointerMissed={() => setActiveView('overview')}
+        onPointerMissed={() => { if (!isPlaying) setActiveView('overview'); }}
       >
         <fog attach="fog" args={['#050505', 3, 8]} />
         <ambientLight intensity={1.5} />
@@ -398,10 +429,14 @@ export default function Arcade() {
 
         <Suspense fallback={null}>
           <group
-            position={[0, -0.5, 0.3]}
-            rotation={[0, THREE.MathUtils.degToRad(285), 0]}
+            position={[0.3, -0.5, -1]}
+            rotation={[0, 0, 0]}
             scale={[1.15, 1.15, 1.15]}
-            onClick={(e) => { e.stopPropagation(); setActiveView('arcade'); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (activeView === 'arcade') { setIsPlaying(true); return; }
+              setActiveView('arcade');
+            }}
             onPointerOver={() => document.body.style.cursor = 'pointer'}
             onPointerOut={() => document.body.style.cursor = 'default'}
           >
@@ -623,7 +658,32 @@ export default function Arcade() {
         </svg>
       )}
 
-      {activeView !== 'overview' && (
+      {isPlaying && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 30,
+          background: 'rgba(0,0,0,0.88)',
+        }}>
+          <canvas
+            ref={gameCanvasRef}
+            style={{
+              width: '800px',
+              height: '500px',
+              maxWidth: '90vw',
+              maxHeight: '70vh',
+              border: '2px solid #A855F7',
+              boxShadow: '0 0 30px #A855F7, 0 0 60px #7c3aed',
+              display: 'block',
+            }}
+          />
+        </div>
+      )}
+
+      {activeView !== 'overview' && !isPlaying && (
         <div style={{
           position: 'fixed',
           bottom: '20px',
@@ -636,6 +696,23 @@ export default function Arcade() {
           zIndex: 10,
         }}>
           ESC / CLICK FUERA PARA VOLVER
+        </div>
+      )}
+
+      {isPlaying && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: "'Press Start 2P', monospace",
+          fontSize: '8px',
+          color: '#737373',
+          letterSpacing: '1px',
+          zIndex: 40,
+          pointerEvents: 'none',
+        }}>
+          ENTER: INICIAR | ESC: SALIR
         </div>
       )}
     </div>
