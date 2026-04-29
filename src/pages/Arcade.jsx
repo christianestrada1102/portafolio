@@ -650,29 +650,20 @@ export default function Arcade() {
             className="arcade-scanlines"
             style={{
               position: 'fixed',
-              inset: 0,
-              background: '#0a0612',
+              top: '42%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '320px',
+              height: '250px',
               zIndex: 20,
               pointerEvents: 'auto',
               animation: 'arcadeFadeIn 0.4s ease-out forwards',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: 'inset 0 0 80px rgba(147,51,234,0.15)',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              boxShadow: '0 0 30px rgba(147,51,234,0.3)',
             }}
           >
-            <div style={{
-              position: 'relative',
-              zIndex: 2,
-              width: '400px',
-              height: '350px',
-              border: '2px solid rgba(147,51,234,0.3)',
-              borderRadius: '4px',
-              boxShadow: '0 0 40px rgba(147,51,234,0.2)',
-              overflow: 'hidden',
-            }}>
-              <ArcadeGame onExit={() => setActiveView('overview')} />
-            </div>
+            <ArcadeGame onExit={() => setActiveView('overview')} />
           </div>
         </>
       )}
