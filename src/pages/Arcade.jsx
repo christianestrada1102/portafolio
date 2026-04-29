@@ -16,8 +16,8 @@ const VIEWS = {
     target: [0, 0.15, 0.3],
   },
   basket: {
-    pos:    [-1.2, 0.5, 0.2],
-    target: [-2, 0.3, -2],
+    pos:    [-2.5, 0.5, 0.5],
+    target: [-2.5, 0.3, -2],
   },
   poster_devmode: {
     pos:    [-1.5, 0.7, -1],
