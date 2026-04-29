@@ -213,22 +213,28 @@ function WallPoster({ url, position, rotation, width = 0.8, height = 0.6, id, on
 }
 
 function Stool({ position = [-0.2, -0.49, 0.9] }) {
+  const seatTexture = useTexture('/images/stool-texture.png');
   return (
     <group position={position}>
-      {/* Asiento */}
+      {/* Asiento — cuero/vinilo */}
       <mesh position={[0, 0.35, 0]}>
-        <cylinderGeometry args={[0.18, 0.16, 0.04, 20]} />
-        <meshStandardMaterial color="#1a1a1a" metalness={0.7} roughness={0.3} />
+        <cylinderGeometry args={[0.18, 0.18, 0.06, 24]} />
+        <meshStandardMaterial map={seatTexture} roughness={0.9} metalness={0.1} />
       </mesh>
-      {/* Pata central */}
+      {/* Pata central — metal cromado oscuro */}
       <mesh position={[0, 0.17, 0]}>
-        <cylinderGeometry args={[0.03, 0.04, 0.34, 8]} />
-        <meshStandardMaterial color="#111111" metalness={0.8} roughness={0.2} />
+        <cylinderGeometry args={[0.025, 0.03, 0.35, 12]} />
+        <meshStandardMaterial color="#222222" metalness={0.9} roughness={0.1} />
       </mesh>
-      {/* Base */}
-      <mesh position={[0, 0.01, 0]}>
-        <cylinderGeometry args={[0.2, 0.2, 0.02, 20]} />
-        <meshStandardMaterial color="#111111" metalness={0.8} roughness={0.2} />
+      {/* Footrest — anillo a media altura */}
+      <mesh position={[0, 0.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.12, 0.01, 8, 24]} />
+        <meshStandardMaterial color="#222222" metalness={0.9} roughness={0.1} />
+      </mesh>
+      {/* Base circular */}
+      <mesh position={[0, 0.015, 0]}>
+        <cylinderGeometry args={[0.15, 0.18, 0.03, 24]} />
+        <meshStandardMaterial color="#222222" metalness={0.9} roughness={0.1} />
       </mesh>
     </group>
   );
@@ -640,3 +646,4 @@ useTexture.preload('/images/cuadro.png');
 useTexture.preload('/images/poster.png');
 useTexture.preload('/images/game-over.png');
 useTexture.preload('/images/poster2.png');
+useTexture.preload('/images/stool-texture.png');
