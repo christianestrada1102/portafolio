@@ -650,11 +650,11 @@ export default function Arcade() {
             className="arcade-scanlines"
             style={{
               position: 'fixed',
-              top: '42%',
+              top: '38%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '320px',
-              height: '250px',
+              width: '420px',
+              height: '330px',
               zIndex: 20,
               pointerEvents: 'auto',
               animation: 'arcadeFadeIn 0.4s ease-out forwards',
