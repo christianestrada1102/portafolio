@@ -430,7 +430,7 @@ export default function Arcade() {
         <Suspense fallback={null}>
           <group
             position={[0, -0.5, -1.5]}
-            rotation={[0, THREE.MathUtils.degToRad(-60), 0]}
+            rotation={[0, THREE.MathUtils.degToRad(-45), 0]}
             scale={[1.15, 1.15, 1.15]}
             onClick={(e) => {
               e.stopPropagation();
