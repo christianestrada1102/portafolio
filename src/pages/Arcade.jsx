@@ -118,10 +118,12 @@ function LoadingOverlay() {
   );
 }
 
-function CameraController({ activeView }) {
+function CameraController({ activeView, onCameraReady }) {
   const { camera, invalidate } = useThree();
-  const targetRef    = useRef(new THREE.Vector3(...VIEWS.overview.target));
-  const isAnimating  = useRef(false);
+  const targetRef      = useRef(new THREE.Vector3(...VIEWS.overview.target));
+  const isAnimating    = useRef(false);
+  const onReadyRef     = useRef(onCameraReady);
+  onReadyRef.current   = onCameraReady;
   const zoomLimits = {
     overview: { min: 0.3, max: 2.5 },
     arcade: { min: 1.05, max: 3.2 },
@@ -142,7 +144,7 @@ function CameraController({ activeView }) {
       z: view.pos[2],
       duration: 0.8,
       ease: 'power2.out',
-      onComplete: () => { isAnimating.current = false; },
+      onComplete: () => { isAnimating.current = false; onReadyRef.current?.(activeView); },
     });
 
     gsap.to(targetRef.current, {
@@ -279,6 +281,7 @@ function ArcadeModel() {
 
 export default function Arcade() {
   const [activeView, setActiveView] = useState('overview');
+  const [showGame, setShowGame] = useState(false);
   const [score, setScore] = useState(0);
   const [scoreFeedback, setScoreFeedback] = useState(false);
   const [throwTrigger, setThrowTrigger] = useState(null);
@@ -344,6 +347,11 @@ export default function Arcade() {
     };
   }, [activeView]);
 
+  // Hide game immediately when leaving arcade view
+  useEffect(() => {
+    if (activeView !== 'arcade') setShowGame(false);
+  }, [activeView]);
+
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === 'Escape') setActiveView('overview');
@@ -389,7 +397,10 @@ export default function Arcade() {
         {/* Luz entre posters pared trasera (Arcade Room y Game Over) */}
         <pointLight position={[0.5, 1.2, -2.5]} intensity={1.2} color="#A855F7" distance={2.5} decay={2} />
 
-        <CameraController activeView={activeView} />
+        <CameraController
+          activeView={activeView}
+          onCameraReady={(view) => { if (view === 'arcade') setShowGame(true); }}
+        />
         <BasketballGame
           active={activeView === 'basket'}
           throwTrigger={throwTrigger}
@@ -624,7 +635,7 @@ export default function Arcade() {
         </svg>
       )}
 
-      {activeView === 'arcade' && (
+      {showGame && (
         <>
           <style>{`
             @keyframes arcadeFadeIn {
@@ -650,11 +661,11 @@ export default function Arcade() {
             className="arcade-scanlines"
             style={{
               position: 'fixed',
-              top: '35%',
+              top: '36%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '435px',
-              height: '345px',
+              width: '400px',
+              height: '320px',
               zIndex: 20,
               pointerEvents: 'auto',
               animation: 'arcadeFadeIn 0.4s ease-out forwards',
