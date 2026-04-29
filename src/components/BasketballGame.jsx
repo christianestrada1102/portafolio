@@ -279,8 +279,10 @@ function Ball({ throwTrigger, onScore, onReset }) {
         metalness={0}
         bumpMap={texture}
         bumpScale={0.006}
+        emissive="#f97316"
+        emissiveIntensity={0.3}
       />
-      <pointLight color="#f97316" intensity={1} distance={1.5} decay={2} />
+      <pointLight color="#f97316" intensity={2} distance={2} decay={2} />
     </mesh>
   );
 }

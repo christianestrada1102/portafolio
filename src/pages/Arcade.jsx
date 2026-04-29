@@ -12,11 +12,11 @@ const VIEWS = {
     target: [0, 0, 0],
   },
   arcade: {
-    pos:    [0.3, 0.15, -0.2],
-    target: [0.3, 0.15, -1],
+    pos:    [0, 0.2, 1.0],
+    target: [0, 0.1, 0.1],
   },
   basket: {
-    pos:    [-1.2, 0.5, 0.2],
+    pos:    [-0.5, 0.8, 0.5],
     target: [-2, 0.3, -2],
   },
   poster_devmode: {
