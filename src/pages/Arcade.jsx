@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useThree, useFrame } from '@react-three/fiber';
 import BasketballGame from '../components/BasketballGame';
@@ -12,8 +12,8 @@ const VIEWS = {
     target: [0, 0.1, 0],
   },
   arcade: {
-    pos:    [0.5, 0.15, -0.3],
-    target: [0.8, 0.15, -1],
+    pos:    [0.12, 0.35, 1.25],
+    target: [0, 0.15, 0.3],
   },
   basket: {
     pos:    [-1.2, 0.5, 0.2],
@@ -121,6 +121,15 @@ function CameraController({ activeView }) {
   const { camera, invalidate } = useThree();
   const targetRef    = useRef(new THREE.Vector3(...VIEWS.overview.target));
   const isAnimating  = useRef(false);
+  const zoomLimits = {
+    overview: { min: 0.3, max: 2.5 },
+    arcade: { min: 1.05, max: 3.2 },
+    basket: { min: 0.3, max: 2.5 },
+    poster_devmode: { min: 0.5, max: 2.5 },
+    poster_gameover: { min: 0.5, max: 2.5 },
+    poster_cuadro: { min: 0.5, max: 2.5 },
+    poster_poster2: { min: 0.5, max: 2.5 },
+  };
 
   useEffect(() => {
     const view = VIEWS[activeView];
@@ -165,7 +174,8 @@ function CameraController({ activeView }) {
       const newPos = camera.position.clone().add(dir.multiplyScalar(zoomSpeed));
 
       const dist = newPos.distanceTo(new THREE.Vector3(...view.target));
-      if (dist > 0.3 && dist < 2.5) {
+      const limits = zoomLimits[activeView] || zoomLimits.overview;
+      if (dist > limits.min && dist < limits.max) {
         camera.position.copy(newPos);
       }
     };
@@ -202,6 +212,47 @@ function WallPoster({ url, position, rotation, width = 0.8, height = 0.6, id, on
   );
 }
 
+function ChairProp({
+  position = [-0.2, -0.28, 0.9],
+  rotation = [0, THREE.MathUtils.degToRad(12), 0],
+  scale = 0.95,
+}) {
+  const texture = useTexture('/images/silla.png');
+  const size = 0.48 * scale;
+
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Two crossed cards fake volume and read better from most angles */}
+      <mesh>
+        <planeGeometry args={[size, size]} />
+        <meshStandardMaterial
+          map={texture}
+          transparent
+          alphaTest={0.2}
+          roughness={0.75}
+          metalness={0.05}
+          emissive="#3b1a61"
+          emissiveIntensity={0.2}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <mesh rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[size, size]} />
+        <meshStandardMaterial
+          map={texture}
+          transparent
+          alphaTest={0.2}
+          roughness={0.75}
+          metalness={0.05}
+          emissive="#3b1a61"
+          emissiveIntensity={0.2}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function BasketModel() {
   const { scene } = useGLTF('/models/basket.glb', true);
 
@@ -219,17 +270,23 @@ function BasketModel() {
 
 function ArcadeModel() {
   const { scene } = useGLTF('/models/arcade.glb', true);
+  const model = useMemo(() => scene.clone(true), [scene]);
+
+  const yOffset = useMemo(() => {
+    const bbox = new THREE.Box3().setFromObject(model);
+    return Number.isFinite(bbox.min.y) ? -bbox.min.y : 0;
+  }, [model]);
 
   useEffect(() => {
-    scene.traverse((child) => {
+    model.traverse((child) => {
       if (child.isMesh) {
         child.material.vertexColors = true;
         child.material.needsUpdate = true;
       }
     });
-  }, [scene]);
+  }, [model]);
 
-  return <primitive object={scene} />;
+  return <primitive object={model} position={[0, yOffset, 0]} />;
 }
 
 export default function Arcade() {
@@ -323,11 +380,18 @@ export default function Arcade() {
         <directionalLight position={[-2, 2, -1]} intensity={0.8} />
         <pointLight position={[0, 0.5, 1.5]} intensity={1.5} color="#A855F7" distance={4} />
         <pointLight position={[0, 2.5, 0]} intensity={0.3} color="#1a1a2e" distance={6} />
-        <pointLight position={[0, -0.3, 0.8]} intensity={0.5} color="#7c3aed" distance={2} decay={2} />
+        <pointLight position={[0, -0.3, 0.3]} intensity={0.75} color="#7c3aed" distance={2.6} decay={2} />
 
         {/* Luz canasta */}
         <pointLight position={[-2, 1, -1.5]} intensity={1.5} color="#A855F7" distance={3} decay={2} />
         <pointLight position={[-2, 0.5, -0.5]} intensity={1} color="#ffffff" distance={2.5} decay={2} />
+        <pointLight position={[-2.5, 1.2, -2.3]} intensity={0.9} color="#c4b5fd" distance={2.2} decay={2} />
+        
+        {/* Luz poster2 (pared derecha) */}
+        <pointLight position={[2.55, 1.05, -1.5]} intensity={0.95} color="#a855f7" distance={2.2} decay={2} />
+
+        {/* Luz arriba del cuadro central */}
+        <pointLight position={[-0.7, 1.4, -2.55]} intensity={0.85} color="#c084fc" distance={2.2} decay={2} />
 
         <CameraController activeView={activeView} />
         <BasketballGame
@@ -339,14 +403,16 @@ export default function Arcade() {
 
         <Suspense fallback={null}>
           <group
-            position={[0.8, -0.5, -1]}
-            rotation={[0, -0.3, 0]}
+            position={[0, -0.5, 0.3]}
+            rotation={[0, THREE.MathUtils.degToRad(285), 0]}
+            scale={[1.15, 1.15, 1.15]}
             onClick={(e) => { e.stopPropagation(); setActiveView('arcade'); }}
             onPointerOver={() => document.body.style.cursor = 'pointer'}
             onPointerOut={() => document.body.style.cursor = 'default'}
           >
             <ArcadeModel />
           </group>
+          <ChairProp />
 
           <group
             onClick={(e) => { e.stopPropagation(); setActiveView('basket'); }}
@@ -500,9 +566,10 @@ export default function Arcade() {
           fontFamily: "'Press Start 2P', monospace",
           fontSize: '14px',
           color: '#A855F7',
-          zIndex: 10,
+          zIndex: 50,
           textAlign: 'center',
           pointerEvents: 'none',
+          textShadow: '0 0 10px #A855F7',
         }}>
           <div>SCORE: {score}</div>
           <div style={{ fontSize: '8px', color: '#737373', marginTop: '6px' }}>
@@ -588,3 +655,4 @@ useTexture.preload('/images/cuadro.png');
 useTexture.preload('/images/poster.png');
 useTexture.preload('/images/game-over.png');
 useTexture.preload('/images/poster2.png');
+useTexture.preload('/images/silla.png');

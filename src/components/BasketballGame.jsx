@@ -232,8 +232,10 @@ function Ball({ throwTrigger, onScore, onReset }) {
     const above = by > hy + 0.02;
     if (wasAbove.current && !above && !hasScored.current) {
       const d = Math.sqrt((bx - hx) ** 2 + (bz - hz) ** 2);
-      if (d < HOOP_RADIUS * 0.85) {
+      console.log('Cruzó aro — distancia XZ:', d.toFixed(3), '| umbral:', (HOOP_RADIUS * 1.1).toFixed(3));
+      if (d < HOOP_RADIUS * 1.1) {
         hasScored.current = true;
+        console.log('CANASTA!');
         onScoreRef.current?.();
       }
     }
