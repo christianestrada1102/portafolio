@@ -212,7 +212,7 @@ function WallPoster({ url, position, rotation, width = 0.8, height = 0.6, id, on
   );
 }
 
-function Stool({ position = [0, -0.49, -0.3] }) {
+function Stool({ position = [0, -0.49, 0.2] }) {
   const seatTexture = useTexture('/images/stool-texture.png');
   return (
     <group position={position} scale={0.82} rotation={[0, THREE.MathUtils.degToRad(-45), 0]}>
