@@ -212,42 +212,23 @@ function WallPoster({ url, position, rotation, width = 0.8, height = 0.6, id, on
   );
 }
 
-function ChairProp({
-  position = [-0.2, -0.28, 0.9],
-  rotation = [0, THREE.MathUtils.degToRad(12), 0],
-  scale = 0.95,
-}) {
-  const texture = useTexture('/images/silla.png');
-  const size = 0.48 * scale;
-
+function Stool({ position = [-0.2, -0.49, 0.9] }) {
   return (
-    <group position={position} rotation={rotation}>
-      {/* Two crossed cards fake volume and read better from most angles */}
-      <mesh>
-        <planeGeometry args={[size, size]} />
-        <meshStandardMaterial
-          map={texture}
-          transparent
-          alphaTest={0.2}
-          roughness={0.75}
-          metalness={0.05}
-          emissive="#3b1a61"
-          emissiveIntensity={0.2}
-          side={THREE.DoubleSide}
-        />
+    <group position={position}>
+      {/* Asiento */}
+      <mesh position={[0, 0.35, 0]}>
+        <cylinderGeometry args={[0.18, 0.16, 0.04, 20]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={0.7} roughness={0.3} />
       </mesh>
-      <mesh rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[size, size]} />
-        <meshStandardMaterial
-          map={texture}
-          transparent
-          alphaTest={0.2}
-          roughness={0.75}
-          metalness={0.05}
-          emissive="#3b1a61"
-          emissiveIntensity={0.2}
-          side={THREE.DoubleSide}
-        />
+      {/* Pata central */}
+      <mesh position={[0, 0.17, 0]}>
+        <cylinderGeometry args={[0.03, 0.04, 0.34, 8]} />
+        <meshStandardMaterial color="#111111" metalness={0.8} roughness={0.2} />
+      </mesh>
+      {/* Base */}
+      <mesh position={[0, 0.01, 0]}>
+        <cylinderGeometry args={[0.2, 0.2, 0.02, 20]} />
+        <meshStandardMaterial color="#111111" metalness={0.8} roughness={0.2} />
       </mesh>
     </group>
   );
@@ -416,7 +397,7 @@ export default function Arcade() {
           >
             <ArcadeModel />
           </group>
-          <ChairProp />
+          <Stool />
 
           <group
             onClick={(e) => { e.stopPropagation(); setActiveView('basket'); }}
@@ -659,4 +640,3 @@ useTexture.preload('/images/cuadro.png');
 useTexture.preload('/images/poster.png');
 useTexture.preload('/images/game-over.png');
 useTexture.preload('/images/poster2.png');
-useTexture.preload('/images/silla.png');
