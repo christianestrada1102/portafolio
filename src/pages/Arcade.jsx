@@ -661,17 +661,16 @@ export default function Arcade() {
             className="arcade-scanlines"
             style={{
               position: 'fixed',
-              top: '33%',
+              top: '34%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '480px',
-              height: '390px',
+              width: '440px',
+              height: '340px',
               zIndex: 20,
               pointerEvents: 'auto',
               animation: 'arcadeFadeIn 0.4s ease-out forwards',
-              borderRadius: '8px',
+              borderRadius: '10px',
               overflow: 'hidden',
-              border: '2px solid rgba(168,85,247,0.15)',
               boxShadow: '0 0 20px rgba(168,85,247,0.1)',
             }}
           >
