@@ -8,8 +8,8 @@ import gsap from 'gsap';
 
 const VIEWS = {
   overview: {
-    pos:    [0, 0.8, 3.5],
-    target: [0, 0.1, 0],
+    pos:    [0, 0.5, 3],
+    target: [0, 0, 0],
   },
   arcade: {
     pos:    [0.3, 0.15, -0.2],
@@ -212,7 +212,7 @@ function WallPoster({ url, position, rotation, width = 0.8, height = 0.6, id, on
   );
 }
 
-function Stool({ position = [-0.2, -0.49, 0.75] }) {
+function Stool({ position = [0, -0.49, -0.3] }) {
   const seatTexture = useTexture('/images/stool-texture.png');
   return (
     <group position={position} scale={0.82}>
@@ -429,7 +429,7 @@ export default function Arcade() {
 
         <Suspense fallback={null}>
           <group
-            position={[0.3, -0.5, -1]}
+            position={[0, -0.5, -1.5]}
             rotation={[0, 0, 0]}
             scale={[1.15, 1.15, 1.15]}
             onClick={(e) => {
