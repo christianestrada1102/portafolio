@@ -625,20 +625,56 @@ export default function Arcade() {
       )}
 
       {activeView === 'arcade' && (
-        <div style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -55%)',
-          width: '400px',
-          height: '350px',
-          borderRadius: '4px',
-          zIndex: 20,
-          pointerEvents: 'auto',
-          overflow: 'hidden',
-        }}>
-          <ArcadeGame onExit={() => setActiveView('overview')} />
-        </div>
+        <>
+          <style>{`
+            @keyframes arcadeFadeIn {
+              from { opacity: 0; }
+              to   { opacity: 1; }
+            }
+            .arcade-scanlines::after {
+              content: '';
+              position: absolute;
+              inset: 0;
+              background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                rgba(0,0,0,0.18) 3px,
+                rgba(0,0,0,0.18) 4px
+              );
+              pointer-events: none;
+              z-index: 1;
+            }
+          `}</style>
+          <div
+            className="arcade-scanlines"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: '#0a0612',
+              zIndex: 20,
+              pointerEvents: 'auto',
+              animation: 'arcadeFadeIn 0.4s ease-out forwards',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: 'inset 0 0 80px rgba(147,51,234,0.15)',
+            }}
+          >
+            <div style={{
+              position: 'relative',
+              zIndex: 2,
+              width: '400px',
+              height: '350px',
+              border: '2px solid rgba(147,51,234,0.3)',
+              borderRadius: '4px',
+              boxShadow: '0 0 40px rgba(147,51,234,0.2)',
+              overflow: 'hidden',
+            }}>
+              <ArcadeGame onExit={() => setActiveView('overview')} />
+            </div>
+          </div>
+        </>
       )}
 
       {activeView !== 'overview' && (
