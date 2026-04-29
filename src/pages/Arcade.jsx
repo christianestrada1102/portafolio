@@ -389,9 +389,13 @@ export default function Arcade() {
         
         {/* Luz poster2 (pared derecha) */}
         <pointLight position={[2.55, 1.05, -1.5]} intensity={0.95} color="#a855f7" distance={2.2} decay={2} />
+        <pointLight position={[2.5, 0.7, -1]} intensity={1} color="#A855F7" distance={2} decay={2} />
 
         {/* Luz arriba del cuadro central */}
         <pointLight position={[-0.7, 1.4, -2.55]} intensity={0.85} color="#c084fc" distance={2.2} decay={2} />
+
+        {/* Luz entre posters pared trasera (Arcade Room y Game Over) */}
+        <pointLight position={[0.5, 1.2, -2.5]} intensity={1.2} color="#A855F7" distance={2.5} decay={2} />
 
         <CameraController activeView={activeView} />
         <BasketballGame
