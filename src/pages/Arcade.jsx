@@ -212,10 +212,10 @@ function WallPoster({ url, position, rotation, width = 0.8, height = 0.6, id, on
   );
 }
 
-function Stool({ position = [-0.2, -0.49, 0.9] }) {
+function Stool({ position = [-0.2, -0.49, 0.65] }) {
   const seatTexture = useTexture('/images/stool-texture.png');
   return (
-    <group position={position}>
+    <group position={position} scale={0.82}>
       {/* Asiento — cuero/vinilo */}
       <mesh position={[0, 0.35, 0]}>
         <cylinderGeometry args={[0.18, 0.18, 0.06, 24]} />
