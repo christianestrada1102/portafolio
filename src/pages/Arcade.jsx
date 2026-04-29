@@ -373,6 +373,10 @@ export default function Arcade() {
         <pointLight position={[-2, 1, -1.5]} intensity={1.5} color="#A855F7" distance={3} decay={2} />
         <pointLight position={[-2, 0.5, -0.5]} intensity={1} color="#ffffff" distance={2.5} decay={2} />
         <pointLight position={[-2.5, 1.2, -2.3]} intensity={0.9} color="#c4b5fd" distance={2.2} decay={2} />
+        {/* Luz poste basket — misma configuración que la máquina arcade */}
+        <pointLight position={[-1.5, 0.5, -1.5]} intensity={1.5} color="#A855F7" distance={4} />
+        <pointLight position={[-2.5, 2.5, -2.5]} intensity={0.3} color="#1a1a2e" distance={6} />
+        <pointLight position={[-2.5, -0.3, -2.5]} intensity={0.75} color="#7c3aed" distance={2.6} decay={2} />
         
         {/* Luz poster2 (pared derecha) */}
         <pointLight position={[2.55, 1.05, -1.5]} intensity={0.95} color="#a855f7" distance={2.2} decay={2} />
