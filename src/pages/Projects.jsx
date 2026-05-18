@@ -6,7 +6,7 @@ import settArbImg from '../assets/SettArb.png';
 import astroImg from '../assets/Astro.jpg';
 import safeZoneImg from '../assets/safezone2.png';
 import portfolioImg from '../assets/portfolio2.png';
-import havenImg from '../assets/haven-web.png';
+import havenImg from '../assets/haven-lat.png';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
