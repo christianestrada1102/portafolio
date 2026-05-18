@@ -20,7 +20,7 @@ const PROJECTS = [
     descriptionKey: 'projects.desc.haven',
     techs: ['FastAPI', 'React', 'PostgreSQL', 'Mistral AI', 'Claude AI', 'Whisper', 'VirusTotal', 'Make.com', 'Globe.gl', 'GSAP', 'Railway', 'Vercel'],
     demo: 'https://haven-lat.codebynas.dev/',
-    github: null,
+    github: 'https://github.com/christianestrada1102/Hack_Latam',
   },
   {
     title: 'SettArb',
