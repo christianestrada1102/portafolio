@@ -6,11 +6,22 @@ import settArbImg from '../assets/SettArb.png';
 import astroImg from '../assets/Astro.jpg';
 import safeZoneImg from '../assets/safezone2.png';
 import portfolioImg from '../assets/portfolio2.png';
+import havenImg from '../assets/haven-web.png';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const PROJECTS = [
+  {
+    title: 'HAVEN',
+    status: 'done',
+    image: havenImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.haven',
+    techs: ['FastAPI', 'React', 'PostgreSQL', 'Mistral AI', 'Claude AI', 'Whisper', 'VirusTotal', 'Make.com', 'Globe.gl', 'GSAP', 'Railway', 'Vercel'],
+    demo: 'https://haven-lat.codebynas.dev/',
+    github: null,
+  },
   {
     title: 'SettArb',
     status: 'done',
