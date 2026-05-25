@@ -11,7 +11,7 @@ export const translations = {
     'app.loading': 'Cargando secciones...',
 
     // ── Home ──
-    'home.role':            'Software Developer',
+    'home.role':            'Full Stack | Software Developer',
     'home.subtitle.pre':    'Construyendo aplicaciones escalables y significativas desde',
     'home.location':        'Chihuahua, México.',
     'home.cta.projects':    'Ver proyectos',
@@ -25,7 +25,7 @@ export const translations = {
     'about.heading':          'Código, curiosidad y',
     'about.heading.accent':   'propósito',
     'about.bio.1.pre':        'Soy ',
-    'about.bio.1.post':       ', desarrollador de software de Chihuahua, México. Me apasiona crear aplicaciones significativas y escalables que resuelven problemas reales.',
+    'about.bio.1.post':       ', desarrollador de software Full Stack de Chihuahua, México. Me apasiona crear aplicaciones significativas y escalables que resuelven problemas reales.',
     'about.bio.2.pre':        'Mi stack principal incluye ',
     'about.bio.2.stack':      'C#, C++, React, Vite.js y Node.js',
     'about.bio.2.mid':        '. Actualmente expandiendo habilidades en ',
@@ -119,7 +119,7 @@ export const translations = {
     'app.loading': 'Loading sections...',
 
     // ── Home ──
-    'home.role':            'Software Developer',
+    'home.role':            'Full Stack | Software Developer',
     'home.subtitle.pre':    'Building scalable and meaningful applications from',
     'home.location':        'Chihuahua, México.',
     'home.cta.projects':    'View projects',
@@ -133,7 +133,7 @@ export const translations = {
     'about.heading':          'Code, curiosity and',
     'about.heading.accent':   'purpose',
     'about.bio.1.pre':        "I'm ",
-    'about.bio.1.post':       ', a software developer from Chihuahua, México. Passionate about building meaningful, scalable applications that solve real problems.',
+    'about.bio.1.post':       ', a full stack software developer from Chihuahua, México. Passionate about building meaningful, scalable applications that solve real problems.',
     'about.bio.2.pre':        'My main stack includes ',
     'about.bio.2.stack':      'C#, C++, React, Vite.js and Node.js',
     'about.bio.2.mid':        '. Currently expanding skills in ',
