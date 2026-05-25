@@ -17,7 +17,7 @@ export const translations = {
     'home.cta.projects':    'Ver proyectos',
     'home.cta.contact':     'Contacto',
     'home.stats.projects':  '5+ Proyectos',
-    'home.stats.hackathons':'3 Hackathons',
+    'home.stats.hackathons':'4 Hackathons',
     'home.scroll':          'Scroll',
 
     // ── About ──
@@ -125,7 +125,7 @@ export const translations = {
     'home.cta.projects':    'View projects',
     'home.cta.contact':     'Contact',
     'home.stats.projects':  '5+ Projects',
-    'home.stats.hackathons':'3 Hackathons',
+    'home.stats.hackathons':'4 Hackathons',
     'home.scroll':          'Scroll',
 
     // ── About ──

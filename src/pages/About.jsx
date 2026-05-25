@@ -11,6 +11,7 @@ import {
   SiVite,
   SiJavascript,
   SiGit,
+  SiNextdotjs,
   SiTailwindcss,
 } from 'react-icons/si';
 import { useLanguage } from '../context/LanguageContext';
@@ -47,6 +48,7 @@ const TECHS = [
   { name: 'C#',      Icon: CSharpIcon },
   { name: 'C++',     Icon: SiCplusplus },
   { name: 'Flutter', Icon: SiFlutter   },
+  { name: 'NextJS',  Icon: SiNextdotjs },
   { name: 'Git', Icon: SiGit   },
 ];
 
