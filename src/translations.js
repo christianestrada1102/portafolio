@@ -52,7 +52,6 @@ export const translations = {
     'projects.desc.settarb':   'Plataforma Web3 desarrollada en EthMexico MTY 2025 que reduce el tiempo de retiro de Arbitrum a Ethereum de 7 días a menos de 2 minutos mediante smart contracts.',
     'projects.desc.astro':     'Yuyin es una plataforma educativa digital que fortalece la atención y el lenguaje en niños, diseñada como apoyo complementario para terapeutas y especialistas. Nacida en el NASA Space Apps Challenge 2025.',
     'projects.desc.safezone':  'App móvil de seguridad personal y comunitaria. Envía alertas en tiempo real y crea una red de apoyo entre usuarios, familiares y autoridades.',
-    'projects.desc.alera':     'Plataforma que conecta pacientes con médicos cercanos. Consultas por videollamada, a domicilio o en consultorio, con geolocalización e historial médico.',
     'projects.desc.innovathon': 'Sitio web oficial del INNOVATHON 2026, hackathon de 72 horas organizado por INNOVA en Chihuahua, México. Diseñado para registros, información del evento y sponsors.',
 
     // ── Achievements ──
@@ -160,7 +159,6 @@ export const translations = {
     'projects.desc.settarb':   'Web3 platform developed at EthMexico MTY 2025 that reduces Arbitrum to Ethereum withdrawal time from 7 days to under 2 minutes via smart contracts.',
     'projects.desc.astro':     'Yuyin is a digital educational platform that strengthens attention and language skills in children, designed as a complementary support tool for therapists and specialists. It originated in the NASA Space Apps Challenge 2025.',
     'projects.desc.safezone':  'Personal and community safety mobile app. Sends real-time alerts and creates a support network among users, family members and authorities.',
-    'projects.desc.alera':     'Platform connecting patients with nearby doctors. Video, home or clinic consultations with geolocation and medical history.',
     'projects.desc.innovathon': 'Official website for INNOVATHON 2026, a 72-hour hackathon organized by INNOVA in Chihuahua, Mexico. Built for registrations, event information and sponsors.',
 
     // ── Achievements ──
