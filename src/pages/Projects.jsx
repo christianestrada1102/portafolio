@@ -5,8 +5,8 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 import settArbImg from '../assets/SettArb.webp';
 import astroImg from '../assets/Astro.webp';
 import safeZoneImg from '../assets/safezone2.webp';
-import portfolioImg from '../assets/portfolio2.webp';
 import havenImg from '../assets/haven-lat.webp';
+import innovathonImg from '../assets/innovathon.png';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -43,16 +43,6 @@ const PROJECTS = [
     github: 'https://github.com/christianestrada1102/SafeZone.git',
   },
   {
-    title: 'Portafolio Web',
-    status: 'done',
-    image: portfolioImg,
-    imagePosition: 'center center',
-    descriptionKey: 'projects.desc.portfolio',
-    techs: ['React', 'Vite', 'TailwindCSS', 'GSAP'],
-    demo: 'https://portafolio-seven-iota-56.vercel.app/',
-    github: 'https://github.com/christianestrada1102/portafolio',
-  },
-  {
     title: 'Yuyin',
     status: 'wip',
     image: astroImg,
@@ -70,6 +60,16 @@ const PROJECTS = [
     descriptionKey: 'projects.desc.alera',
     techs: [],
     demo: null,
+    github: null,
+  },
+  {
+    title: 'INNOVATHON 2026',
+    status: 'done',
+    image: innovathonImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.innovathon',
+    techs: ['Next.js', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Three.js'],
+    demo: 'https://innovathon.innovacuu.xyz',
     github: null,
   },
 ];
