@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { useLanguage } from './context/LanguageContext';
 import Layout from './components/Layout';
 import Preloader from './components/Preloader';
@@ -11,6 +12,7 @@ const About = lazy(() => import('./pages/About'));
 const Achievements = lazy(() => import('./pages/Achievements'));
 const Projects = lazy(() => import('./pages/Projects'));
 const Contact = lazy(() => import('./pages/Contact'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function initLenis() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -57,7 +59,7 @@ function App() {
     };
   }, []);
 
-  return (
+  const portfolio = (
     <>
       {showPreloader && <Preloader onComplete={initLenis} />}
       <Layout>
@@ -76,6 +78,20 @@ function App() {
         </Suspense>
       </Layout>
     </>
+  );
+
+  return (
+    <Routes>
+      <Route path="/" element={portfolio} />
+      <Route
+        path="*"
+        element={(
+          <Suspense fallback={null}>
+            <NotFound />
+          </Suspense>
+        )}
+      />
+    </Routes>
   );
 }
 
