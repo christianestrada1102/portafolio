@@ -13,6 +13,16 @@ gsap.registerPlugin(ScrollTrigger);
 
 const PROJECTS = [
   {
+    title: 'INNOVATHON 2026',
+    status: 'done',
+    image: innovathonImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.innovathon',
+    techs: ['Next.js', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Three.js'],
+    demo: 'https://innovathon.innovacuu.xyz',
+    github: null,
+  },
+  {
     title: 'HAVEN',
     status: 'done',
     image: havenImg,
@@ -60,16 +70,6 @@ const PROJECTS = [
     descriptionKey: 'projects.desc.alera',
     techs: [],
     demo: null,
-    github: null,
-  },
-  {
-    title: 'INNOVATHON 2026',
-    status: 'done',
-    image: innovathonImg,
-    imagePosition: 'center center',
-    descriptionKey: 'projects.desc.innovathon',
-    techs: ['Next.js', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Three.js'],
-    demo: 'https://innovathon.innovacuu.xyz',
     github: null,
   },
 ];
