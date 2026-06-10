@@ -20,7 +20,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 function CSharpIcon({ className }) {
   return (
-    <svg className={className} viewBox="0 -1.43 255.58 290.11" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="0 -1.43 255.58 290.11" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
         <mask id="csharp-cutout">
           <rect x="0" y="-1.43" width="255.58" height="290.11" fill="white"/>
@@ -163,10 +163,12 @@ export default function About() {
               <div
                 key={name}
                 title={name}
+                aria-label={name}
+                role="img"
                 className="tech-item flex items-center justify-center text-neutral-400 hover:text-white transition-colors duration-200 cursor-default group"
               >
                 {Icon ? (
-                  <Icon className="w-6 h-6 md:w-8 md:h-8" />
+                  <Icon className="w-6 h-6 md:w-8 md:h-8" aria-hidden="true" />
                 ) : (
                   <span className="text-base md:text-xl font-mono font-bold leading-none">
                     {symbol ?? name}

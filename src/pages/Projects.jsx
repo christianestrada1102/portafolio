@@ -2,11 +2,11 @@ import { useRef, useEffect, useState } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import settArbImg from '../assets/SettArb.png';
-import astroImg from '../assets/Astro.jpg';
-import safeZoneImg from '../assets/safezone2.png';
-import portfolioImg from '../assets/portfolio2.png';
-import havenImg from '../assets/haven-lat.png';
+import settArbImg from '../assets/SettArb.webp';
+import astroImg from '../assets/Astro.webp';
+import safeZoneImg from '../assets/safezone2.webp';
+import portfolioImg from '../assets/portfolio2.webp';
+import havenImg from '../assets/haven-lat.webp';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -188,6 +188,7 @@ export default function Projects() {
                 className="card-img"
                 style={{ objectPosition: project.imagePosition || 'center center' }}
                 loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="card-overlay absolute inset-0" />

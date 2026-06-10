@@ -3,7 +3,7 @@ import ScrambleButton from '../components/ScrambleButton';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { FiExternalLink } from 'react-icons/fi';
-import nasaImg      from '../assets/nasa-space-apps.jpg';
+import nasaImg      from '../assets/nasa-space-apps.webp';
 import etherfuseImg from '../assets/etherfuse.webp';
 import baseImg      from '../assets/base.webp';
 import ensImg       from '../assets/ens.webp';
@@ -183,6 +183,9 @@ export default function Achievements() {
                     alt={name}
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    decoding="async"
+                    width="64"
+                    height="64"
                   />
                 </div>
                 <div className="text-center">

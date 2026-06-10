@@ -1,7 +1,7 @@
 import { useRef, useLayoutEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import nasPhoto from '../assets/nas2.png';
+import nasPhoto from '../assets/nas2.webp';
 import ScrambleButton from '../components/ScrambleButton';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -70,6 +70,9 @@ export default function Home() {
           aria-hidden="true"
           style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block', opacity: 0.25 }}
           loading="eager"
+          fetchpriority="high"
+          width="1920"
+          height="1080"
         />
       </div>
 
@@ -129,11 +132,11 @@ export default function Home() {
             {/* Stats */}
             <div ref={statsRef} className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-neutral-400">
               <span>{t('home.stats.projects')}</span>
-              <span className="text-neutral-600">·</span>
+              <span aria-hidden="true" className="text-neutral-600">·</span>
               <span>{t('home.stats.hackathons')}</span>
-              <span className="text-neutral-600">·</span>
+              <span aria-hidden="true" className="text-neutral-600">·</span>
               <span>NASA</span>
-              <span className="text-neutral-600">·</span>
+              <span aria-hidden="true" className="text-neutral-600">·</span>
               <span>ETH México</span>
             </div>
           </div>
@@ -145,6 +148,7 @@ export default function Home() {
       <div
         ref={scrollIndRef}
         className="absolute bottom-8 right-6 hidden md:flex flex-col items-center gap-2 pointer-events-none"
+        aria-hidden="true"
       >
         <span className="font-mono text-[9px] uppercase tracking-[0.35em] text-neutral-600 [writing-mode:vertical-rl]">
           {t('home.scroll')}
