@@ -64,7 +64,7 @@ const PROJECTS = [
     github: null,
   },
   {
-    title: 'Full Stack Web App',
+    title: 'Plataforma de Gestión — Cliente Real',
     status: 'private',
     image: lavanderiaImg,
     imagePosition: 'center center',
