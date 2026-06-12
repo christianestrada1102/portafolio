@@ -5,6 +5,7 @@ import App from './App.jsx'
 import './index.css'
 import { ThemeProvider } from './context/ThemeContext'
 import { LanguageProvider } from './context/LanguageContext'
+import { Analytics } from '@vercel/analytics/react'
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
@@ -41,6 +42,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ThemeProvider>
         <LanguageProvider>
           <App />
+          <Analytics />
         </LanguageProvider>
       </ThemeProvider>
     </BrowserRouter>
