@@ -7,7 +7,7 @@ import astroImg from '../assets/Astro.webp';
 import safeZoneImg from '../assets/safezone2.webp';
 import havenImg from '../assets/haven-lat.webp';
 import innovathonImg from '../assets/innovathon.png';
-import lavanderiaImg from '../assets/lavanderia.PNG';
+import lavanderiaImg from '../assets/lavanderia.png';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);

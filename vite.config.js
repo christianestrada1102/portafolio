@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  assetsInclude: ['**/*.webp', '**/*.avif', '**/*.PNG'],
+  assetsInclude: ['**/*.webp', '**/*.avif'],
   build: {
     rollupOptions: {
       output: {
