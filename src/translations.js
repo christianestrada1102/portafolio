@@ -44,6 +44,7 @@ export const translations = {
     'projects.status.done':    'Terminado',
     'projects.status.wip':     'En desarrollo',
     'projects.status.soon':    'Próximamente',
+    'projects.status.private': 'Proyecto privado',
     'projects.cta.view':       'Ver proyecto',
     'projects.cta.open':       'Abrir sitio',
     'projects.cta.github':     'GitHub',
@@ -53,6 +54,7 @@ export const translations = {
     'projects.desc.astro':     'Yuyin es una plataforma educativa digital que fortalece la atención y el lenguaje en niños, diseñada como apoyo complementario para terapeutas y especialistas. Nacida en el NASA Space Apps Challenge 2025.',
     'projects.desc.safezone':  'App móvil de seguridad personal y comunitaria. Envía alertas en tiempo real y crea una red de apoyo entre usuarios, familiares y autoridades.',
     'projects.desc.innovathon': 'Sitio web oficial del INNOVATHON 2026, hackathon de 72 horas organizado por INNOVA en Chihuahua, México. Diseñado para registros, información del evento y sponsors.',
+    'projects.desc.fullstack':  'Desarrollo full-stack de plataforma para gestión de pedidos, clientes, servicios e imágenes para un cliente real. Proyecto privado; demo y código no públicos por confidencialidad.',
 
     // ── Achievements ──
     'achievements.label':            'Logros',
@@ -151,6 +153,7 @@ export const translations = {
     'projects.status.done':    'Done',
     'projects.status.wip':     'In development',
     'projects.status.soon':    'Coming soon',
+    'projects.status.private': 'Private project',
     'projects.cta.view':       'View project',
     'projects.cta.open':       'Open site',
     'projects.cta.github':     'GitHub',
@@ -160,6 +163,7 @@ export const translations = {
     'projects.desc.astro':     'Yuyin is a digital educational platform that strengthens attention and language skills in children, designed as a complementary support tool for therapists and specialists. It originated in the NASA Space Apps Challenge 2025.',
     'projects.desc.safezone':  'Personal and community safety mobile app. Sends real-time alerts and creates a support network among users, family members and authorities.',
     'projects.desc.innovathon': 'Official website for INNOVATHON 2026, a 72-hour hackathon organized by INNOVA in Chihuahua, Mexico. Built for registrations, event information and sponsors.',
+    'projects.desc.fullstack':  'Full-stack development of a platform for managing orders, clients, services and images for a real client. Private project; demo and code not public due to confidentiality.',
 
     // ── Achievements ──
     'achievements.label':            'Achievements',

@@ -7,6 +7,7 @@ import astroImg from '../assets/Astro.webp';
 import safeZoneImg from '../assets/safezone2.webp';
 import havenImg from '../assets/haven-lat.webp';
 import innovathonImg from '../assets/innovathon.png';
+import lavanderiaImg from '../assets/lavanderia.PNG';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -59,6 +60,16 @@ const PROJECTS = [
     imagePosition: 'center center',
     descriptionKey: 'projects.desc.astro',
     techs: ['Unity', 'C#'],
+    demo: null,
+    github: null,
+  },
+  {
+    title: 'Full Stack Web App',
+    status: 'private',
+    image: lavanderiaImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.fullstack',
+    techs: ['React 18', 'Vite', 'Tailwind CSS', 'DaisyUI', 'GSAP', 'React Router'],
     demo: null,
     github: null,
   },
