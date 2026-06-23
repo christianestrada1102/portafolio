@@ -55,6 +55,7 @@ export const translations = {
     'projects.desc.safezone':  'App móvil de seguridad personal y comunitaria. Envía alertas en tiempo real y crea una red de apoyo entre usuarios, familiares y autoridades.',
     'projects.desc.innovathon': 'Sitio web oficial del INNOVATHON 2026, hackathon de 72 horas organizado por INNOVA en Chihuahua, México. Diseñado para registros, información del evento y sponsors.',
     'projects.desc.fullstack':  'Desarrollo full-stack de plataforma para gestión de pedidos, clientes, servicios e imágenes para un cliente real. Proyecto privado; demo y código no públicos por confidencialidad.',
+    'projects.desc.cotiestima': 'Plataforma SaaS para freelancers de LATAM que no saben cuánto cobrar. Un agente de IA llamado Coti analiza el proyecto del cliente, busca benchmarks reales del mercado, y genera una cotización completa con PDF, propuesta, firma digital y detección de extras.',
 
     // ── Achievements ──
     'achievements.label':            'Logros',
@@ -164,6 +165,7 @@ export const translations = {
     'projects.desc.safezone':  'Personal and community safety mobile app. Sends real-time alerts and creates a support network among users, family members and authorities.',
     'projects.desc.innovathon': 'Official website for INNOVATHON 2026, a 72-hour hackathon organized by INNOVA in Chihuahua, Mexico. Built for registrations, event information and sponsors.',
     'projects.desc.fullstack':  'Full-stack development of a platform for managing orders, clients, services and images for a real client. Private project; demo and code not public due to confidentiality.',
+    'projects.desc.cotiestima': 'SaaS platform for LATAM freelancers who don\'t know what to charge. An AI agent named Coti analyzes the client\'s project, researches real market benchmarks, and generates a complete quote with PDF, proposal, digital signature and add-on detection.',
 
     // ── Achievements ──
     'achievements.label':            'Achievements',

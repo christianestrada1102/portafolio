@@ -8,6 +8,7 @@ import safeZoneImg from '../assets/safezone2.webp';
 import havenImg from '../assets/haven-lat.webp';
 import innovathonImg from '../assets/innovathon.png';
 import lavanderiaImg from '../assets/lavanderia.png';
+import cotiestimaImg from '../assets/cotistima.png';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -71,6 +72,16 @@ const PROJECTS = [
     descriptionKey: 'projects.desc.fullstack',
     techs: ['React 18', 'Vite', 'Tailwind CSS', 'DaisyUI', 'GSAP', 'React Router'],
     demo: null,
+    github: null,
+  },
+  {
+    title: 'CotiEstima',
+    status: 'done',
+    image: cotiestimaImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.cotiestima',
+    techs: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Prisma', 'Claude AI', 'Stripe'],
+    demo: 'https://cotiestima.xyz',
     github: null,
   },
 ];
