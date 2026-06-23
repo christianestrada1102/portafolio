@@ -15,6 +15,16 @@ gsap.registerPlugin(ScrollTrigger);
 
 const PROJECTS = [
   {
+    title: 'CotiEstima',
+    status: 'done',
+    image: cotiestimaImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.cotiestima',
+    techs: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Prisma', 'Claude AI', 'Stripe'],
+    demo: 'https://cotiestima.xyz',
+    github: null,
+  },
+  {
     title: 'INNOVATHON 2026',
     status: 'done',
     image: innovathonImg,
@@ -33,6 +43,16 @@ const PROJECTS = [
     techs: ['FastAPI', 'React', 'PostgreSQL', 'Mistral AI', 'Claude AI', 'Whisper', 'VirusTotal', 'Make.com', 'Globe.gl', 'GSAP', 'Railway', 'Vercel'],
     demo: 'https://haven-lat.codebynas.dev/',
     github: 'https://github.com/christianestrada1102/Hack_Latam',
+  },
+  {
+    title: 'Plataforma de Gestión — Cliente Real',
+    status: 'private',
+    image: lavanderiaImg,
+    imagePosition: 'center center',
+    descriptionKey: 'projects.desc.fullstack',
+    techs: ['React 18', 'Vite', 'Tailwind CSS', 'DaisyUI', 'GSAP', 'React Router'],
+    demo: null,
+    github: null,
   },
   {
     title: 'SettArb',
@@ -62,26 +82,6 @@ const PROJECTS = [
     descriptionKey: 'projects.desc.astro',
     techs: ['Unity', 'C#'],
     demo: null,
-    github: null,
-  },
-  {
-    title: 'Plataforma de Gestión — Cliente Real',
-    status: 'private',
-    image: lavanderiaImg,
-    imagePosition: 'center center',
-    descriptionKey: 'projects.desc.fullstack',
-    techs: ['React 18', 'Vite', 'Tailwind CSS', 'DaisyUI', 'GSAP', 'React Router'],
-    demo: null,
-    github: null,
-  },
-  {
-    title: 'CotiEstima',
-    status: 'done',
-    image: cotiestimaImg,
-    imagePosition: 'center center',
-    descriptionKey: 'projects.desc.cotiestima',
-    techs: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Prisma', 'Claude AI', 'Stripe'],
-    demo: 'https://cotiestima.xyz',
     github: null,
   },
 ];
