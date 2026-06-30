@@ -1,37 +1,47 @@
-# Christian Estrada — Web Portfolio
-
 <div align="center">
+  <h1>CodeByNas Portfolio</h1>
+  <p><strong>Professional web portfolio built with a focus on UI/UX, advanced animations, and performance</strong></p>
 
-![Portfolio](https://img.shields.io/badge/Portfolio-Christian_Estrada-purple?style=for-the-badge)
-![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react)
-![Vite](https://img.shields.io/badge/Vite-5.4.0-646CFF?style=for-the-badge&logo=vite)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38B2AC?style=for-the-badge&logo=tailwind-css)
-![GSAP](https://img.shields.io/badge/GSAP-3.x-88CE02?style=for-the-badge&logo=greensock)
-![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=node.js)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
+  <p>
+    <img src="https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black" />
+    <img src="https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white" />
+    <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white" />
+    <img src="https://img.shields.io/badge/GSAP-88CE02?style=flat&logo=greensock&logoColor=black" />
+    <img src="https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white" />
+    <img src="https://img.shields.io/badge/license-MIT-green?style=flat" />
+  </p>
 
-Professional web portfolio built with a focus on UI/UX, advanced animations, and performance.
-
-[View Demo](https://www.codebynas.dev/) · [Report Bug](https://github.com/christianestrada1102/portafolio/issues)
-
+  <p>
+    <a href="https://www.codebynas.dev/">🌐 Live Demo</a> ·
+    <a href="https://github.com/christianestrada1102/portafolio/issues">🐛 Report Bug</a>
+  </p>
 </div>
 
 ---
 
-## Key features
+## About
 
-- **GSAP animations** — staggered letter entrance, hero parallax, scroll-reveal in every section, and an infinite project carousel powered by ScrollTrigger.
-- **Animated preloader** — intro screen built with GSAP that always uses the dark theme, independent of the active theme.
-- **ScrambleButton** — buttons with a character-scramble effect on hover, implemented with a GSAP timeline.
-- **Light / dark theme** — CSS variable system (`data-theme`) with 6 semantic variables, persisted in `localStorage`, with no flash of the wrong theme on load thanks to an inline script in `<head>`.
-- **Manual i18n (ES / EN)** — translation system with no external libraries: `translations.js` with flat keys, `LanguageContext` using `useCallback`, and persistence in `localStorage`.
-- **Lenis smooth scroll** — integrated with GSAP ScrollTrigger for precise scroll-driven animations.
-- **Infinite carousel** — perfect loop using a GSAP proxy + modulo math: `x = -(val % stride)`, with no visible cut frame. Cards are duplicated in JSX so React fully manages them.
-- **Mobile responsive** — improved hamburger menu, hero repositioned to the lower third, gradient overlay, clamp-based font sizing on mobile.
-- **Functional contact form** — Express backend + Resend API on Render, with a 30 s timeout and `AbortController`.
-- **Scroll progress bar** — in the navbar with `transition: width 0.3s ease-out`.
-- **Global radius** — `--radius: 4px` CSS variable applied to cards, modals, badges, and inputs.
-- **Accessibility** — `prefers-reduced-motion`, `aria-hidden` on carousel clones, proper heading hierarchy, and optimal contrast.
+A professional web portfolio designed and built from scratch, focused on smooth motion design, a custom theming system, and bilingual support — all without relying on heavy external libraries beyond GSAP.
+
+> Built and maintained by **[Christian Estrada](https://github.com/christianestrada1102)** (@CodeByNas)
+> Chihuahua, Mexico
+
+---
+
+## Key Features
+
+| Feature | Description |
+|---|---|
+| 🎬 GSAP Animations | Staggered letter entrance, hero parallax, scroll-reveal in every section, infinite project carousel via ScrollTrigger |
+| 🚀 Animated Preloader | Intro screen built with GSAP, always renders in dark theme regardless of active theme |
+| ✨ ScrambleButton | Custom button component with character-scramble effect on hover, built with a GSAP timeline |
+| 🌗 Light / Dark Theme | CSS variable system (`data-theme`) with 6 semantic tokens, persisted in `localStorage`, zero flash on load via inline `<head>` script |
+| 🌍 Manual i18n (ES/EN) | Zero-dependency translation system — flat key dictionary + `LanguageContext` with `useCallback` |
+| 🖱️ Lenis Smooth Scroll | Integrated with GSAP ScrollTrigger for precise scroll-driven animations |
+| ♾️ Infinite Carousel | Perfect loop via GSAP proxy + modulo math, zero visible cut frame |
+| 📱 Mobile Responsive | Improved hamburger menu, hero repositioned to lower third, clamp-based fluid typography |
+| 📬 Functional Contact Form | Express backend + Resend API on Render, 30s timeout with `AbortController` |
+| ♿ Accessibility | `prefers-reduced-motion`, `aria-hidden` on carousel clones, proper heading hierarchy, optimal contrast |
 
 ---
 
@@ -43,33 +53,40 @@ Professional web portfolio built with a focus on UI/UX, advanced animations, and
 
 ---
 
-## Technologies
+## Tech Stack
 
 ### Frontend
-| Technology | Use |
-|---|---|
-| React 18 | UI, lazy loading, Suspense |
-| Vite 5 | Dev server, build, code splitting |
-| TailwindCSS 3 | Utility-first styling |
-| GSAP 3 + ScrollTrigger | Animations, carousel, parallax |
-| Lenis | Smooth scroll integrated with GSAP |
-| React Icons | SVG icons (FaGithub, SiReact, etc.) |
 
-### Implemented animations
-- **Hero** — staggered letters with `gsap.timeline`, image parallax with ScrollTrigger scrub
-- **Preloader** — name fade-in with inline styles (theme-immune) + `preloader-active` class for the navbar
-- **ScrambleButton** — left→right scramble on `mouseenter`, right→left restore on `mouseleave`
-- **Scroll reveal** — `[data-reveal]` with `gsap.from` + ScrollTrigger in About, Achievements, and Contact
-- **Carousel** — proxy tween `0 → stride` with `onUpdate: x = -(val % stride)`, pause/play with ScrollTrigger
+```
+React 18                 → UI, lazy loading, Suspense
+Vite 5                   → Dev server, build, code splitting
+TailwindCSS 3            → Utility-first styling
+GSAP 3 + ScrollTrigger   → Animations, carousel, parallax
+Lenis                    → Smooth scroll integrated with GSAP
+React Icons              → SVG icons (FaGithub, SiReact, etc.)
+```
 
 ### Backend
-- **Node.js + Express** — `POST /api/sendEmail` endpoint
-- **Resend API** — transactional emails
-- **Render** — hosting with cold start (~30 s)
+
+```
+Node.js + Express        → POST /api/sendEmail endpoint
+Resend API                → Transactional emails
+Render                    → Hosting with cold start (~30s)
+```
+
+### Animations Breakdown
+
+| Animation | Implementation |
+|---|---|
+| Hero | Staggered letters via `gsap.timeline`, image parallax with ScrollTrigger scrub |
+| Preloader | Name fade-in with inline styles (theme-immune) + `preloader-active` navbar class |
+| ScrambleButton | Left→right scramble on `mouseenter`, right→left restore on `mouseleave` |
+| Scroll Reveal | `[data-reveal]` with `gsap.from` + ScrollTrigger across About, Achievements, Contact |
+| Carousel | Proxy tween `0 → stride` with `onUpdate: x = -(val % stride)`, pause/play via ScrollTrigger |
 
 ---
 
-## Project structure
+## Project Structure
 
 ```
 PortafolioWeb/
@@ -103,7 +120,7 @@ PortafolioWeb/
 
 ---
 
-## Theme system
+## Theme System
 
 Implemented with CSS custom properties and the `data-theme` attribute on `<html>`:
 
@@ -136,7 +153,7 @@ The anti-flash script in `<head>` applies the saved theme before React mounts:
 
 ---
 
-## i18n system
+## i18n System
 
 No external libraries. Flat file `src/translations.js`:
 
@@ -151,9 +168,9 @@ export const translations = {
 
 ---
 
-## Project carousel
+## Infinite Project Carousel
 
-Infinite loop with no visible cut:
+Perfect loop with no visible cut:
 
 ```js
 // JSX: originals + clones (React manages both)
@@ -178,6 +195,12 @@ The viewport uses `mask-image` to fade out the left and right edges.
 
 ## Installation
 
+### Prerequisites
+
+- Node.js 18+
+
+### Setup
+
 ```bash
 # Clone
 git clone https://github.com/christianestrada1102/portafolio.git
@@ -193,7 +216,7 @@ npm run dev
 cd server && node index.js
 ```
 
-### Environment variables — `server/.env`
+### Environment Variables — `server/.env`
 
 ```env
 PORT=3001
@@ -216,21 +239,37 @@ EMAIL_FROM=noreply@yourdomain.com
 
 ## Deployment
 
-### Frontend → Vercel
-- Build command: `npm run build`
-- Output directory: `dist`
-- No environment variables required
+| Service | Platform | Notes |
+|---|---|---|
+| Frontend | Vercel | Build: `npm run build` · Output: `dist` · No env vars required |
+| Backend | Render | Root: `server` · Build: `npm install` · Start: `node index.js` |
 
-### Backend → Render
-- Root directory: `server`
-- Build: `npm install` · Start: `node index.js`
-- Variables: `RESEND_API_KEY`, `EMAIL_FROM`, `PORT`
+**Backend environment variables:** `RESEND_API_KEY`, `EMAIL_FROM`, `PORT`
 
 ---
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+```
+MIT License
+Copyright (c) 2026 CodeByNas
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+```
+
+See the full [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -245,4 +284,6 @@ Chihuahua, Mexico
 
 ---
 
-CodeByNas © 2026
+<div align="center">
+  <p><sub>© 2026 CodeByNas · MIT License</sub></p>
+</div>
