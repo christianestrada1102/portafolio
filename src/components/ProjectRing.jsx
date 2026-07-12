@@ -20,6 +20,9 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
 
   const [card, setCard]     = useState({ w: 320, h: 200 });
   const [active, setActive] = useState(0);
+  const [hovered, setHovered] = useState(-1);
+  const hoveredRef = useRef(-1);
+  useEffect(() => { hoveredRef.current = hovered; }, [hovered]);
 
   const count  = projects.length;
   const angle  = 360 / count;
@@ -58,7 +61,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
         if (Math.abs(velRef.current) > 0.01) {
           rotYRef.current += velRef.current * f;
           velRef.current *= 0.94;
-        } else {
+        } else if (hoveredRef.current === -1) {
           rotYRef.current += degPerSec * f;
         }
       }
@@ -158,12 +161,18 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                   tabIndex={-1}
                   aria-label={p.name}
                   onClick={(e) => handleCardClick(p, e)}
+                  onPointerEnter={(e) => { if (e.pointerType === 'mouse') setHovered(i); }}
+                  onPointerLeave={(e) => { if (e.pointerType === 'mouse') setHovered(-1); }}
                   style={{
                     ...faceBase,
-                    boxShadow: isFront ? '0 10px 30px rgba(0,0,0,0.35)' : 'none',
+                    boxShadow: hovered === i
+                      ? '0 18px 50px rgba(0,0,0,0.5)'
+                      : isFront ? '0 10px 30px rgba(0,0,0,0.35)' : 'none',
                     outline: isFront ? '1px solid rgba(124, 58, 237, 0.55)' : 'none',
                     background: isFront ? '#111' : 'transparent',
-                    transition: 'outline-color 0.3s ease, box-shadow 0.3s ease',
+                    transform: hovered === i ? 'scale(1.18) translateZ(40px)' : 'scale(1) translateZ(0px)',
+                    transition: 'transform 0.35s cubic-bezier(0.33, 1, 0.68, 1), outline-color 0.3s ease, box-shadow 0.3s ease',
+                    cursor: p.url ? 'pointer' : 'grab',
                   }}
                 >
                   {p.videoSrc ? (
