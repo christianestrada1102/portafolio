@@ -155,17 +155,25 @@ export default function Projects() {
     document.body.append(backdrop, clone);
     setSelectedProject(null);
 
-    // Destino: una carta centrada en el escenario del anillo
-    const s = stage.getBoundingClientRect();
-    const tw = Math.min(320, s.width * 0.6);
-    const th = tw * 0.625;
+    // Destino: la carta real del proyecto, en su posición actual dentro del anillo
+    const face = sectionRef.current?.querySelector(`[data-pnum="${project.num}"]`);
+    let target;
+    if (face) {
+      const r = face.getBoundingClientRect();
+      target = { left: r.left, top: r.top, width: r.width, height: r.height };
+    } else {
+      const s = stage.getBoundingClientRect();
+      const tw = Math.min(320, s.width * 0.6);
+      const th = tw * 0.625;
+      target = { left: s.left + (s.width - tw) / 2, top: s.top + (s.height - th) / 2, width: tw, height: th };
+    }
 
     gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.5, ease: 'power2.inOut' });
     gsap.to(clone, {
-      left: s.left + (s.width - tw) / 2,
-      top: s.top + (s.height - th) / 2,
-      width: tw,
-      height: th,
+      left: target.left,
+      top: target.top,
+      width: target.width,
+      height: target.height,
       borderRadius: 8,
       duration: 0.55,
       ease: 'power4.inOut',
@@ -199,6 +207,7 @@ export default function Projects() {
             projects={PROJECTS}
             onSelect={openProject}
             onActiveChange={setActiveIdx}
+            paused={!!selectedProject}
           />
           <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-600 mt-2 select-none">
             {t('projects.ring.hint')}

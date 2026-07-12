@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
  * - Click/tap (sin arrastre) sobre una carta → onSelect(project).
  * - Reporta el proyecto frontal vía onActiveChange(index).
  */
-export default function ProjectRing({ projects, onSelect, onActiveChange }) {
+export default function ProjectRing({ projects, onSelect, onActiveChange, paused = false }) {
   const ringRef   = useRef(null);
   const rotYRef   = useRef(0);
   const velRef    = useRef(0);
@@ -23,6 +23,8 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
   const [hovered, setHovered] = useState(-1);
   const hoveredRef = useRef(-1);
   useEffect(() => { hoveredRef.current = hovered; }, [hovered]);
+  const pausedRef = useRef(paused);
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
 
   const count  = projects.length;
   const angle  = 360 / count;
@@ -61,7 +63,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
         if (Math.abs(velRef.current) > 0.01) {
           rotYRef.current += velRef.current * f;
           velRef.current *= 0.94;
-        } else if (hoveredRef.current === -1) {
+        } else if (hoveredRef.current === -1 && !pausedRef.current) {
           rotYRef.current += degPerSec * f;
         }
       }
