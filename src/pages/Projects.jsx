@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { PROJECTS } from '../data/projects';
 import { useLanguage } from '../context/LanguageContext';
+import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,7 +71,9 @@ export default function Projects() {
     if (reduced) return;
 
     const ctx = gsap.context(() => {
-      gsap.utils.toArray('.project-row').forEach((row) => {
+      revealHeaders(sectionRef.current);
+
+      gsap.utils.toArray('.project-row', sectionRef.current).forEach((row) => {
         gsap.from(row.querySelectorAll('.row-anim'), {
           y: 24,
           opacity: 0,
@@ -183,11 +186,11 @@ export default function Projects() {
     <>
       <section id="projects" ref={sectionRef} className="py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4 md:px-6 mb-10 md:mb-14">
-          <h2 className="text-3xl md:text-4xl font-semibold text-white">
+          <h2 data-anim="title" className="text-3xl md:text-4xl font-semibold text-white">
             {t('projects.heading')}{' '}
             <em className="not-italic accent-subtle">{t('projects.heading.accent')}</em>
           </h2>
-          <p className="text-neutral-400 mt-2">{t('projects.subtitle')}</p>
+          <p data-anim="copy" className="text-neutral-400 mt-2">{t('projects.subtitle')}</p>
         </div>
 
         {/* ── Lista editorial vertical ── */}

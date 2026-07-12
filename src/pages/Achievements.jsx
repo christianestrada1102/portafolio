@@ -10,6 +10,7 @@ import ensImg       from '../assets/ens.webp';
 import ubdImg       from '../assets/UBD.webp';
 import ethmexicoImg from '../assets/ethmexico.gif';
 import { useLanguage } from '../context/LanguageContext';
+import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,7 +34,9 @@ export default function Achievements() {
     if (reduced) return;
 
     const ctx = gsap.context(() => {
-      gsap.utils.toArray('[data-reveal]').forEach((el) => {
+      revealHeaders(containerRef.current);
+
+      gsap.utils.toArray('[data-reveal]', containerRef.current).forEach((el) => {
         gsap.from(el, {
           y: 40,
           opacity: 0,
@@ -71,11 +74,11 @@ export default function Achievements() {
       <div className="max-w-6xl mx-auto px-4 md:px-6 space-y-12">
 
         {/* ── Header ── */}
-        <div data-reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
+        <div>
+          <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
             {t('achievements.label')}
           </p>
-          <h2 className="text-3xl md:text-4xl font-semibold text-white">
+          <h2 data-anim="title" className="text-3xl md:text-4xl font-semibold text-white">
             {t('achievements.heading')}{' '}
             <em className="not-italic accent-subtle">{t('achievements.heading.accent')}</em>
           </h2>

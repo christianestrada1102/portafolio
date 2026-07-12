@@ -5,6 +5,7 @@ import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import ScrambleButton from '../components/ScrambleButton';
 import { useLanguage } from '../context/LanguageContext';
+import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,7 +39,9 @@ export default function Contact() {
     if (reduced) return;
 
     const ctx = gsap.context(() => {
-      gsap.utils.toArray('[data-reveal]').forEach((el) => {
+      revealHeaders(containerRef.current);
+
+      gsap.utils.toArray('[data-reveal]', containerRef.current).forEach((el) => {
         gsap.from(el, {
           y: 40,
           opacity: 0,
@@ -111,14 +114,14 @@ export default function Contact() {
       <div className="max-w-6xl mx-auto px-4 md:px-6">
 
         {/* ── Header ── */}
-        <div data-reveal className="mb-8">
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
+        <div className="mb-8">
+          <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
             {t('contact.label')}
           </p>
-          <h2 className="text-3xl md:text-4xl font-semibold text-white mb-3">
+          <h2 data-anim="title" className="text-3xl md:text-4xl font-semibold text-white mb-3">
             {t('contact.heading.pre')}<em className="not-italic accent-subtle">{t('contact.heading.accent')}</em>{t('contact.heading.post')}
           </h2>
-          <p className="text-neutral-400 text-base max-w-md leading-relaxed">
+          <p data-anim="copy" className="text-neutral-400 text-base max-w-md leading-relaxed">
             {t('contact.description')}
           </p>
         </div>

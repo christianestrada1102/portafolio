@@ -18,6 +18,7 @@ import {
 } from 'react-icons/si';
 import LogoLoop from '../components/LogoLoop';
 import { useLanguage } from '../context/LanguageContext';
+import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -80,7 +81,9 @@ export default function About() {
     if (reduced) return;
 
     const ctx = gsap.context(() => {
-      gsap.utils.toArray('[data-reveal]').forEach((el) => {
+      revealHeaders(containerRef.current);
+
+      gsap.utils.toArray('[data-reveal]', containerRef.current).forEach((el) => {
         gsap.from(el, {
           y: 40,
           opacity: 0,
@@ -133,11 +136,11 @@ export default function About() {
       <div className="max-w-6xl mx-auto px-4 md:px-6">
 
         {/* ── Header ── */}
-        <div data-reveal className="mb-8">
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
+        <div className="mb-8">
+          <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
             {t('about.label')}
           </p>
-          <h2 className="text-3xl md:text-4xl font-semibold text-white">
+          <h2 data-anim="title" className="text-3xl md:text-4xl font-semibold text-white">
             {t('about.heading')}{' '}
             <em className="not-italic accent-subtle">{t('about.heading.accent')}</em>
           </h2>
