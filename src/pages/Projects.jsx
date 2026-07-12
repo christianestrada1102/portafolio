@@ -168,11 +168,17 @@ export default function Projects() {
       v.autoplay = true;
       v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
       const cardVideo = face?.querySelector('video');
-      if (cardVideo && !Number.isNaN(cardVideo.currentTime)) {
-        v.currentTime = cardVideo.currentTime;
-      }
+      const sync = () => {
+        if (cardVideo && !Number.isNaN(cardVideo.currentTime)) {
+          try { v.currentTime = cardVideo.currentTime; } catch { /* aún sin datos */ }
+        }
+      };
+      // Sincronizar cuando el video esté listo (asignar antes de metadata se ignora)
+      if (v.readyState >= 1) sync();
+      else v.addEventListener('loadedmetadata', sync, { once: true });
       clone.appendChild(v);
       v.play?.().catch(() => {});
+      clone._syncVideo = sync;
     } else if (project.image) {
       clone.style.background = `#111 url(${project.image}) center/cover no-repeat`;
     }
@@ -205,6 +211,7 @@ export default function Projects() {
       duration: 0.55,
       ease: 'power4.out',
       onComplete: () => {
+        clone._syncVideo?.();
         gsap.to(clone, {
           opacity: 0,
           duration: 0.12,
