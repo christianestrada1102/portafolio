@@ -774,20 +774,17 @@ html[data-theme='light']::view-transition-new(root) {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/dark%26gt%3B%3C/text%3E%3C/svg%3E");
     mask-size: 56vmax;
   }
-  /* Caret de terminal -> seleccion de linea -> bloque que llena la pantalla */
-  75%, 79% {
+  /* Barrido diagonal: la misma diagonal del "/" de </> */
+  75% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
-    mask-size: 1.6vmax 8vmax;
-    animation-timing-function: var(--expo-out);
-  }
-  88% {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
-    mask-size: 210vmax 8vmax;
+    mask-size: 500vmax 500vmax;
+    clip-path: polygon(50% -71%, -50% 71%, -50% 71%, 50% -71%);
     animation-timing-function: var(--expo-out);
   }
   100% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
-    mask-size: 210vmax 210vmax;
+    mask-size: 500vmax 500vmax;
+    clip-path: polygon(50% -71%, -50% 71%, 50% 171%, 171% 50%);
   }
 }
 
@@ -815,19 +812,16 @@ html[data-theme='light']::view-transition-new(root) {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/light%26gt%3B%3C/text%3E%3C/svg%3E");
     mask-size: 56vmax;
   }
-  /* Caret de terminal -> seleccion de linea -> bloque que llena la pantalla */
-  75%, 79% {
+  /* Barrido diagonal: la misma diagonal del "/" de </> */
+  75% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
-    mask-size: 1.6vmax 8vmax;
-    animation-timing-function: var(--expo-out);
-  }
-  88% {
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
-    mask-size: 210vmax 8vmax;
+    mask-size: 500vmax 500vmax;
+    clip-path: polygon(171% 50%, 50% 171%, 50% 171%, 171% 50%);
     animation-timing-function: var(--expo-out);
   }
   100% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
-    mask-size: 210vmax 210vmax;
+    mask-size: 500vmax 500vmax;
+    clip-path: polygon(171% 50%, 50% 171%, -50% 71%, 50% -71%);
   }
 }
