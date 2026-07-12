@@ -13,6 +13,7 @@ const Achievements = lazy(() => import('./pages/Achievements'));
 const Projects = lazy(() => import('./pages/Projects'));
 const Contact = lazy(() => import('./pages/Contact'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const HackathonsPage = lazy(() => import('./pages/HackathonsPage'));
 
 function initLenis() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -83,6 +84,14 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={portfolio} />
+      <Route
+        path="/hackathons"
+        element={(
+          <Suspense fallback={null}>
+            <HackathonsPage />
+          </Suspense>
+        )}
+      />
       <Route
         path="*"
         element={(

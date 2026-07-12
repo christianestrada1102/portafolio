@@ -1,4 +1,5 @@
 import { useRef, useLayoutEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import nasPhoto from '../assets/nas2.webp';
@@ -133,7 +134,12 @@ export default function Home() {
             <div ref={statsRef} className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-neutral-400">
               <span>{t('home.stats.projects')}</span>
               <span aria-hidden="true" className="text-neutral-600">·</span>
-              <span>{t('home.stats.hackathons')}</span>
+              <Link
+                to="/hackathons"
+                className="underline-offset-4 hover:underline hover:text-neutral-200 transition-colors duration-200"
+              >
+                {t('home.stats.hackathons')} <span aria-hidden="true">↗</span>
+              </Link>
               <span aria-hidden="true" className="text-neutral-600">·</span>
               <span>NASA</span>
               <span aria-hidden="true" className="text-neutral-600">·</span>
