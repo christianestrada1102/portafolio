@@ -97,12 +97,17 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
   };
   const onPointerUp = (e) => {
     e.currentTarget.releasePointerCapture?.(e.pointerId);
+    const wasDrag = dragRef.current.moved > 8;
     dragRef.current.active = false;
-  };
-
-  const handleCardClick = (project, e) => {
-    if (dragRef.current.moved > 8) return; // fue un arrastre, no un click
-    onSelect?.(project, e.currentTarget);
+    if (wasDrag || e.type === 'pointercancel') return;
+    // Click (no arrastre): buscar la carta bajo el cursor.
+    // No usamos onClick en la carta porque setPointerCapture redirige el click al stage.
+    const face = document
+      .elementFromPoint(e.clientX, e.clientY)
+      ?.closest('[data-pnum]');
+    if (!face) return;
+    const project = projects.find((pr) => pr.num === face.dataset.pnum);
+    if (project) onSelect?.(project, face);
   };
 
   const faceBase = {
@@ -160,7 +165,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                   role="button"
                   tabIndex={-1}
                   aria-label={p.name}
-                  onClick={(e) => handleCardClick(p, e)}
+                  data-pnum={p.num}
                   onPointerEnter={(e) => { if (e.pointerType === 'mouse') setHovered(i); }}
                   onPointerLeave={(e) => { if (e.pointerType === 'mouse') setHovered(-1); }}
                   style={{
