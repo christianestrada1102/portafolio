@@ -24,8 +24,8 @@ function initLenis() {
 
 function App() {
   const { t } = useLanguage();
-  // Solo muestra el preloader la primera vez en la sesión
-  const [showPreloader] = useState(() => !sessionStorage.getItem('preloader-shown'));
+  // El preloader aparece en cada carga de la página
+  const [showPreloader] = useState(true);
 
   useEffect(() => {
     // Si el preloader ya se mostró, inicia Lenis de inmediato
