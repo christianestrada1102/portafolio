@@ -151,7 +151,8 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                   transformStyle: 'preserve-3d',
                 }}
               >
-                {/* Cara exterior: video en la frontal, imagen en el resto */}
+                {/* Cara exterior: el video siempre corriendo; el marco/fondo
+                    solo aparece en la carta del centro */}
                 <div
                   role="button"
                   tabIndex={-1}
@@ -159,14 +160,13 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                   onClick={(e) => handleCardClick(p, e)}
                   style={{
                     ...faceBase,
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
-                    outline: isFront
-                      ? '1px solid rgba(124, 58, 237, 0.55)'
-                      : '1px solid rgba(255,255,255,0.08)',
-                    background: '#111',
+                    boxShadow: isFront ? '0 10px 30px rgba(0,0,0,0.35)' : 'none',
+                    outline: isFront ? '1px solid rgba(124, 58, 237, 0.55)' : 'none',
+                    background: isFront ? '#111' : 'transparent',
+                    transition: 'outline-color 0.3s ease, box-shadow 0.3s ease',
                   }}
                 >
-                  {isFront && p.videoSrc ? (
+                  {p.videoSrc ? (
                     <video
                       src={p.videoSrc}
                       poster={p.image}
@@ -187,21 +187,23 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }}
                     />
                   )}
-                  {/* Número de proyecto */}
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      top: 8,
-                      left: 10,
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: 11,
-                      color: 'rgba(255,255,255,0.85)',
-                      textShadow: '0 1px 4px rgba(0,0,0,0.6)',
-                    }}
-                  >
-                    {p.num}
-                  </span>
+                  {/* Número de proyecto: solo en la carta frontal */}
+                  {isFront && (
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 10,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 11,
+                        color: 'rgba(255,255,255,0.85)',
+                        textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                      }}
+                    >
+                      {p.num}
+                    </span>
+                  )}
                 </div>
                 {/* Cara interior: misma imagen espejada y atenuada */}
                 <div
