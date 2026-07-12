@@ -90,13 +90,13 @@ export const PROJECTS = [
   {
     num: '07',
     name: 'SafeZone',
-    url: null,
+    url: 'https://safezone.codebynas.dev',
     github: 'https://github.com/christianestrada1102/SafeZone.git',
     videoSrc: safezoneVideo,
     image: safeZoneImg,
     descriptionKey: 'projects.desc.safezone',
     stack: ['React Native', 'Django', 'PostgreSQL'],
     badgeKey: 'projects.badge.safezone',
-    status: 'wip',
+    status: 'done',
   },
 ];
