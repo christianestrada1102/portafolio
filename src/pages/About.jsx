@@ -59,9 +59,21 @@ const TECH_LOGOS = [
 
 const TOOLS = ['Visual Studio', 'VS Code', 'Cursor', 'Git', 'GitHub'];
 
+/** Divide un texto en spans .reveal-word para el reveal scroll-driven palabra por palabra */
+function Words({ children }) {
+  return String(children)
+    .split(/(\s+)/)
+    .map((part, i) =>
+      /^\s+$/.test(part) || part === ''
+        ? part
+        : <span key={i} className="reveal-word">{part}</span>
+    );
+}
+
 export default function About() {
   const containerRef = useRef(null);
-  const { t }        = useLanguage();
+  const bioRef       = useRef(null);
+  const { t, lang }  = useLanguage();
 
   useLayoutEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -88,6 +100,34 @@ export default function About() {
     return () => ctx.revert();
   }, []);
 
+  // ── Reveal word-by-word scroll-driven del bio (scrub) ──
+  useLayoutEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !bioRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const words = gsap.utils.toArray('.reveal-word', bioRef.current);
+      if (!words.length) return;
+      gsap.fromTo(
+        words,
+        { opacity: 0.15 },
+        {
+          opacity: 1,
+          ease: 'none',
+          stagger: 0.05,
+          scrollTrigger: {
+            trigger: bioRef.current,
+            start: 'top 80%',
+            end: 'bottom 55%',
+            scrub: true,
+          },
+        }
+      );
+    }, bioRef);
+
+    return () => ctx.revert();
+  }, [lang]);
+
   return (
     <section id="about" ref={containerRef} className="pt-8 pb-6 md:pt-12 md:pb-8">
       <div className="max-w-6xl mx-auto px-4 md:px-6">
@@ -107,22 +147,22 @@ export default function About() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-10 md:mb-12">
 
           {/* Bio */}
-          <div data-reveal className="space-y-4 text-neutral-400 text-base leading-relaxed">
+          <div ref={bioRef} data-reveal className="space-y-4 text-neutral-400 text-base leading-relaxed">
             <p>
-              {t('about.bio.1.pre')}
-              <span className="text-white font-medium">Christian Estrada</span>
-              {t('about.bio.1.post')}
+              <Words>{t('about.bio.1.pre')}</Words>
+              <span className="text-white font-medium"><Words>Christian Estrada</Words></span>
+              <Words>{t('about.bio.1.post')}</Words>
             </p>
             <p>
-              {t('about.bio.2.pre')}
-              <span className="text-neutral-200">{t('about.bio.2.stack')}</span>
-              {t('about.bio.2.mid')}
-              <span className="text-neutral-200">{t('about.bio.2.expanding')}</span>.
+              <Words>{t('about.bio.2.pre')}</Words>
+              <span className="text-neutral-200"><Words>{t('about.bio.2.stack')}</Words></span>
+              <Words>{t('about.bio.2.mid')}</Words>
+              <span className="text-neutral-200"><Words>{t('about.bio.2.expanding')}</Words></span>.
             </p>
             <p>
-              {t('about.bio.3.pre')}
-              <span className="text-neutral-200">{t('about.bio.3.hackathons')}</span>
-              {t('about.bio.3.post')}
+              <Words>{t('about.bio.3.pre')}</Words>
+              <span className="text-neutral-200"><Words>{t('about.bio.3.hackathons')}</Words></span>
+              <Words>{t('about.bio.3.post')}</Words>
             </p>
           </div>
 
