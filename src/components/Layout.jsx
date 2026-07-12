@@ -20,11 +20,62 @@ const SOCIAL = [
   { href: 'https://www.instagram.com/christian_estrada1102',          Icon: FaInstagram, label: 'Instagram' },
 ];
 
-function toggleTheme() {
+function toggleTheme(event) {
   const html = document.documentElement;
   const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
+  const apply = () => {
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  };
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    apply();
+    return;
+  }
+
+  const x = event?.clientX ?? window.innerWidth / 2;
+  const y = event?.clientY ?? window.innerHeight / 2;
+  const endRadius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y)
+  );
+
+  // View Transition API: círculo que se expande desde el botón
+  if (document.startViewTransition) {
+    const transition = document.startViewTransition(apply);
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 600,
+          easing: 'cubic-bezier(0.45, 0, 0.55, 1)',
+          pseudoElement: '::view-transition-new(root)',
+        }
+      );
+    });
+    return;
+  }
+
+  // Fallback: overlay con clip-path animado por GSAP
+  apply();
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `position:fixed;inset:0;z-index:9999;pointer-events:none;background:var(--bg);clip-path:circle(${endRadius}px at ${x}px ${y}px)`;
+  document.body.appendChild(overlay);
+  gsap.fromTo(
+    overlay,
+    { clipPath: `circle(0px at ${x}px ${y}px)` },
+    {
+      clipPath: `circle(${endRadius}px at ${x}px ${y}px)`,
+      duration: 0.6,
+      ease: 'power2.inOut',
+      onComplete: () => overlay.remove(),
+    }
+  );
 }
 
 export default function Layout({ children }) {
@@ -217,7 +268,7 @@ export default function Layout({ children }) {
               {lang === 'es' ? 'EN' : 'ES'}
             </button>
             <button
-              onClick={() => { toggleTheme(); setMobileOpen(false); }}
+              onClick={(e) => { toggleTheme(e); setMobileOpen(false); }}
               className="font-mono text-xl text-left cursor-pointer select-none transition-colors duration-200"
               style={{ color: '#7c3aed' }}
               aria-label="Toggle theme"
