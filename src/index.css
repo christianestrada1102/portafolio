@@ -869,12 +869,3 @@ html[data-theme='light']::view-transition-new(root) {
   animation: ring-info-in 0.45s cubic-bezier(0.33, 1, 0.68, 1) both;
 }
 
-
-/* ── Preview flotante del anillo (hover): entrada limpia ── */
-@keyframes ring-preview-in {
-  from { opacity: 0; transform: scale(0.94); }
-  to   { opacity: 1; transform: scale(1); }
-}
-.ring-hover-preview {
-  animation: ring-preview-in 0.28s cubic-bezier(0.33, 1, 0.68, 1) both;
-}
