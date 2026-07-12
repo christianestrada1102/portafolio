@@ -165,12 +165,17 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                   onPointerLeave={(e) => { if (e.pointerType === 'mouse') setHovered(-1); }}
                   style={{
                     ...faceBase,
+                    /* Sobre-muestreo: la cara vive al 145% y se reduce con scale;
+                       el hover la lleva a escala 1:1 nativa, así el zoom no
+                       pierde calidad (el navegador rasteriza al tamaño grande) */
+                    inset: '-22.5%',
                     boxShadow: hovered === i
                       ? '0 18px 50px rgba(0,0,0,0.5)'
                       : isFront ? '0 10px 30px rgba(0,0,0,0.35)' : 'none',
                     outline: isFront ? '1px solid rgba(124, 58, 237, 0.55)' : 'none',
                     background: isFront ? '#111' : 'transparent',
-                    transform: hovered === i ? 'scale(1.45) translateZ(80px)' : 'scale(1) translateZ(0px)',
+                    transform: hovered === i ? 'translateZ(80px) scale(1)' : 'translateZ(0px) scale(0.6897)',
+                    willChange: 'transform',
                     transition: 'transform 0.35s cubic-bezier(0.33, 1, 0.68, 1), outline-color 0.3s ease, box-shadow 0.3s ease',
                     cursor: p.url ? 'pointer' : 'grab',
                   }}
@@ -217,7 +222,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                         top: 8,
                         left: 10,
                         fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 11,
+                        fontSize: 16,
                         color: 'rgba(255,255,255,0.85)',
                         textShadow: '0 1px 4px rgba(0,0,0,0.6)',
                       }}
