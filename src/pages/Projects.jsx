@@ -159,26 +159,14 @@ export default function Projects() {
       `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
       `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
       `background:#111;`;
-    if (project.videoSrc) {
-      const v = document.createElement('video');
-      v.src = project.videoSrc;
-      v.muted = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.autoplay = true;
-      v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-      const cardVideo = face?.querySelector('video');
-      const sync = () => {
-        if (cardVideo && !Number.isNaN(cardVideo.currentTime)) {
-          try { v.currentTime = cardVideo.currentTime; } catch { /* aún sin datos */ }
-        }
-      };
-      // Sincronizar cuando el video esté listo (asignar antes de metadata se ignora)
-      if (v.readyState >= 1) sync();
-      else v.addEventListener('loadedmetadata', sync, { once: true });
-      clone.appendChild(v);
-      v.play?.().catch(() => {});
-      clone._syncVideo = sync;
+    const cardVideo = face?.querySelector('video');
+    let videoHome = null;
+    if (cardVideo) {
+      // Mover el video real de la carta al clon: sigue reproduciéndose donde
+      // se quedó (ya decodificado, sin recargas ni cuadros negros)
+      videoHome = cardVideo.parentElement;
+      clone.appendChild(cardVideo);
+      clone.style.background = 'transparent';
     } else if (project.image) {
       clone.style.background = `#111 url(${project.image}) center/cover no-repeat`;
     }
@@ -211,13 +199,12 @@ export default function Projects() {
       duration: 0.55,
       ease: 'power4.out',
       onComplete: () => {
-        clone._syncVideo?.();
-        gsap.to(clone, {
-          opacity: 0,
-          duration: 0.12,
-          ease: 'none',
-          onComplete: () => { clone.remove(); backdrop.remove(); setReturning(false); },
-        });
+        if (cardVideo && videoHome) {
+          videoHome.insertBefore(cardVideo, videoHome.firstChild);
+        }
+        clone.remove();
+        backdrop.remove();
+        setReturning(false);
       },
     });
   };
