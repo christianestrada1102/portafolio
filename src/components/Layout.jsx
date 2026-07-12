@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import gsap from 'gsap';
 import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import ScrambleButton from './ScrambleButton';
@@ -28,6 +29,7 @@ function toggleTheme() {
 
 export default function Layout({ children }) {
   const progressRef                          = useRef(null);
+  const headerRef                            = useRef(null);
   const [isScrolled,     setIsScrolled]     = useState(false);
   const [mobileOpen,     setMobileOpen]     = useState(false);
   const [active,         setActive]         = useState('#home');
@@ -39,13 +41,41 @@ export default function Layout({ children }) {
   }, []);
 
   useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Progress bar animada con GSAP (quickTo) en vez de estilo directo
+    const progressTo = progressRef.current
+      ? gsap.quickTo(progressRef.current, 'width', {
+          duration: reduced ? 0 : 0.35,
+          ease: 'power2.out',
+          unit: '%',
+        })
+      : null;
+
+    let lastY = window.scrollY;
+    let hidden = false;
+
     const onScroll = () => {
       const y   = window.scrollY;
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (progressRef.current) {
-        progressRef.current.style.width = `${max > 0 ? (y / max) * 100 : 0}%`;
-      }
+      if (progressTo) progressTo(max > 0 ? (y / max) * 100 : 0);
       setIsScrolled(y > 20);
+
+      // Ocultar navbar al bajar, reaparecer con slide-down al subir
+      if (!reduced && headerRef.current) {
+        const goingDown = y > lastY;
+        if (goingDown && y > 160 && !hidden) {
+          hidden = true;
+          gsap.to(headerRef.current, { y: -76, duration: 0.4, ease: 'power3.out' });
+        } else if (!goingDown && hidden) {
+          hidden = false;
+          gsap.fromTo(
+            headerRef.current,
+            { y: -12 },
+            { y: 0, duration: 0.45, ease: 'power3.out' }
+          );
+        }
+      }
+      lastY = y;
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -95,9 +125,10 @@ export default function Layout({ children }) {
 
       {/* ── Navbar ── */}
       <header
+        ref={headerRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? 'bg-neutral-950/90 backdrop-blur-md border-b border-neutral-800/60'
+            ? 'bg-neutral-950/90 backdrop-blur-lg border-b border-neutral-800/60'
             : 'bg-transparent'
         }`}
       >
@@ -111,12 +142,12 @@ export default function Layout({ children }) {
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
 
           {/* Logo */}
-          <button
+          <ScrambleButton
             onClick={() => scrollTo('#home')}
             className="font-sans font-bold text-base text-white tracking-tight hover:text-neutral-300 transition-colors duration-200 select-none cursor-pointer"
           >
             CodeByNas
-          </button>
+          </ScrambleButton>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8">
