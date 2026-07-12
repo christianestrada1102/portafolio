@@ -706,15 +706,116 @@ body {
   display: block;
 }
 
-/* ── Theme toggle: View Transition circular ── */
+/* ── Theme toggle: View Transition — se "escribe" </dark> o </light> ──
+   El tema nuevo se revela a través de una máscara SVG con el texto tecleado
+   carácter por carácter, y al terminar la palabra un círculo expande el tema
+   hasta llenar la pantalla. */
+
+:root {
+  --expo-out: linear(
+    0 0%, 0.1684 2.66%, 0.3165 5.49%,
+    0.446 8.52%, 0.5581 11.78%,
+    0.6535 15.29%, 0.7341 19.11%,
+    0.8011 23.3%, 0.8557 27.93%,
+    0.8962 32.68%, 0.9283 38.01%,
+    0.9529 44.08%, 0.9711 51.14%,
+    0.9833 59.06%, 0.9915 68.74%, 1 100%
+  );
+}
+
+::view-transition-group(root) {
+  animation-timing-function: var(--expo-out);
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: none;
   mix-blend-mode: normal;
 }
+
 ::view-transition-old(root) {
-  z-index: 1;
+  animation: none;
+  z-index: -1;
 }
+
 ::view-transition-new(root) {
-  z-index: 2;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  animation-duration: 1.3s;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+html[data-theme='dark']::view-transition-new(root) {
+  animation-name: theme-type-dark;
+}
+html[data-theme='light']::view-transition-new(root) {
+  animation-name: theme-type-light;
+}
+
+/* Frames de texto: mismo SVG cambiando el contenido tecleado */
+@keyframes theme-type-dark {
+  0%, 11% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/%3C/text%3E%3C/svg%3E");
+    mask-size: 56vmax;
+  }
+  12%, 23% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/d%3C/text%3E%3C/svg%3E");
+  }
+  24%, 35% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/da%3C/text%3E%3C/svg%3E");
+  }
+  36%, 47% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/dar%3C/text%3E%3C/svg%3E");
+  }
+  48%, 59% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/dark%3C/text%3E%3C/svg%3E");
+  }
+  60%, 74% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/dark%26gt%3B%3C/text%3E%3C/svg%3E");
+    mask-size: 56vmax;
+  }
+  75% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ccircle cx='60' cy='20' r='24' fill='white'/%3E%3C/svg%3E");
+    mask-size: 24vmax;
+    animation-timing-function: var(--expo-out);
+  }
+  100% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ccircle cx='60' cy='20' r='24' fill='white'/%3E%3C/svg%3E");
+    mask-size: 420vmax;
+  }
+}
+
+@keyframes theme-type-light {
+  0%, 9% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/%3C/text%3E%3C/svg%3E");
+    mask-size: 56vmax;
+  }
+  10%, 19% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/l%3C/text%3E%3C/svg%3E");
+  }
+  20%, 29% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/li%3C/text%3E%3C/svg%3E");
+  }
+  30%, 39% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/lig%3C/text%3E%3C/svg%3E");
+  }
+  40%, 49% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/ligh%3C/text%3E%3C/svg%3E");
+  }
+  50%, 59% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/light%3C/text%3E%3C/svg%3E");
+  }
+  60%, 74% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/light%26gt%3B%3C/text%3E%3C/svg%3E");
+    mask-size: 56vmax;
+  }
+  75% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ccircle cx='60' cy='20' r='24' fill='white'/%3E%3C/svg%3E");
+    mask-size: 24vmax;
+    animation-timing-function: var(--expo-out);
+  }
+  100% {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ccircle cx='60' cy='20' r='24' fill='white'/%3E%3C/svg%3E");
+    mask-size: 420vmax;
+  }
 }

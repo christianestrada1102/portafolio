@@ -33,35 +33,21 @@ function toggleTheme(event) {
     return;
   }
 
+  // View Transition API: se "escribe" </dark> o </light> como máscara SVG
+  // sobre el tema nuevo y luego se expande hasta llenar la pantalla.
+  // Toda la animación vive en index.css (keyframes theme-type-*).
+  if (document.startViewTransition) {
+    document.startViewTransition(apply);
+    return;
+  }
+
+  // Fallback: overlay con clip-path animado por GSAP
   const x = event?.clientX ?? window.innerWidth / 2;
   const y = event?.clientY ?? window.innerHeight / 2;
   const endRadius = Math.hypot(
     Math.max(x, window.innerWidth - x),
     Math.max(y, window.innerHeight - y)
   );
-
-  // View Transition API: círculo que se expande desde el botón
-  if (document.startViewTransition) {
-    const transition = document.startViewTransition(apply);
-    transition.ready.then(() => {
-      document.documentElement.animate(
-        {
-          clipPath: [
-            `circle(0px at ${x}px ${y}px)`,
-            `circle(${endRadius}px at ${x}px ${y}px)`,
-          ],
-        },
-        {
-          duration: 600,
-          easing: 'cubic-bezier(0.45, 0, 0.55, 1)',
-          pseudoElement: '::view-transition-new(root)',
-        }
-      );
-    });
-    return;
-  }
-
-  // Fallback: overlay con clip-path animado por GSAP
   apply();
   const overlay = document.createElement('div');
   overlay.style.cssText = `position:fixed;inset:0;z-index:9999;pointer-events:none;background:var(--bg);clip-path:circle(${endRadius}px at ${x}px ${y}px)`;
