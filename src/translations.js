@@ -56,6 +56,13 @@ export const translations = {
     'projects.desc.innovathon': 'Sitio web oficial del INNOVATHON 2026, hackathon de 72 horas organizado por INNOVA en Chihuahua, México. Diseñado para registros, información del evento y sponsors.',
     'projects.desc.fullstack':  'Desarrollo full-stack de plataforma para gestión de pedidos, clientes, servicios e imágenes para un cliente real. Proyecto privado; demo y código no públicos por confidencialidad.',
     'projects.desc.cotiestima': 'Plataforma SaaS para freelancers de LATAM que no saben cuánto cobrar. Un agente de IA llamado Coti analiza el proyecto del cliente, busca benchmarks reales del mercado, y genera una cotización completa con PDF, propuesta, firma digital y detección de extras.',
+    'projects.badge.cotiestima': 'SaaS · Producción',
+    'projects.badge.innovathon': 'Evento · 100+ participantes',
+    'projects.badge.haven':      'hack@latam 2026',
+    'projects.badge.fullstack':  'Cliente real · Privado',
+    'projects.badge.astro':      'NASA Space Apps 2025',
+    'projects.badge.settarb':    'ETH MTY 2025',
+    'projects.badge.safezone':   'MIT-ICATECH 2025',
 
     // ── Achievements ──
     'achievements.label':            'Logros',
@@ -166,6 +173,13 @@ export const translations = {
     'projects.desc.innovathon': 'Official website for INNOVATHON 2026, a 72-hour hackathon organized by INNOVA in Chihuahua, Mexico. Built for registrations, event information and sponsors.',
     'projects.desc.fullstack':  'Full-stack development of a platform for managing orders, clients, services and images for a real client. Private project; demo and code not public due to confidentiality.',
     'projects.desc.cotiestima': 'SaaS platform for LATAM freelancers who don\'t know what to charge. An AI agent named Coti analyzes the client\'s project, researches real market benchmarks, and generates a complete quote with PDF, proposal, digital signature and add-on detection.',
+    'projects.badge.cotiestima': 'SaaS · Production',
+    'projects.badge.innovathon': 'Event · 100+ participants',
+    'projects.badge.haven':      'hack@latam 2026',
+    'projects.badge.fullstack':  'Real client · Private',
+    'projects.badge.astro':      'NASA Space Apps 2025',
+    'projects.badge.settarb':    'ETH MTY 2025',
+    'projects.badge.safezone':   'MIT-ICATECH 2025',
 
     // ── Achievements ──
     'achievements.label':            'Achievements',
