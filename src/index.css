@@ -859,3 +859,12 @@ html[data-theme='light']::view-transition-new(root) {
     mask-size: 0.01px, 70vmax 140vmax, 70vmax 140vmax, 170vmax 140vmax;
   }
 }
+
+/* ── Panel del proyecto activo (anillo 3D): crossfade al cambiar ── */
+@keyframes ring-info-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ring-info-anim {
+  animation: ring-info-in 0.45s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
