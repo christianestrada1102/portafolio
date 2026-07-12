@@ -11,13 +11,13 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ICATECH_HOURS = [40, 10, 10, 10, 10];
 
-// Línea de tiempo editorial: hackathons + certificaciones en orden cronológico
+// Timeline estilo git log: cada logro es un commit con hash y tag
 const TIMELINE = [
-  { id: 'nasa',    date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: '"Galactic Problem Solver"',   type: 'nasa' },
-  { id: 'eth',     date: 'Nov 2025', title: 'ETH Mexico',      accent: 'MTY',       result: 'SettArb · producción',        type: 'hack' },
-  { id: 'mit',     date: '2025',     title: 'MIT',             accent: 'ICATECH',   result: 'SafeZone · MVP en 48h',       type: 'hack' },
-  { id: 'icatech', date: '2025',     title: 'ICATECH',         accent: '2025',      result: null,                          type: 'icatech' },
-  { id: 'latam',   date: '2026',     title: 'hack@',           accent: 'latam',     result: 'HAVEN · producción',          type: 'hack' },
+  { id: 'nasa',    hash: 'a3f9c2e', date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: '"Galactic Problem Solver"', tag: 'galactic-problem-solver', type: 'nasa' },
+  { id: 'eth',     hash: '7e21b4d', date: 'Nov 2025', title: 'ETH Mexico',      accent: 'MTY',       result: 'SettArb · producción',      tag: 'settarb@prod',            type: 'hack' },
+  { id: 'mit',     hash: 'c58a91f', date: '2025',     title: 'MIT',             accent: 'ICATECH',   result: 'SafeZone · MVP en 48h',     tag: 'safezone-mvp',            type: 'hack' },
+  { id: 'icatech', hash: 'f04d7a3', date: '2025',     title: 'ICATECH',         accent: '2025',      result: null,                        tag: 'soft-skills-80h',         type: 'icatech' },
+  { id: 'latam',   hash: '9b3e6c1', date: '2026',     title: 'hack@',           accent: 'latam',     result: 'HAVEN · producción',        tag: 'haven@prod',              type: 'hack', head: true },
 ];
 
 export default function Achievements() {
@@ -89,6 +89,11 @@ export default function Achievements() {
             {t('achievements.heading')}{' '}
             <em className="not-italic accent-subtle">{t('achievements.heading.accent')}</em>
           </h2>
+          <p data-anim="copy" className="font-mono text-xs text-neutral-600 mt-4 select-none" aria-hidden="true">
+            <span className="text-neutral-500">~/codebynas</span>{' '}
+            <span className="text-brand-400">$</span> git log --achievements
+            <span className="tl-caret" />
+          </p>
         </div>
 
         {/* ── Timeline ── */}
@@ -100,15 +105,22 @@ export default function Achievements() {
           <div className="flex flex-col gap-9 md:gap-11">
             {TIMELINE.map((item) => (
               <div key={item.id} className="tl-item relative">
-                {/* Punto */}
+                {/* Commit dot */}
                 <span
-                  className="tl-dot absolute -left-7 md:-left-9 top-[7px] block w-[11px] h-[11px] rounded-full border-2 border-brand-400 bg-neutral-950"
+                  className={`tl-dot absolute -left-7 md:-left-9 top-[7px] block w-[11px] h-[11px] rounded-full border-2 border-brand-400 bg-neutral-950 ${item.head ? 'tl-dot-head' : ''}`}
                   style={{ transform: 'translateX(0.5px)' }}
                   aria-hidden="true"
                 />
 
-                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500 mb-1">
-                  {item.date}
+                {/* Meta del commit */}
+                <p className="font-mono text-[11px] text-neutral-500 mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="text-brand-400/90">{item.hash}</span>
+                  <span className="uppercase tracking-[0.2em]">{item.date}</span>
+                  {item.head && (
+                    <span className="text-[10px] px-1.5 py-px rounded-sm border border-emerald-500/40 text-emerald-400/90 tracking-normal">
+                      HEAD → main
+                    </span>
+                  )}
                 </p>
 
                 {item.type === 'nasa' && (
@@ -122,12 +134,17 @@ export default function Achievements() {
                       <span className="text-neutral-300">{item.result}</span>
                       {t('achievements.nasa.desc.post')}
                     </p>
-                    <ScrambleButton
-                      onClick={() => setNasaModal(true)}
-                      className="font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200 mt-2"
-                    >
-                      {t('achievements.nasa.cta')}
-                    </ScrambleButton>
+                    <p className="font-mono text-xs mt-2 flex flex-wrap items-center gap-3">
+                      <span className="text-[10px] px-2 py-px rounded-full border border-brand-500/40 text-brand-300/90">
+                        tag: {item.tag} 🏆
+                      </span>
+                      <ScrambleButton
+                        onClick={() => setNasaModal(true)}
+                        className="text-brand-400 hover:text-brand-300 transition-colors duration-200"
+                      >
+                        {t('achievements.nasa.cta')}
+                      </ScrambleButton>
+                    </p>
                   </>
                 )}
 
@@ -143,7 +160,12 @@ export default function Achievements() {
                         →
                       </span>
                     </h3>
-                    <p className="font-mono text-xs text-neutral-500 mt-1">{item.result}</p>
+                    <p className="font-mono text-xs text-neutral-500 mt-1.5 flex flex-wrap items-baseline gap-2">
+                      <span className="text-[10px] px-2 py-px rounded-full border border-brand-500/40 text-brand-300/90">
+                        tag: {item.tag}
+                      </span>
+                      <span>{item.result}</span>
+                    </p>
                   </Link>
                 )}
 
@@ -167,8 +189,11 @@ export default function Achievements() {
                           +
                         </span>
                       </h3>
-                      <p className="font-mono text-xs text-neutral-500 mt-1">
-                        {t('achievements.icatech.line')}
+                      <p className="font-mono text-xs text-neutral-500 mt-1.5 flex flex-wrap items-baseline gap-2">
+                        <span className="text-[10px] px-2 py-px rounded-full border border-brand-500/40 text-brand-300/90">
+                          tag: {item.tag}
+                        </span>
+                        <span>{t('achievements.icatech.line')}</span>
                       </p>
                     </button>
                     <div
