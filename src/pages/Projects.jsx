@@ -144,11 +144,31 @@ export default function Projects() {
     const content = modalRef.current.querySelector('.modal-content');
     const from = (content ?? modalRef.current).getBoundingClientRect();
 
+    // El clon regresa con el video corriendo, sincronizado con el de la carta,
+    // para fundirse limpio al aterrizar (sin caja negra sobrepuesta)
+    const face = sectionRef.current?.querySelector(`[data-pnum="${project.num}"]`);
     const clone = document.createElement('div');
     clone.style.cssText =
       `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
       `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
-      `background:#111;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+      `background:#111;`;
+    if (project.videoSrc) {
+      const v = document.createElement('video');
+      v.src = project.videoSrc;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.autoplay = true;
+      v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+      const cardVideo = face?.querySelector('video');
+      if (cardVideo && !Number.isNaN(cardVideo.currentTime)) {
+        v.currentTime = cardVideo.currentTime;
+      }
+      clone.appendChild(v);
+      v.play?.().catch(() => {});
+    } else if (project.image) {
+      clone.style.background = `#111 url(${project.image}) center/cover no-repeat`;
+    }
     const backdrop = document.createElement('div');
     backdrop.style.cssText =
       'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.92);pointer-events:none;';
@@ -156,7 +176,6 @@ export default function Projects() {
     setSelectedProject(null);
 
     // Destino: la carta real del proyecto, en su posición actual dentro del anillo
-    const face = sectionRef.current?.querySelector(`[data-pnum="${project.num}"]`);
     let target;
     if (face) {
       const r = face.getBoundingClientRect();
@@ -174,14 +193,14 @@ export default function Projects() {
       top: target.top,
       width: target.width,
       height: target.height,
-      borderRadius: 8,
+      borderRadius: 6,
       duration: 0.55,
-      ease: 'power4.inOut',
+      ease: 'power4.out',
       onComplete: () => {
         gsap.to(clone, {
           opacity: 0,
-          duration: 0.25,
-          ease: 'power2.out',
+          duration: 0.12,
+          ease: 'none',
           onComplete: () => { clone.remove(); backdrop.remove(); },
         });
       },
