@@ -166,6 +166,8 @@ export default function Projects() {
       // se quedó (ya decodificado, sin recargas ni cuadros negros)
       videoHome = cardVideo.parentElement;
       clone.appendChild(cardVideo);
+      // Reinsertar un <video> en el DOM lo pausa: reanudar para que siga corriendo
+      cardVideo.play?.().catch(() => {});
       clone.style.background = 'transparent';
     } else if (project.image) {
       clone.style.background = `#111 url(${project.image}) center/cover no-repeat`;
@@ -201,6 +203,7 @@ export default function Projects() {
       onComplete: () => {
         if (cardVideo && videoHome) {
           videoHome.insertBefore(cardVideo, videoHome.firstChild);
+          cardVideo.play?.().catch(() => {});
         }
         clone.remove();
         backdrop.remove();
