@@ -85,7 +85,11 @@ export const translations = {
     'achievements.icatech.course.4': 'Estrategias Colaborativas para el Trabajo en Equipo',
     'achievements.hacks.label':      'Hackathons',
     'achievements.hacks.cta':        'Ver bitácora completa →',
-    'achievements.poaps.label':      'POAPs — blockchain',
+    'achievements.stats.0':          'Hackathons internacionales',
+    'achievements.stats.1':          'Miembros INNOVA',
+    'achievements.stats.2':          'Proyectos en producción',
+    'achievements.stats.3':          'SaaS activo',
+    'achievements.poaps.label':      'Eventos & Comunidad',
     'achievements.poaps.cta':        'Ver todos',
 
     // ── Contact ──
@@ -205,7 +209,11 @@ export const translations = {
     'achievements.icatech.course.4': 'Collaborative Strategies for Teamwork',
     'achievements.hacks.label':      'Hackathons',
     'achievements.hacks.cta':        'View full archive →',
-    'achievements.poaps.label':      'POAPs — blockchain',
+    'achievements.stats.0':          'International hackathons',
+    'achievements.stats.1':          'INNOVA members',
+    'achievements.stats.2':          'Projects in production',
+    'achievements.stats.3':          'Active SaaS',
+    'achievements.poaps.label':      'Events & Community',
     'achievements.poaps.cta':        'View all',
 
     // ── Contact ──

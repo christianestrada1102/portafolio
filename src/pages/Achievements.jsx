@@ -15,7 +15,12 @@ import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ICATECH_HOURS = [40, 10, 10, 10, 10];
+const STATS = [
+  { value: 4,   suffix: '',  labelKey: 'achievements.stats.0' },
+  { value: 250, suffix: '+', labelKey: 'achievements.stats.1' },
+  { value: 7,   suffix: '',  labelKey: 'achievements.stats.2' },
+  { value: 1,   suffix: '',  labelKey: 'achievements.stats.3' },
+];
 
 const HACKATHONS = [
   { date: 'Oct 2025', name: 'NASA Space Apps',  accent: 'Challenge', result: 'Galactic Problem Solver' },
@@ -56,6 +61,20 @@ export default function Achievements() {
             start: 'top 90%',
             toggleActions: 'play none none none',
           },
+        });
+      });
+
+      // Count-up de los counters al entrar en viewport
+      gsap.utils.toArray('.stat-num', containerRef.current).forEach((el) => {
+        const end = parseFloat(el.dataset.value);
+        const suffix = el.dataset.suffix || '';
+        const obj = { v: 0 };
+        gsap.to(obj, {
+          v: end,
+          duration: 1.4,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+          onUpdate: () => { el.textContent = `${Math.round(obj.v)}${suffix}`; },
         });
       });
 
@@ -167,28 +186,22 @@ export default function Achievements() {
               </div>
             </div>
 
-            <div data-reveal>
-              <div className="flex items-baseline justify-between mb-4">
-                <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-500">
-                  {t('achievements.icatech.label')}
-                </p>
-                <span className="font-mono text-xs text-neutral-400">
-                  {t('achievements.icatech.total')}
-                </span>
-              </div>
-              <div className="border-t border-neutral-800">
-                {ICATECH_HOURS.map((hours, i) => (
-                  <div
-                    key={i}
-                    className="flex items-baseline justify-between gap-4 border-b border-neutral-800 px-1 py-2.5 hover:bg-neutral-800/30 transition-colors duration-150"
+            {/* Counters animados */}
+            <div data-reveal className="grid grid-cols-2 gap-x-6 gap-y-7 pt-2">
+              {STATS.map((stat) => (
+                <div key={stat.labelKey}>
+                  <p
+                    className="stat-num font-mono text-3xl md:text-4xl text-white leading-none"
+                    data-value={stat.value}
+                    data-suffix={stat.suffix}
                   >
-                    <span className="text-neutral-300 text-xs md:text-sm leading-snug">
-                      {t(`achievements.icatech.course.${i}`)}
-                    </span>
-                    <span className="font-mono text-[11px] text-neutral-500 shrink-0">{hours}h</span>
-                  </div>
-                ))}
-              </div>
+                    {stat.value}{stat.suffix}
+                  </p>
+                  <p className="text-neutral-500 text-xs mt-2 leading-snug">
+                    {t(stat.labelKey)}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -236,8 +249,8 @@ export default function Achievements() {
           </div>
           <div className="poap-grid flex flex-wrap gap-4">
             {POAPS.map(({ img, name, date }) => (
-              <div key={name} className="poap-item flex flex-col items-center gap-2 group cursor-default">
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-neutral-800 group-hover:border-brand-500/40 transition-all duration-200 group-hover:scale-105">
+              <div key={name} className="poap-item flex flex-col items-center gap-2 group cursor-default opacity-70 hover:opacity-100 transition-opacity duration-200">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border border-neutral-800 group-hover:border-brand-500/40 transition-all duration-200 group-hover:scale-105">
                   <img
                     src={img}
                     alt={name}
