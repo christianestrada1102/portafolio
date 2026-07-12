@@ -3,44 +3,28 @@ import { Link } from 'react-router-dom';
 import ScrambleButton from '../components/ScrambleButton';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import { FiExternalLink } from 'react-icons/fi';
-import nasaImg      from '../assets/nasa-space-apps.webp';
-import etherfuseImg from '../assets/etherfuse.webp';
-import baseImg      from '../assets/base.webp';
-import ensImg       from '../assets/ens.webp';
-import ubdImg       from '../assets/UBD.webp';
-import ethmexicoImg from '../assets/ethmexico.gif';
+import nasaImg from '../assets/nasa-space-apps.webp';
 import { useLanguage } from '../context/LanguageContext';
 import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const STATS = [
-  { value: 4,   suffix: '',  labelKey: 'achievements.stats.0' },
-  { value: 250, suffix: '+', labelKey: 'achievements.stats.1' },
-  { value: 7,   suffix: '',  labelKey: 'achievements.stats.2' },
-  { value: 1,   suffix: '',  labelKey: 'achievements.stats.3' },
-];
+const ICATECH_HOURS = [40, 10, 10, 10, 10];
 
-const HACKATHONS = [
-  { date: 'Oct 2025', name: 'NASA Space Apps',  accent: 'Challenge', result: 'Galactic Problem Solver' },
-  { date: 'Nov 2025', name: 'ETH Mexico',        accent: 'MTY',       result: 'SettArb · producción' },
-  { date: '2025',     name: 'MIT',               accent: 'ICATECH',   result: 'SafeZone · MVP en 48h' },
-  { date: '2026',     name: 'hack@',             accent: 'latam',     result: 'HAVEN · producción' },
-];
-
-const POAPS = [
-  { img: etherfuseImg, name: 'Etherfuse',                event: 'ETH Mexico 2025',   date: 'Oct 2025' },
-  { img: baseImg,      name: 'Base',                     event: 'ETH Mexico 2025',   date: 'Oct 2025' },
-  { img: ensImg,       name: 'ENS',                      event: 'ETH Mexico 2025',   date: 'Oct 2025' },
-  { img: ubdImg,       name: 'University Blockchain Day',event: 'UBD',               date: 'Sep 2025' },
-  { img: ethmexicoImg, name: 'EthMexico MTY 2025',       event: 'EthMexico MTY',     date: 'Nov 2025' },
+// Línea de tiempo editorial: hackathons + certificaciones en orden cronológico
+const TIMELINE = [
+  { id: 'nasa',    date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: '"Galactic Problem Solver"',   type: 'nasa' },
+  { id: 'eth',     date: 'Nov 2025', title: 'ETH Mexico',      accent: 'MTY',       result: 'SettArb · producción',        type: 'hack' },
+  { id: 'mit',     date: '2025',     title: 'MIT',             accent: 'ICATECH',   result: 'SafeZone · MVP en 48h',       type: 'hack' },
+  { id: 'icatech', date: '2025',     title: 'ICATECH',         accent: '2025',      result: null,                          type: 'icatech' },
+  { id: 'latam',   date: '2026',     title: 'hack@',           accent: 'latam',     result: 'HAVEN · producción',          type: 'hack' },
 ];
 
 export default function Achievements() {
-  const containerRef            = useRef(null);
+  const containerRef              = useRef(null);
   const [nasaModal, setNasaModal] = useState(false);
-  const { t }                   = useLanguage();
+  const [icatechOpen, setIcatechOpen] = useState(false);
+  const { t }                     = useLanguage();
 
   useLayoutEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -49,47 +33,43 @@ export default function Achievements() {
     const ctx = gsap.context(() => {
       revealHeaders(containerRef.current);
 
-      gsap.utils.toArray('[data-reveal]', containerRef.current).forEach((el) => {
-        gsap.from(el, {
-          y: 40,
-          opacity: 0,
-          duration: 0.65,
-          ease: 'power2.out',
-          immediateRender: false,
+      // La línea se dibuja conforme avanzas por la sección
+      gsap.fromTo(
+        '.tl-progress',
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          ease: 'none',
+          transformOrigin: 'top center',
           scrollTrigger: {
-            trigger: el,
-            start: 'top 90%',
-            toggleActions: 'play none none none',
+            trigger: '.tl-wrap',
+            start: 'top 70%',
+            end: 'bottom 55%',
+            scrub: true,
           },
-        });
-      });
+        }
+      );
 
-      // Count-up de los counters al entrar en viewport
-      gsap.utils.toArray('.stat-num', containerRef.current).forEach((el) => {
-        const end = parseFloat(el.dataset.value);
-        const suffix = el.dataset.suffix || '';
-        const obj = { v: 0 };
-        gsap.to(obj, {
-          v: end,
-          duration: 1.4,
+      // Cada nodo entra con su punto
+      gsap.utils.toArray('.tl-item', containerRef.current).forEach((el) => {
+        gsap.from(el, {
+          x: -22,
+          opacity: 0,
+          duration: 0.6,
           ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-          onUpdate: () => { el.textContent = `${Math.round(obj.v)}${suffix}`; },
+          immediateRender: false,
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
         });
-      });
-
-      gsap.from('.poap-item', {
-        scale: 0.85,
-        opacity: 0,
-        stagger: 0.08,
-        duration: 0.5,
-        ease: 'power2.out',
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: '.poap-grid',
-          start: 'top 90%',
-          toggleActions: 'play none none none',
-        },
+        const dot = el.querySelector('.tl-dot');
+        if (dot) {
+          gsap.from(dot, {
+            scale: 0,
+            duration: 0.45,
+            ease: 'back.out(2.5)',
+            immediateRender: false,
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          });
+        }
       });
     }, containerRef);
 
@@ -98,10 +78,10 @@ export default function Achievements() {
 
   return (
     <section id="achievements" ref={containerRef} className="pt-6 pb-5 md:pt-8 md:pb-6">
-      <div className="max-w-6xl mx-auto px-4 md:px-6 space-y-12">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
 
         {/* ── Header ── */}
-        <div>
+        <div className="mb-10 md:mb-14">
           <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
             {t('achievements.label')}
           </p>
@@ -111,97 +91,123 @@ export default function Achievements() {
           </h2>
         </div>
 
-        {/* ── Hackathons + Destacado/ICATECH en dos columnas ── */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-start">
+        {/* ── Timeline ── */}
+        <div className="tl-wrap relative max-w-3xl pl-7 md:pl-9">
+          {/* Riel + progreso */}
+          <div className="absolute left-[5px] md:left-[7px] top-1 bottom-1 w-px bg-neutral-800" aria-hidden="true" />
+          <div className="tl-progress absolute left-[5px] md:left-[7px] top-1 bottom-1 w-px bg-brand-500/60" aria-hidden="true" />
 
-          {/* Hackathons → bitácora */}
-          <div data-reveal className="md:col-span-7">
-            <div className="flex items-baseline justify-between mb-6">
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400">
-                {t('achievements.hacks.label')}
-              </p>
+          <div className="flex flex-col gap-9 md:gap-11">
+            {TIMELINE.map((item) => (
+              <div key={item.id} className="tl-item relative">
+                {/* Punto */}
+                <span
+                  className="tl-dot absolute -left-7 md:-left-9 top-[7px] block w-[11px] h-[11px] rounded-full border-2 border-brand-400 bg-neutral-950"
+                  style={{ transform: 'translateX(0.5px)' }}
+                  aria-hidden="true"
+                />
+
+                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500 mb-1">
+                  {item.date}
+                </p>
+
+                {item.type === 'nasa' && (
+                  <>
+                    <h3 className="text-lg md:text-xl text-white font-semibold leading-snug">
+                      {item.title}{' '}
+                      <em className="not-italic accent-subtle">{item.accent}</em>
+                    </h3>
+                    <p className="text-neutral-400 text-sm mt-1">
+                      {t('achievements.nasa.desc.pre')}
+                      <span className="text-neutral-300">{item.result}</span>
+                      {t('achievements.nasa.desc.post')}
+                    </p>
+                    <ScrambleButton
+                      onClick={() => setNasaModal(true)}
+                      className="font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200 mt-2"
+                    >
+                      {t('achievements.nasa.cta')}
+                    </ScrambleButton>
+                  </>
+                )}
+
+                {item.type === 'hack' && (
+                  <Link to="/hackathons" className="group block w-fit">
+                    <h3 className="text-lg md:text-xl text-white font-semibold leading-snug">
+                      {item.title}{' '}
+                      <em className="not-italic accent-subtle">{item.accent}</em>
+                      <span
+                        aria-hidden="true"
+                        className="inline-block ml-2 text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1 transition-all duration-200 text-base"
+                      >
+                        →
+                      </span>
+                    </h3>
+                    <p className="font-mono text-xs text-neutral-500 mt-1">{item.result}</p>
+                  </Link>
+                )}
+
+                {item.type === 'icatech' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setIcatechOpen((v) => !v)}
+                      aria-expanded={icatechOpen}
+                      className="group text-left w-fit"
+                    >
+                      <h3 className="text-lg md:text-xl text-white font-semibold leading-snug">
+                        {item.title}{' '}
+                        <em className="not-italic accent-subtle">{item.accent}</em>
+                        <span
+                          aria-hidden="true"
+                          className={`inline-block ml-2 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-base ${
+                            icatechOpen ? 'rotate-45 text-brand-400' : ''
+                          }`}
+                        >
+                          +
+                        </span>
+                      </h3>
+                      <p className="font-mono text-xs text-neutral-500 mt-1">
+                        {t('achievements.icatech.line')}
+                      </p>
+                    </button>
+                    <div
+                      className="grid transition-[grid-template-rows] duration-400 ease-out"
+                      style={{
+                        gridTemplateRows: icatechOpen ? '1fr' : '0fr',
+                        transitionTimingFunction: 'cubic-bezier(0.33, 1, 0.68, 1)',
+                      }}
+                    >
+                      <div className="overflow-hidden">
+                        <ul className="mt-3 space-y-1.5">
+                          {ICATECH_HOURS.map((hours, i) => (
+                            <li key={i} className="flex items-baseline gap-3 text-sm text-neutral-400">
+                              <span aria-hidden="true" className="text-neutral-600">→</span>
+                              <span>{t(`achievements.icatech.course.${i}`)}</span>
+                              <span className="font-mono text-[11px] text-neutral-600">{hours}h</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+
+            {/* Cierre: bitácora */}
+            <div className="tl-item relative">
+              <span
+                className="tl-dot absolute -left-7 md:-left-9 top-[4px] block w-[11px] h-[11px] rounded-full bg-brand-400"
+                style={{ transform: 'translateX(0.5px)' }}
+                aria-hidden="true"
+              />
               <Link
                 to="/hackathons"
                 className="font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
               >
                 {t('achievements.hacks.cta')}
               </Link>
-            </div>
-            <div className="border-t border-neutral-800">
-              {HACKATHONS.map((h) => (
-                <Link
-                  key={h.name + h.accent}
-                  to="/hackathons"
-                  className="group flex items-baseline justify-between gap-4 border-b border-neutral-800 px-1 py-4 hover:bg-neutral-800/30 transition-colors duration-200"
-                >
-                  <span className="flex items-baseline gap-4 min-w-0">
-                    <span className="font-mono text-[11px] text-neutral-500 shrink-0 w-16">{h.date}</span>
-                    <span className="text-white text-sm md:text-base font-medium truncate">
-                      {h.name}{' '}
-                      <em className="not-italic accent-subtle">{h.accent}</em>
-                    </span>
-                  </span>
-                  <span className="flex items-baseline gap-3 shrink-0">
-                    <span className="font-mono text-[11px] text-neutral-500 hidden sm:inline">{h.result}</span>
-                    <span
-                      aria-hidden="true"
-                      className="text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1 transition-all duration-200 inline-block"
-                    >
-                      →
-                    </span>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Destacado + ICATECH */}
-          <div className="md:col-span-5 space-y-6">
-            <div data-reveal>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-6">
-                {t('achievements.featured')}
-              </p>
-              <div className="bg-neutral-900 border border-neutral-800 hover:border-brand-500/40 rounded-sm transition-all duration-300">
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="font-semibold text-white text-base leading-tight">
-                      {t('achievements.nasa.title')}
-                    </h3>
-                    <span className="font-mono text-xs text-neutral-400 shrink-0">
-                      {t('achievements.nasa.date')}
-                    </span>
-                  </div>
-                  <p className="text-neutral-400 text-sm leading-relaxed mb-4">
-                    {t('achievements.nasa.desc.pre')}
-                    <span className="text-neutral-300">"Galactic Problem Solver"</span>
-                    {t('achievements.nasa.desc.post')}
-                  </p>
-                  <ScrambleButton
-                    onClick={() => setNasaModal(true)}
-                    className="font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
-                  >
-                    {t('achievements.nasa.cta')}
-                  </ScrambleButton>
-                </div>
-              </div>
-            </div>
-
-            {/* Counters animados */}
-            <div data-reveal className="grid grid-cols-2 gap-x-6 gap-y-7 pt-2">
-              {STATS.map((stat) => (
-                <div key={stat.labelKey}>
-                  <p
-                    className="stat-num font-mono text-3xl md:text-4xl text-white leading-none"
-                    data-value={stat.value}
-                    data-suffix={stat.suffix}
-                  >
-                    {stat.value}{stat.suffix}
-                  </p>
-                  <p className="text-neutral-500 text-xs mt-2 leading-snug">
-                    {t(stat.labelKey)}
-                  </p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -231,44 +237,6 @@ export default function Achievements() {
             </div>
           </div>
         )}
-
-        {/* ── POAPs ── */}
-        <div data-reveal>
-          <div className="flex items-baseline justify-between mb-6">
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-500">
-              {t('achievements.poaps.label')}
-            </p>
-            <a
-              href="https://collectors.poap.xyz/scan/christianmanuel1233@gmail.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
-            >
-              {t('achievements.poaps.cta')} <FiExternalLink size={11} />
-            </a>
-          </div>
-          <div className="poap-grid flex flex-wrap gap-4">
-            {POAPS.map(({ img, name, date }) => (
-              <div key={name} className="poap-item flex flex-col items-center gap-2 group cursor-default opacity-70 hover:opacity-100 transition-opacity duration-200">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border border-neutral-800 group-hover:border-brand-500/40 transition-all duration-200 group-hover:scale-105">
-                  <img
-                    src={img}
-                    alt={name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    width="64"
-                    height="64"
-                  />
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] text-neutral-400 font-medium leading-tight">{name}</p>
-                  <p className="text-[9px] font-mono text-neutral-500">{date}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
       </div>
     </section>
