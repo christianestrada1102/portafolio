@@ -117,6 +117,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
     <div
       className="ring-stage"
       style={{
+        position: 'relative',
         width: '100%',
         height: card.h * 2.1,
         display: 'flex',
@@ -132,6 +133,49 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
+      {hovered !== -1 && projects[hovered] && (
+        <div
+          key={projects[hovered].num}
+          className="ring-hover-preview"
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: Math.round(card.w * 1.7),
+            height: Math.round(card.h * 1.7),
+            marginLeft: -Math.round(card.w * 0.85),
+            marginTop: -Math.round(card.h * 0.85),
+            zIndex: 5,
+            borderRadius: 10,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            background: '#111',
+            boxShadow: '0 30px 90px rgba(0,0,0,0.55)',
+            outline: '1px solid rgba(124, 58, 237, 0.45)',
+          }}
+        >
+          {projects[hovered].videoSrc ? (
+            <video
+              src={projects[hovered].videoSrc}
+              poster={projects[hovered].image}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          ) : (
+            <img
+              src={projects[hovered].image}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+          )}
+        </div>
+      )}
+
       <div style={{ transformStyle: 'preserve-3d', transform: 'rotateX(-7deg)' }}>
         <div
           ref={ringRef}
@@ -170,8 +214,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                       : isFront ? '0 10px 30px rgba(0,0,0,0.35)' : 'none',
                     outline: isFront ? '1px solid rgba(124, 58, 237, 0.55)' : 'none',
                     background: isFront ? '#111' : 'transparent',
-                    transform: hovered === i ? 'scale(1.45) translateZ(80px)' : 'scale(1) translateZ(0px)',
-                    transition: 'transform 0.35s cubic-bezier(0.33, 1, 0.68, 1), outline-color 0.3s ease, box-shadow 0.3s ease',
+                    transition: 'outline-color 0.3s ease, box-shadow 0.3s ease',
                     cursor: p.url ? 'pointer' : 'grab',
                   }}
                 >
