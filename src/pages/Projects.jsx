@@ -69,18 +69,17 @@ export default function Projects() {
     const tx = (window.innerWidth - tw) / 2;
     const ty = (window.innerHeight - th) / 2;
 
-    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0.92)', duration: 0.5, ease: 'power2.out' });
+    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0.92)', duration: 0.3, ease: 'power2.out' });
     gsap.to(clone, {
       left: tx, top: ty, width: tw, height: th,
       borderRadius: 4,
-      duration: 0.65,
-      ease: 'power4.inOut',
+      duration: 0.5,
+      ease: 'power4.out',
       onComplete: () => {
         if (modalRef.current) gsap.set(modalRef.current, { opacity: 1 });
         gsap.to(clone, {
           opacity: 0,
-          duration: 0.35,
-          delay: 0.05,
+          duration: 0.25,
           ease: 'power2.out',
           onComplete: () => { clone.remove(); backdrop.remove(); },
         });
@@ -100,16 +99,14 @@ export default function Projects() {
       setSelectedProject(project);
       return;
     }
-    let rect = cardEl?.getBoundingClientRect?.();
-    if (!rect) {
-      // Desde el botón del panel: parte de una carta virtual centrada en el anillo
-      const stage = sectionRef.current?.querySelector('.ring-stage');
-      if (stage) {
-        const s = stage.getBoundingClientRect();
-        const w = Math.min(320, s.width * 0.6);
-        const h = w * 0.625;
-        rect = { left: s.left + (s.width - w) / 2, top: s.top + (s.height - h) / 2, width: w, height: h };
-      }
+    // Carta o botón: siempre la misma animación, desde la carta virtual centrada
+    let rect = null;
+    const stage = sectionRef.current?.querySelector('.ring-stage');
+    if (stage) {
+      const s = stage.getBoundingClientRect();
+      const w = Math.min(320, s.width * 0.6);
+      const h = w * 0.625;
+      rect = { left: s.left + (s.width - w) / 2, top: s.top + (s.height - h) / 2, width: w, height: h };
     }
     if (!rect) {
       setSelectedProject(project);
