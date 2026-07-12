@@ -784,12 +784,12 @@ html[data-theme='light']::view-transition-new(root) {
     mask-size: 56vmax, 0.01px, 0.01px, 0.01px;
   }
   /* Los brackets se cierran (<>) y ese par se expande hacia los bordes revelando el tema */
-  75% {
+  76% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/dark%26gt%3B%3C/text%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='100,0 0,50 100,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 100,50 0,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
     mask-position: center, calc(50% - 16vmax) center, calc(50% + 16vmax) center, center;
     mask-size: 0.01px, 16vmax 30vmax, 16vmax 30vmax, 0.01px 320vmax;
   }
-  80%, 84% {
+  81%, 91% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/dark%26gt%3B%3C/text%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='100,0 0,50 100,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 100,50 0,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
     mask-position: center, calc(50% - 8vmax) center, calc(50% + 8vmax) center, center;
     mask-size: 0.01px, 16vmax 30vmax, 16vmax 30vmax, 0.01px 320vmax;
@@ -839,12 +839,12 @@ html[data-theme='light']::view-transition-new(root) {
     mask-size: 56vmax, 0.01px, 0.01px, 0.01px;
   }
   /* Los brackets se cierran (<>) y ese par se expande hacia los bordes revelando el tema */
-  75% {
+  76% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/light%26gt%3B%3C/text%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='100,0 0,50 100,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 100,50 0,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
     mask-position: center, calc(50% - 16vmax) center, calc(50% + 16vmax) center, center;
     mask-size: 0.01px, 16vmax 30vmax, 16vmax 30vmax, 0.01px 320vmax;
   }
-  80%, 84% {
+  81%, 91% {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Ctext x='60' y='26' font-family='JetBrains Mono,monospace' font-size='16' font-weight='700' fill='white' text-anchor='middle'%3E%26lt%3B/light%26gt%3B%3C/text%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='100,0 0,50 100,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 100,50 0,100' fill='white'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' preserveAspectRatio='none'%3E%3Crect width='10' height='10' fill='white'/%3E%3C/svg%3E");
     mask-position: center, calc(50% - 8vmax) center, calc(50% + 8vmax) center, center;
     mask-size: 0.01px, 16vmax 30vmax, 16vmax 30vmax, 0.01px 320vmax;
