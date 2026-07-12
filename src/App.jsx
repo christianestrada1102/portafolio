@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import { useLanguage } from './context/LanguageContext';
 import Layout from './components/Layout';
 import Preloader from './components/Preloader';
-import CustomCursor from './components/CustomCursor';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
@@ -83,9 +82,7 @@ function App() {
   );
 
   return (
-    <>
-      <CustomCursor />
-      <Routes>
+    <Routes>
       <Route path="/" element={portfolio} />
       <Route
         path="/hackathons"
@@ -103,8 +100,7 @@ function App() {
           </Suspense>
         )}
       />
-      </Routes>
-    </>
+    </Routes>
   );
 }
 

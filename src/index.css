@@ -718,35 +718,3 @@ body {
 ::view-transition-new(root) {
   z-index: 2;
 }
-
-/* ── Cursor personalizado (desktop only) ── */
-.has-custom-cursor,
-.has-custom-cursor * {
-  cursor: none !important;
-}
-.custom-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 10000;
-  border-radius: 9999px;
-  background: #fff;
-  mix-blend-mode: difference;
-  pointer-events: none;
-  opacity: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.custom-cursor-label {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  color: #000;
-  opacity: 0;
-  user-select: none;
-}
-@media (hover: none), (pointer: coarse) {
-  .custom-cursor { display: none; }
-}
