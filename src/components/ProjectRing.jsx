@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 
 /**
  * Anillo 3D de proyectos (adaptado del Round Carousel de OriginKit).
@@ -8,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
  * - Click/tap (sin arrastre) sobre una carta → onSelect(project).
  * - Reporta el proyecto frontal vía onActiveChange(index).
  */
-export default function ProjectRing({ projects, onSelect, onActiveChange, paused = false }) {
+export default function ProjectRing({ projects, onSelect, onActiveChange, paused = false, bringToFront = null }) {
   const ringRef   = useRef(null);
   const rotYRef   = useRef(0);
   const velRef    = useRef(0);
@@ -25,6 +26,26 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
   useEffect(() => { hoveredRef.current = hovered; }, [hovered]);
   const pausedRef = useRef(paused);
   useEffect(() => { pausedRef.current = paused; }, [paused]);
+
+  // Rotar una carta al frente (mientras la vista del proyecto está abierta,
+  // oculto tras el backdrop) para que el regreso aterrice siempre frontal
+  useEffect(() => {
+    if (bringToFront == null) return;
+    const i = projects.findIndex((p) => p.num === bringToFront);
+    if (i < 0) return;
+    const target = -i * (360 / projects.length);
+    let t = target;
+    while (t - rotYRef.current > 180) t -= 360;
+    while (t - rotYRef.current < -180) t += 360;
+    const obj = { v: rotYRef.current };
+    const tween = gsap.to(obj, {
+      v: t,
+      duration: 0.45,
+      ease: 'power2.inOut',
+      onUpdate: () => { rotYRef.current = obj.v; },
+    });
+    return () => tween.kill();
+  }, [bringToFront, projects]);
 
   const count  = projects.length;
   const angle  = 360 / count;

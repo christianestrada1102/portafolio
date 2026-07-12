@@ -58,25 +58,6 @@ export default function Projects() {
       `position:fixed;z-index:9999;overflow:hidden;border-radius:6px;pointer-events:none;` +
       `left:${fromRect.left}px;top:${fromRect.top}px;width:${fromRect.width}px;height:${fromRect.height}px;` +
       `background:#111;`;
-    // El clon despega con el video corriendo, sincronizado con la carta real
-    const face = sectionRef.current?.querySelector(`[data-pnum="${project.num}"]`);
-    if (project.videoSrc) {
-      const v = document.createElement('video');
-      v.src = project.videoSrc;
-      v.muted = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.autoplay = true;
-      v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-      const cardVideo = face?.querySelector('video');
-      if (cardVideo && !Number.isNaN(cardVideo.currentTime)) {
-        v.currentTime = cardVideo.currentTime;
-      }
-      clone.appendChild(v);
-      v.play?.().catch(() => {});
-    } else if (project.image) {
-      clone.style.background = `#111 url(${project.image}) center/cover no-repeat`;
-    }
     document.body.append(backdrop, clone);
 
     // El modal se monta ya (oculto): el iframe empieza a cargar durante el vuelo
@@ -254,6 +235,7 @@ export default function Projects() {
             onSelect={openProject}
             onActiveChange={setActiveIdx}
             paused={!!selectedProject || returning}
+            bringToFront={selectedProject?.num ?? null}
           />
           <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-600 mt-2 select-none">
             {t('projects.ring.hint')}
