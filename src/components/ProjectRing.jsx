@@ -181,15 +181,12 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                   }}
                 >
                   {(() => {
-                    const lit = isFront || hovered === i;
                     const mediaStyle = {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
                       display: 'block',
                       pointerEvents: 'none',
-                      filter: lit ? 'none' : 'brightness(0.32) saturate(0.75)',
-                      transition: 'filter 0.45s ease',
                     };
                     return p.videoSrc ? (
                       <video
