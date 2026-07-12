@@ -869,31 +869,3 @@ html[data-theme='light']::view-transition-new(root) {
   animation: ring-info-in 0.45s cubic-bezier(0.33, 1, 0.68, 1) both;
 }
 
-
-/* ── Timeline git log (Logros) ── */
-@keyframes tl-caret-blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-.tl-caret {
-  display: inline-block;
-  width: 7px;
-  height: 13px;
-  margin-left: 6px;
-  vertical-align: -2px;
-  background: #7c3aed;
-  animation: tl-caret-blink 1.1s steps(1) infinite;
-}
-
-@keyframes tl-head-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.45); }
-  70%  { box-shadow: 0 0 0 9px rgba(124, 58, 237, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
-}
-.tl-dot-head {
-  animation: tl-head-pulse 2.2s cubic-bezier(0.33, 1, 0.68, 1) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tl-caret, .tl-dot-head { animation: none; }
-}
