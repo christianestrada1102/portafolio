@@ -83,6 +83,8 @@ export const translations = {
     'achievements.icatech.course.2': 'Emprender con Energía',
     'achievements.icatech.course.3': 'Autogestión y Responsabilidad Personal',
     'achievements.icatech.course.4': 'Estrategias Colaborativas para el Trabajo en Equipo',
+    'achievements.hacks.label':      'Hackathons',
+    'achievements.hacks.cta':        'Ver bitácora completa →',
     'achievements.poaps.label':      'POAPs — blockchain',
     'achievements.poaps.cta':        'Ver todos',
 
@@ -201,6 +203,8 @@ export const translations = {
     'achievements.icatech.course.2': 'Entrepreneurship with Energy',
     'achievements.icatech.course.3': 'Self-management and Personal Responsibility',
     'achievements.icatech.course.4': 'Collaborative Strategies for Teamwork',
+    'achievements.hacks.label':      'Hackathons',
+    'achievements.hacks.cta':        'View full archive →',
     'achievements.poaps.label':      'POAPs — blockchain',
     'achievements.poaps.cta':        'View all',
 

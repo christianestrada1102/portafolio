@@ -1,4 +1,5 @@
 import { useRef, useLayoutEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import ScrambleButton from '../components/ScrambleButton';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
@@ -15,6 +16,13 @@ import { revealHeaders } from '../utils/sectionReveal';
 gsap.registerPlugin(ScrollTrigger);
 
 const ICATECH_HOURS = [40, 10, 10, 10, 10];
+
+const HACKATHONS = [
+  { date: 'Oct 2025', name: 'NASA Space Apps',  accent: 'Challenge', result: 'Galactic Problem Solver' },
+  { date: 'Nov 2025', name: 'ETH Mexico',        accent: 'MTY',       result: 'SettArb · producción' },
+  { date: '2025',     name: 'MIT',               accent: 'ICATECH',   result: 'SafeZone · MVP en 48h' },
+  { date: '2026',     name: 'hack@',             accent: 'latam',     result: 'HAVEN · producción' },
+];
 
 const POAPS = [
   { img: etherfuseImg, name: 'Etherfuse',                event: 'ETH Mexico 2025',   date: 'Oct 2025' },
@@ -84,32 +92,103 @@ export default function Achievements() {
           </h2>
         </div>
 
-        {/* ── NASA ── */}
-        <div data-reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-6">
-            {t('achievements.featured')}
-          </p>
-          <div className="max-w-md bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-sm transition-all duration-300">
-            <div className="p-5">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <h3 className="font-semibold text-white text-base leading-tight">
-                  {t('achievements.nasa.title')}
-                </h3>
-                <span className="font-mono text-xs text-neutral-400 shrink-0">
-                  {t('achievements.nasa.date')}
-                </span>
-              </div>
-              <p className="text-neutral-400 text-sm leading-relaxed mb-4">
-                {t('achievements.nasa.desc.pre')}
-                <span className="text-neutral-300">"Galactic Problem Solver"</span>
-                {t('achievements.nasa.desc.post')}
+        {/* ── Hackathons + Destacado/ICATECH en dos columnas ── */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-start">
+
+          {/* Hackathons → bitácora */}
+          <div data-reveal className="md:col-span-7">
+            <div className="flex items-baseline justify-between mb-6">
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400">
+                {t('achievements.hacks.label')}
               </p>
-              <ScrambleButton
-                onClick={() => setNasaModal(true)}
+              <Link
+                to="/hackathons"
                 className="font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
               >
-                {t('achievements.nasa.cta')}
-              </ScrambleButton>
+                {t('achievements.hacks.cta')}
+              </Link>
+            </div>
+            <div className="border-t border-neutral-800">
+              {HACKATHONS.map((h) => (
+                <Link
+                  key={h.name + h.accent}
+                  to="/hackathons"
+                  className="group flex items-baseline justify-between gap-4 border-b border-neutral-800 px-1 py-4 hover:bg-neutral-800/30 transition-colors duration-200"
+                >
+                  <span className="flex items-baseline gap-4 min-w-0">
+                    <span className="font-mono text-[11px] text-neutral-500 shrink-0 w-16">{h.date}</span>
+                    <span className="text-white text-sm md:text-base font-medium truncate">
+                      {h.name}{' '}
+                      <em className="not-italic accent-subtle">{h.accent}</em>
+                    </span>
+                  </span>
+                  <span className="flex items-baseline gap-3 shrink-0">
+                    <span className="font-mono text-[11px] text-neutral-500 hidden sm:inline">{h.result}</span>
+                    <span
+                      aria-hidden="true"
+                      className="text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1 transition-all duration-200 inline-block"
+                    >
+                      →
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Destacado + ICATECH */}
+          <div className="md:col-span-5 space-y-6">
+            <div data-reveal>
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-6">
+                {t('achievements.featured')}
+              </p>
+              <div className="bg-neutral-900 border border-neutral-800 hover:border-brand-500/40 rounded-sm transition-all duration-300">
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <h3 className="font-semibold text-white text-base leading-tight">
+                      {t('achievements.nasa.title')}
+                    </h3>
+                    <span className="font-mono text-xs text-neutral-400 shrink-0">
+                      {t('achievements.nasa.date')}
+                    </span>
+                  </div>
+                  <p className="text-neutral-400 text-sm leading-relaxed mb-4">
+                    {t('achievements.nasa.desc.pre')}
+                    <span className="text-neutral-300">"Galactic Problem Solver"</span>
+                    {t('achievements.nasa.desc.post')}
+                  </p>
+                  <ScrambleButton
+                    onClick={() => setNasaModal(true)}
+                    className="font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
+                  >
+                    {t('achievements.nasa.cta')}
+                  </ScrambleButton>
+                </div>
+              </div>
+            </div>
+
+            <div data-reveal>
+              <div className="flex items-baseline justify-between mb-4">
+                <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-500">
+                  {t('achievements.icatech.label')}
+                </p>
+                <span className="font-mono text-xs text-neutral-400">
+                  {t('achievements.icatech.total')}
+                </span>
+              </div>
+              <div className="border-t border-neutral-800">
+                {ICATECH_HOURS.map((hours, i) => (
+                  <div
+                    key={i}
+                    className="flex items-baseline justify-between gap-4 border-b border-neutral-800 px-1 py-2.5 hover:bg-neutral-800/30 transition-colors duration-150"
+                  >
+                    <span className="text-neutral-300 text-xs md:text-sm leading-snug">
+                      {t(`achievements.icatech.course.${i}`)}
+                    </span>
+                    <span className="font-mono text-[11px] text-neutral-500 shrink-0">{hours}h</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -139,28 +218,6 @@ export default function Achievements() {
             </div>
           </div>
         )}
-
-        {/* ── ICATECH ── */}
-        <div data-reveal>
-          <div className="flex items-baseline justify-between mb-6">
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-500">
-              {t('achievements.icatech.label')}
-            </p>
-            <span className="font-mono text-xs text-neutral-400">
-              {t('achievements.icatech.total')}
-            </span>
-          </div>
-          <div className="w-full bg-neutral-900 border border-neutral-800 rounded-sm overflow-hidden divide-y divide-neutral-800">
-            {ICATECH_HOURS.map((hours, i) => (
-              <div key={i} className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-neutral-800/40 transition-colors duration-150">
-                <span className="text-neutral-300 text-sm leading-snug">
-                  {t(`achievements.icatech.course.${i}`)}
-                </span>
-                <span className="font-mono text-xs text-neutral-400 shrink-0">{hours}h</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* ── POAPs ── */}
         <div data-reveal>
