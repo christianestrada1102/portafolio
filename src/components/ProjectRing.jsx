@@ -218,6 +218,14 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
                     };
                     return p.videoSrc ? (
                       <video
+                        // React no escribe el atributo muted en el DOM inicial y
+                        // el navegador bloquea el autoplay: forzarlo vía ref
+                        ref={(el) => {
+                          if (el) {
+                            el.muted = true;
+                            el.play?.().catch(() => {});
+                          }
+                        }}
                         src={p.videoSrc}
                         poster={p.image}
                         autoPlay
