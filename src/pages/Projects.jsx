@@ -13,6 +13,7 @@ export default function Projects() {
   const sectionRef = useRef(null);
   const modalRef = useRef(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [returning, setReturning] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const { t } = useLanguage();
 
@@ -173,6 +174,7 @@ export default function Projects() {
     backdrop.style.cssText =
       'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.92);pointer-events:none;';
     document.body.append(backdrop, clone);
+    setReturning(true);
     setSelectedProject(null);
 
     // Destino: la carta real del proyecto, en su posición actual dentro del anillo
@@ -201,7 +203,7 @@ export default function Projects() {
           opacity: 0,
           duration: 0.12,
           ease: 'none',
-          onComplete: () => { clone.remove(); backdrop.remove(); },
+          onComplete: () => { clone.remove(); backdrop.remove(); setReturning(false); },
         });
       },
     });
@@ -226,7 +228,7 @@ export default function Projects() {
             projects={PROJECTS}
             onSelect={openProject}
             onActiveChange={setActiveIdx}
-            paused={!!selectedProject}
+            paused={!!selectedProject || returning}
           />
           <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-600 mt-2 select-none">
             {t('projects.ring.hint')}
