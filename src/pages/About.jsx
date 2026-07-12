@@ -4,16 +4,19 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 import {
   SiReact,
   SiNodedotjs,
-  SiCplusplus,
   SiHtml5,
   SiCss3,
   SiFlutter,
   SiVite,
   SiJavascript,
+  SiTypescript,
   SiGit,
   SiNextdotjs,
   SiTailwindcss,
+  SiSupabase,
+  SiFirebase,
 } from 'react-icons/si';
+import LogoLoop from '../components/LogoLoop';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -37,19 +40,21 @@ function CSharpIcon({ className }) {
   );
 }
 
-const TECHS = [
-  { name: 'React',   Icon: SiReact     },
-  { name: 'Vite.js', Icon: SiVite     },
-  { name: 'Node.js', Icon: SiNodedotjs },
-  { name: 'JavaScript', Icon: SiJavascript },
-  { name: 'Tailwind', Icon: SiTailwindcss   },
-  { name: 'HTML5',   Icon: SiHtml5     },
-  { name: 'CSS3',    Icon: SiCss3      },
-  { name: 'C#',      Icon: CSharpIcon },
-  { name: 'C++',     Icon: SiCplusplus },
-  { name: 'Flutter', Icon: SiFlutter   },
-  { name: 'NextJS',  Icon: SiNextdotjs },
-  { name: 'Git', Icon: SiGit   },
+const TECH_LOGOS = [
+  { node: <SiJavascript />, title: 'JavaScript', ariaLabel: 'JavaScript' },
+  { node: <SiTypescript />, title: 'TypeScript', ariaLabel: 'TypeScript' },
+  { node: <SiHtml5 />,      title: 'HTML5',      ariaLabel: 'HTML5' },
+  { node: <SiCss3 />,       title: 'CSS3',       ariaLabel: 'CSS3' },
+  { node: <SiReact />,      title: 'React',      ariaLabel: 'React' },
+  { node: <SiNextdotjs />,  title: 'Next.js',    ariaLabel: 'Next.js' },
+  { node: <SiVite />,       title: 'Vite',       ariaLabel: 'Vite' },
+  { node: <SiTailwindcss />, title: 'Tailwind CSS', ariaLabel: 'Tailwind CSS' },
+  { node: <SiNodedotjs />,  title: 'Node.js',    ariaLabel: 'Node.js' },
+  { node: <SiFlutter />,    title: 'Flutter',    ariaLabel: 'Flutter' },
+  { node: <CSharpIcon className="w-[1em] h-[1em]" />, title: 'C#', ariaLabel: 'C#' },
+  { node: <SiSupabase />,   title: 'Supabase',   ariaLabel: 'Supabase' },
+  { node: <SiFirebase />,   title: 'Firebase',   ariaLabel: 'Firebase' },
+  { node: <SiGit />,        title: 'Git',        ariaLabel: 'Git' },
 ];
 
 const TOOLS = ['Visual Studio', 'VS Code', 'Cursor', 'Git', 'GitHub'];
@@ -78,20 +83,6 @@ export default function About() {
         });
       });
 
-      gsap.from('.tech-item', {
-        y: 24,
-        opacity: 0,
-        scale: 0.9,
-        stagger: 0.07,
-        duration: 0.5,
-        ease: 'power2.out',
-        immediateRender: false,
-        scrollTrigger: {
-          trigger: '.tech-row',
-          start: 'top 90%',
-          toggleActions: 'play none none none',
-        },
-      });
     }, containerRef);
 
     return () => ctx.revert();
@@ -158,24 +149,19 @@ export default function About() {
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-6">
             {t('about.stack.label')}
           </p>
-          <div className="tech-row flex flex-wrap items-center gap-6 md:gap-10 justify-center">
-            {TECHS.map(({ name, Icon, symbol }) => (
-              <div
-                key={name}
-                title={name}
-                aria-label={name}
-                role="img"
-                className="tech-item flex items-center justify-center text-neutral-400 hover:text-white transition-colors duration-200 cursor-default group"
-              >
-                {Icon ? (
-                  <Icon className="w-6 h-6 md:w-8 md:h-8" aria-hidden="true" />
-                ) : (
-                  <span className="text-base md:text-xl font-mono font-bold leading-none">
-                    {symbol ?? name}
-                  </span>
-                )}
-              </div>
-            ))}
+          <div className="tech-row relative overflow-hidden text-neutral-400" style={{ height: '64px' }}>
+            <LogoLoop
+              logos={TECH_LOGOS}
+              speed={70}
+              direction="left"
+              logoHeight={32}
+              gap={48}
+              hoverSpeed={12}
+              scaleOnHover
+              fadeOut
+              fadeOutColor="var(--bg)"
+              ariaLabel={t('about.stack.label')}
+            />
           </div>
         </div>
 
