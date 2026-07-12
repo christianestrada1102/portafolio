@@ -45,19 +45,83 @@ export default function Projects() {
     return () => ctx.revert();
   }, []);
 
-  // ── Modal (iframe) para proyectos con demo web ──
-  const openProject = useCallback((project) => {
+  // ── Apertura estilo Apple: la carta vuela y se expande hasta ser el modal ──
+  const flipRef = useRef(false);
+
+  const flipOpen = useCallback((project, fromRect) => {
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText =
+      'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0);pointer-events:none;';
+    const clone = document.createElement('div');
+    clone.style.cssText =
+      `position:fixed;z-index:9999;overflow:hidden;border-radius:8px;pointer-events:none;` +
+      `left:${fromRect.left}px;top:${fromRect.top}px;width:${fromRect.width}px;height:${fromRect.height}px;` +
+      `background:#111 url(${project.image}) center/cover no-repeat;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+    document.body.append(backdrop, clone);
+
+    // Destino: mismas medidas que .modal-content (85vw × 80vh centrado)
+    const tw = window.innerWidth * 0.85;
+    const th = window.innerHeight * 0.8;
+    const tx = (window.innerWidth - tw) / 2;
+    const ty = (window.innerHeight - th) / 2;
+
+    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0.92)', duration: 0.5, ease: 'power2.out' });
+    gsap.to(clone, {
+      left: tx, top: ty, width: tw, height: th,
+      borderRadius: 4,
+      duration: 0.65,
+      ease: 'power4.inOut',
+      onComplete: () => {
+        flipRef.current = true;
+        setSelectedProject(project);
+        gsap.to(clone, {
+          opacity: 0,
+          duration: 0.4,
+          delay: 0.2,
+          ease: 'power2.out',
+          onComplete: () => { clone.remove(); backdrop.remove(); },
+        });
+      },
+    });
+  }, []);
+
+  const openProject = useCallback((project, cardEl) => {
     if (!project.url) return;
     // GitHub como destino → nueva pestaña, no iframe
     if (project.url.includes('github.com')) {
       window.open(project.url, '_blank', 'noopener,noreferrer');
       return;
     }
-    setSelectedProject(project);
-  }, []);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      setSelectedProject(project);
+      return;
+    }
+    let rect = cardEl?.getBoundingClientRect?.();
+    if (!rect) {
+      // Desde el botón del panel: parte de una carta virtual centrada en el anillo
+      const stage = sectionRef.current?.querySelector('.ring-stage');
+      if (stage) {
+        const s = stage.getBoundingClientRect();
+        const w = Math.min(320, s.width * 0.6);
+        const h = w * 0.625;
+        rect = { left: s.left + (s.width - w) / 2, top: s.top + (s.height - h) / 2, width: w, height: h };
+      }
+    }
+    if (!rect) {
+      setSelectedProject(project);
+      return;
+    }
+    flipOpen(project, rect);
+  }, [flipOpen]);
 
   useEffect(() => {
-    if (selectedProject && modalRef.current) {
+    if (!selectedProject || !modalRef.current) return;
+    if (flipRef.current) {
+      // Abierto vía FLIP: el clon ya cubre la pantalla, el modal entra sin animación propia
+      flipRef.current = false;
+      gsap.set(modalRef.current, { opacity: 1 });
+    } else {
       gsap.fromTo(
         modalRef.current,
         { opacity: 0, scale: 0.95 },
@@ -66,18 +130,54 @@ export default function Projects() {
     }
   }, [selectedProject]);
 
+  // ── Cierre: el modal se contrae de vuelta hacia el anillo ──
   const handleCloseModal = () => {
-    if (modalRef.current) {
-      gsap.to(modalRef.current, {
-        opacity: 0,
-        scale: 0.95,
-        duration: 0.3,
-        ease: 'power2.in',
-        onComplete: () => setSelectedProject(null),
-      });
-    } else {
+    const project = selectedProject;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stage = sectionRef.current?.querySelector('.ring-stage');
+
+    if (reduced || !project || !stage || !modalRef.current) {
       setSelectedProject(null);
+      return;
     }
+
+    const content = modalRef.current.querySelector('.modal-content');
+    const from = (content ?? modalRef.current).getBoundingClientRect();
+
+    const clone = document.createElement('div');
+    clone.style.cssText =
+      `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
+      `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
+      `background:#111 url(${project.image}) center/cover no-repeat;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText =
+      'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.92);pointer-events:none;';
+    document.body.append(backdrop, clone);
+    setSelectedProject(null);
+
+    // Destino: una carta centrada en el escenario del anillo
+    const s = stage.getBoundingClientRect();
+    const tw = Math.min(320, s.width * 0.6);
+    const th = tw * 0.625;
+
+    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.5, ease: 'power2.inOut' });
+    gsap.to(clone, {
+      left: s.left + (s.width - tw) / 2,
+      top: s.top + (s.height - th) / 2,
+      width: tw,
+      height: th,
+      borderRadius: 8,
+      duration: 0.55,
+      ease: 'power4.inOut',
+      onComplete: () => {
+        gsap.to(clone, {
+          opacity: 0,
+          duration: 0.25,
+          ease: 'power2.out',
+          onComplete: () => { clone.remove(); backdrop.remove(); },
+        });
+      },
+    });
   };
 
   const clickable = !!activeProject.url;

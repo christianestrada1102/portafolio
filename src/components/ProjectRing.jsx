@@ -97,9 +97,9 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
     dragRef.current.active = false;
   };
 
-  const handleCardClick = (project) => {
+  const handleCardClick = (project, e) => {
     if (dragRef.current.moved > 8) return; // fue un arrastre, no un click
-    onSelect?.(project);
+    onSelect?.(project, e.currentTarget);
   };
 
   const faceBase = {
@@ -156,7 +156,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                   role="button"
                   tabIndex={-1}
                   aria-label={p.name}
-                  onClick={() => handleCardClick(p)}
+                  onClick={(e) => handleCardClick(p, e)}
                   style={{
                     ...faceBase,
                     boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
