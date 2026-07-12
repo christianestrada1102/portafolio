@@ -170,32 +170,44 @@ export default function ProjectRing({ projects, onSelect, onActiveChange }) {
                       : isFront ? '0 10px 30px rgba(0,0,0,0.35)' : 'none',
                     outline: isFront ? '1px solid rgba(124, 58, 237, 0.55)' : 'none',
                     background: isFront ? '#111' : 'transparent',
-                    transform: hovered === i ? 'scale(1.18) translateZ(40px)' : 'scale(1) translateZ(0px)',
+                    transform: hovered === i ? 'scale(1.45) translateZ(80px)' : 'scale(1) translateZ(0px)',
                     transition: 'transform 0.35s cubic-bezier(0.33, 1, 0.68, 1), outline-color 0.3s ease, box-shadow 0.3s ease',
                     cursor: p.url ? 'pointer' : 'grab',
                   }}
                 >
-                  {p.videoSrc ? (
-                    <video
-                      src={p.videoSrc}
-                      poster={p.image}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }}
-                    />
-                  ) : (
-                    <img
-                      src={p.image}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      draggable={false}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }}
-                    />
-                  )}
+                  {(() => {
+                    const lit = isFront || hovered === i;
+                    const mediaStyle = {
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                      pointerEvents: 'none',
+                      filter: lit ? 'none' : 'brightness(0.32) saturate(0.75)',
+                      transition: 'filter 0.45s ease',
+                    };
+                    return p.videoSrc ? (
+                      <video
+                        src={p.videoSrc}
+                        poster={p.image}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                        style={mediaStyle}
+                      />
+                    ) : (
+                      <img
+                        src={p.image}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        style={mediaStyle}
+                      />
+                    );
+                  })()}
                   {/* Número de proyecto: solo en la carta frontal */}
                   {isFront && (
                     <span
