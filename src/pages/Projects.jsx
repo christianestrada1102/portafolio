@@ -56,8 +56,12 @@ export default function Projects() {
     clone.style.cssText =
       `position:fixed;z-index:9999;overflow:hidden;border-radius:8px;pointer-events:none;` +
       `left:${fromRect.left}px;top:${fromRect.top}px;width:${fromRect.width}px;height:${fromRect.height}px;` +
-      `background:#111 url(${project.image}) center/cover no-repeat;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+      `background:#111;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
     document.body.append(backdrop, clone);
+
+    // El modal se monta ya (oculto): el iframe empieza a cargar durante el vuelo
+    flipRef.current = true;
+    setSelectedProject(project);
 
     // Destino: mismas medidas que .modal-content (85vw × 80vh centrado)
     const tw = window.innerWidth * 0.85;
@@ -72,12 +76,11 @@ export default function Projects() {
       duration: 0.65,
       ease: 'power4.inOut',
       onComplete: () => {
-        flipRef.current = true;
-        setSelectedProject(project);
+        if (modalRef.current) gsap.set(modalRef.current, { opacity: 1 });
         gsap.to(clone, {
           opacity: 0,
-          duration: 0.4,
-          delay: 0.2,
+          duration: 0.35,
+          delay: 0.05,
           ease: 'power2.out',
           onComplete: () => { clone.remove(); backdrop.remove(); },
         });
@@ -118,9 +121,9 @@ export default function Projects() {
   useEffect(() => {
     if (!selectedProject || !modalRef.current) return;
     if (flipRef.current) {
-      // Abierto vía FLIP: el clon ya cubre la pantalla, el modal entra sin animación propia
+      // Abierto vía FLIP: queda oculto hasta que el clon aterriza (el iframe ya carga)
       flipRef.current = false;
-      gsap.set(modalRef.current, { opacity: 1 });
+      gsap.set(modalRef.current, { opacity: 0 });
     } else {
       gsap.fromTo(
         modalRef.current,
@@ -148,7 +151,7 @@ export default function Projects() {
     clone.style.cssText =
       `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
       `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
-      `background:#111 url(${project.image}) center/cover no-repeat;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+      `background:#111;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
     const backdrop = document.createElement('div');
     backdrop.style.cssText =
       'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.92);pointer-events:none;';
