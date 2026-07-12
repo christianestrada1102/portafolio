@@ -55,9 +55,28 @@ export default function Projects() {
       'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0);pointer-events:none;';
     const clone = document.createElement('div');
     clone.style.cssText =
-      `position:fixed;z-index:9999;overflow:hidden;border-radius:8px;pointer-events:none;` +
+      `position:fixed;z-index:9999;overflow:hidden;border-radius:6px;pointer-events:none;` +
       `left:${fromRect.left}px;top:${fromRect.top}px;width:${fromRect.width}px;height:${fromRect.height}px;` +
-      `background:#111;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+      `background:#111;`;
+    // El clon despega con el video corriendo, sincronizado con la carta real
+    const face = sectionRef.current?.querySelector(`[data-pnum="${project.num}"]`);
+    if (project.videoSrc) {
+      const v = document.createElement('video');
+      v.src = project.videoSrc;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.autoplay = true;
+      v.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+      const cardVideo = face?.querySelector('video');
+      if (cardVideo && !Number.isNaN(cardVideo.currentTime)) {
+        v.currentTime = cardVideo.currentTime;
+      }
+      clone.appendChild(v);
+      v.play?.().catch(() => {});
+    } else if (project.image) {
+      clone.style.background = `#111 url(${project.image}) center/cover no-repeat`;
+    }
     document.body.append(backdrop, clone);
 
     // El modal se monta ya (oculto): el iframe empieza a cargar durante el vuelo
@@ -100,14 +119,20 @@ export default function Projects() {
       setSelectedProject(project);
       return;
     }
-    // Carta o botón: siempre la misma animación, desde la carta virtual centrada
+    // Carta o botón: misma animación, despegando de la carta real del proyecto
     let rect = null;
-    const stage = sectionRef.current?.querySelector('.ring-stage');
-    if (stage) {
-      const s = stage.getBoundingClientRect();
-      const w = Math.min(320, s.width * 0.6);
-      const h = w * 0.625;
-      rect = { left: s.left + (s.width - w) / 2, top: s.top + (s.height - h) / 2, width: w, height: h };
+    const face = sectionRef.current?.querySelector(`[data-pnum="${project.num}"]`);
+    if (face) {
+      const r = face.getBoundingClientRect();
+      rect = { left: r.left, top: r.top, width: r.width, height: r.height };
+    } else {
+      const stage = sectionRef.current?.querySelector('.ring-stage');
+      if (stage) {
+        const s = stage.getBoundingClientRect();
+        const w = Math.min(320, s.width * 0.6);
+        const h = w * 0.625;
+        rect = { left: s.left + (s.width - w) / 2, top: s.top + (s.height - h) / 2, width: w, height: h };
+      }
     }
     if (!rect) {
       setSelectedProject(project);
