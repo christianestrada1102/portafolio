@@ -11,6 +11,7 @@ import certPensamiento from '../assets/icatech/pensamiento.png';
 import certComunicacion from '../assets/icatech/comunicacion.png';
 import certEmprender from '../assets/icatech/emprender.png';
 import certEstrategias from '../assets/icatech/estrategias.png';
+import certAutogestion from '../assets/icatech/autogestion.png';
 import { useLanguage } from '../context/LanguageContext';
 import { revealHeaders } from '../utils/sectionReveal';
 
@@ -18,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ICATECH_HOURS = [40, 10, 10, 10, 10];
 // Certificados por módulo (autogestión aún sin archivo)
-const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, certEstrategias];
+const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, certAutogestion, certEstrategias];
 
 // Encuadre por imagen: `pos` es object-position (horizontal vertical).
 // Ajusta el % vertical para subir/bajar el recorte de cada foto por separado.
@@ -50,7 +51,92 @@ export default function Achievements() {
 
   const [imgModal, setImgModal]       = useState(null); // { src, alt }
   const [icatechOpen, setIcatechOpen] = useState(false);
+  const certOriginRef = useRef(null);
   const { t } = useLanguage();
+
+  // Rect destino del modal de certificado (max-w-2xl centrado, formato documento)
+  const certTargetRect = () => {
+    const w = Math.min(672, window.innerWidth * 0.92);
+    const h = Math.min(window.innerHeight * 0.82, w * 1.25);
+    return { left: (window.innerWidth - w) / 2, top: (window.innerHeight - h) / 2, width: w, height: h };
+  };
+
+  // Abrir con swap: la fila vuela y se convierte en el certificado
+  const openCert = (src, alt, e) => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const origin = e?.currentTarget?.closest('.ach-row');
+    if (reduced || !origin) {
+      setImgModal({ src, alt });
+      return;
+    }
+    const from = origin.getBoundingClientRect();
+    certOriginRef.current = origin;
+
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText =
+      'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0);pointer-events:none;';
+    const clone = document.createElement('div');
+    clone.style.cssText =
+      `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
+      `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
+      `background:#111 url(${src}) center 20%/cover no-repeat;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+    document.body.append(backdrop, clone);
+
+    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0.8)', duration: 0.35, ease: 'power2.out' });
+    gsap.to(clone, {
+      ...certTargetRect(),
+      duration: 0.5,
+      ease: 'power4.out',
+      onComplete: () => {
+        setImgModal({ src, alt });
+        gsap.to(clone, {
+          opacity: 0,
+          duration: 0.3,
+          delay: 0.05,
+          onComplete: () => { clone.remove(); backdrop.remove(); },
+        });
+      },
+    });
+  };
+
+  // Cerrar con swap inverso hacia la fila de origen
+  const closeCert = () => {
+    const modal = imgModal;
+    const origin = certOriginRef.current;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !modal || !origin || !origin.isConnected) {
+      setImgModal(null);
+      certOriginRef.current = null;
+      return;
+    }
+    const from = certTargetRect();
+    const clone = document.createElement('div');
+    clone.style.cssText =
+      `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
+      `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
+      `background:#111 url(${modal.src}) center 20%/cover no-repeat;`;
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText =
+      'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.8);pointer-events:none;';
+    document.body.append(backdrop, clone);
+    setImgModal(null);
+    certOriginRef.current = null;
+
+    const to = origin.getBoundingClientRect();
+    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4, ease: 'power2.inOut' });
+    gsap.to(clone, {
+      left: to.left, top: to.top, width: to.width, height: to.height,
+      duration: 0.45,
+      ease: 'power4.out',
+      onComplete: () => {
+        gsap.to(clone, {
+          opacity: 0,
+          duration: 0.18,
+          onComplete: () => { clone.remove(); backdrop.remove(); },
+        });
+      },
+    });
+  };
 
   // ── Acordeón: las filas se despliegan en 3D ligadas al scroll ──
   useLayoutEffect(() => {
@@ -168,14 +254,14 @@ export default function Achievements() {
           {/* NASA */}
           <button
             type="button"
-            onClick={() => setImgModal({ src: nasaImg, alt: 'NASA Space Apps Challenge Certificate' })}
+            onClick={(e) => openCert(nasaImg, 'NASA Space Apps Challenge Certificate', e)}
             className="ach-row group relative isolate overflow-hidden w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
           >
             {rowBg(CERTS[0])}
             {rowInner(CERTS[0])}
             <span
               aria-hidden="true"
-              className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-neutral-600 group-hover:text-brand-400 transition-colors duration-300"
+              className="ach-cta shrink-0 mt-2 md:mt-4 font-mono text-[11px] uppercase tracking-[0.15em] px-3 py-1.5 rounded-sm border border-brand-500/50 text-brand-300 group-hover:bg-brand-500/15 group-hover:border-brand-400 group-hover:text-brand-200 transition-all duration-300"
             >
               {t('achievements.nasa.cta')}
             </span>
@@ -223,11 +309,11 @@ export default function Achievements() {
                         {cert ? (
                           <button
                             type="button"
-                            onClick={() => setImgModal({ src: cert, alt: t(`achievements.icatech.course.${j}`) })}
+                            onClick={(e) => openCert(cert, t(`achievements.icatech.course.${j}`), e)}
                             className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
                           >
                             {inner}
-                            <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-neutral-600 group-hover/cert:text-brand-400 transition-colors duration-200">
+                            <span className="font-mono text-[10px] uppercase tracking-[0.15em] px-2 py-0.5 rounded-sm border border-brand-500/40 text-brand-300 group-hover/cert:bg-brand-500/15 group-hover/cert:text-brand-200 transition-all duration-200">
                               {t('achievements.icatech.view')}
                             </span>
                           </button>
@@ -254,12 +340,6 @@ export default function Achievements() {
             >
               {rowBg(item)}
               {rowInner(item)}
-              <span
-                aria-hidden="true"
-                className="ach-cta shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1.5 transition-all duration-300 text-xl md:text-2xl"
-              >
-                →
-              </span>
             </Link>
           ))}
 
@@ -296,14 +376,14 @@ export default function Achievements() {
       {imgModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-          onClick={() => setImgModal(null)}
+          onClick={closeCert}
         >
           <div
             className="relative max-w-2xl w-full max-h-[88vh] bg-neutral-900 border border-neutral-800 rounded-sm overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={() => setImgModal(null)}
+              onClick={closeCert}
               className="sticky top-3 float-right mr-3 text-neutral-500 hover:text-white transition-colors duration-200 font-mono text-xs z-10 bg-neutral-900/80 px-2 py-1 rounded-sm"
             >
               {t('achievements.nasa.close')}
