@@ -43,27 +43,30 @@ export default function Achievements() {
     const ctx = gsap.context(() => {
       revealHeaders(containerRef.current);
 
+      // Acordeón: las filas están plegadas en 3D (como papel) y se van
+      // desplegando ligadas al scroll, alternando la bisagra arriba/abajo
       gsap.utils.toArray('.ach-row', containerRef.current).forEach((el, i) => {
-        const fromLeft = i % 2 === 0;
-        const tl = gsap.timeline({
-          defaults: { immediateRender: false },
-          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-        });
-        tl.from(el, {
-          x: fromLeft ? -70 : 70,
-          opacity: 0,
-          duration: 0.7,
-          ease: 'power3.out',
-        })
-          .from(el.querySelector('.ach-date'), {
-            x: -20, opacity: 0, duration: 0.45, ease: 'power2.out',
-          }, '-=0.38')
-          .from(el.querySelector('.ach-title'), {
-            y: 30, opacity: 0, duration: 0.55, ease: 'power3.out',
-          }, '-=0.4')
-          .from(el.querySelectorAll('.ach-result, .ach-cta'), {
-            x: 22, opacity: 0, duration: 0.45, ease: 'power2.out',
-          }, '-=0.42');
+        const hingeTop = i % 2 === 0;
+        gsap.fromTo(
+          el,
+          {
+            rotationX: hingeTop ? -72 : 72,
+            transformOrigin: hingeTop ? '50% 0%' : '50% 100%',
+            opacity: 0.1,
+          },
+          {
+            rotationX: 0,
+            opacity: 1,
+            ease: 'none',
+            immediateRender: false,
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 97%',
+              end: 'top 68%',
+              scrub: true,
+            },
+          }
+        );
       });
 
       // Banner de la bitácora
@@ -139,7 +142,7 @@ export default function Achievements() {
 
       {/* ── Lista tipográfica ── */}
       <div className="max-w-6xl mx-auto px-4 md:px-6">
-        <div className="border-t border-neutral-800">
+        <div className="border-t border-neutral-800" style={{ perspective: '1200px' }}>
 
           {TIMELINE.map((item) => {
             if (item.type === 'hack') {
