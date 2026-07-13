@@ -23,11 +23,11 @@ const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, c
 // Encuadre por imagen: `pos` es object-position (horizontal vertical).
 // Ajusta el % vertical para subir/bajar el recorte de cada foto por separado.
 const ROW_IMAGES = {
-  nasa:    { src: nasaPhoto,       pos: 'center 25%' },
-  eth:     { src: ethPhoto,        pos: 'center 25%' },
-  mit:     { src: mitPhoto,        pos: 'center 25%' },
-  latam:   { src: latamPhoto,      pos: 'center 25%' },
-  icatech: { src: certPensamiento, pos: 'center 25%' },
+  nasa:    { src: nasaPhoto,       pos: 'center 19%' },
+  eth:     { src: ethPhoto,        pos: 'center 38%' },
+  mit:     { src: mitPhoto,        pos: 'center 45%' },
+  latam:   { src: latamPhoto,      pos: 'center 22%' },
+  icatech: { src: certPensamiento, pos: 'center 57%' },
 };
 
 // Grupo 1: certificaciones · Grupo 2: hackathons
