@@ -43,16 +43,41 @@ export default function Achievements() {
     const ctx = gsap.context(() => {
       revealHeaders(containerRef.current);
 
-      gsap.utils.toArray('.ach-row', containerRef.current).forEach((el) => {
-        gsap.from(el, {
-          y: 46,
+      gsap.utils.toArray('.ach-row', containerRef.current).forEach((el, i) => {
+        const fromLeft = i % 2 === 0;
+        const tl = gsap.timeline({
+          defaults: { immediateRender: false },
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+        });
+        tl.from(el, {
+          x: fromLeft ? -70 : 70,
+          opacity: 0,
+          duration: 0.7,
+          ease: 'power3.out',
+        })
+          .from(el.querySelector('.ach-date'), {
+            x: -20, opacity: 0, duration: 0.45, ease: 'power2.out',
+          }, '-=0.38')
+          .from(el.querySelector('.ach-title'), {
+            y: 30, opacity: 0, duration: 0.55, ease: 'power3.out',
+          }, '-=0.4')
+          .from(el.querySelectorAll('.ach-result, .ach-cta'), {
+            x: 22, opacity: 0, duration: 0.45, ease: 'power2.out',
+          }, '-=0.42');
+      });
+
+      // Banner de la bitácora
+      const banner = containerRef.current.querySelector('.ach-banner');
+      if (banner) {
+        gsap.from(banner, {
+          y: 40,
           opacity: 0,
           duration: 0.8,
           ease: 'power3.out',
           immediateRender: false,
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+          scrollTrigger: { trigger: banner, start: 'top 92%', once: true },
         });
-      });
+      }
     }, containerRef);
 
     return () => ctx.revert();
@@ -128,7 +153,7 @@ export default function Achievements() {
                   {rowInner(item)}
                   <span
                     aria-hidden="true"
-                    className="shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1.5 transition-all duration-300 text-xl md:text-2xl"
+                    className="ach-cta shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1.5 transition-all duration-300 text-xl md:text-2xl"
                   >
                     →
                   </span>
@@ -148,7 +173,7 @@ export default function Achievements() {
                   {rowInner(item)}
                   <span
                     aria-hidden="true"
-                    className="shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-neutral-600 group-hover:text-brand-400 transition-colors duration-300"
+                    className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-neutral-600 group-hover:text-brand-400 transition-colors duration-300"
                   >
                     {t('achievements.nasa.cta')}
                   </span>
@@ -214,14 +239,42 @@ export default function Achievements() {
           })}
         </div>
 
-        <div className="mt-6">
-          <Link
-            to="/hackathons"
-            className="font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
+        {/* ── Banner: invitación a la bitácora ── */}
+        <Link
+          to="/hackathons"
+          className="ach-banner group relative isolate overflow-hidden flex items-center justify-between gap-6 border-b border-neutral-800 py-8 md:py-12"
+        >
+          <span
+            aria-hidden="true"
+            className="ach-bg absolute inset-0 -z-10 pointer-events-none"
           >
-            {t('achievements.hacks.cta')}
-          </Link>
-        </div>
+            <span
+              className="absolute inset-0"
+              style={{ background: 'radial-gradient(70% 200% at 30% 50%, rgba(124, 58, 237, 0.22), transparent 70%)' }}
+            />
+          </span>
+          <span className="min-w-0">
+            <span className="block font-mono text-[11px] uppercase tracking-[0.25em] text-brand-400 mb-2">
+              {t('achievements.hacks.label')}
+            </span>
+            <span
+              className="block font-semibold text-white leading-[1.05]"
+              style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)' }}
+            >
+              {t('achievements.hacks.banner.pre')}{' '}
+              <em className="not-italic accent-subtle">{t('achievements.hacks.banner.accent')}</em>
+            </span>
+            <span className="block text-neutral-400 text-sm mt-2">
+              {t('achievements.hacks.banner.sub')}
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-full border border-neutral-700 flex items-center justify-center text-xl md:text-2xl text-neutral-400 group-hover:border-brand-400 group-hover:text-brand-400 group-hover:translate-x-2 transition-all duration-300"
+          >
+            →
+          </span>
+        </Link>
       </div>
 
       {/* ── NASA Modal ── */}
