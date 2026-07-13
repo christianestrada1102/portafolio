@@ -69,8 +69,9 @@ function PhotoPlaceholder({ idx, ratio = '16/9' }) {
 
 function GBCPhoto({ photo, idx, ratio = '16/9' }) {
   const [broken, setBroken] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
-  if (!photo.src || broken) {
+  if ((!photo.src && !photo.src8) || broken) {
     return (
       <figure style={{ margin: 0 }}>
         <PhotoPlaceholder idx={idx} ratio={ratio} />
@@ -83,18 +84,26 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
     );
   }
 
+  // Con src8: la versión 8-bit vive en la card y el hover revela la foto real
+  const has8 = !!(photo.src8 && photo.src);
+
   return (
     <figure style={{ margin: 0 }}>
       <div
+        onPointerEnter={(e) => { if (e.pointerType === 'mouse' && has8) setRevealed(true); }}
+        onPointerLeave={(e) => { if (e.pointerType === 'mouse' && has8) setRevealed(false); }}
+        onClick={() => { if (has8) setRevealed((v) => !v); }}
         style={{
           aspectRatio: ratio,
           position: 'relative',
           overflow: 'hidden',
           border: `1px solid ${C.border}`,
+          cursor: has8 ? 'pointer' : 'default',
         }}
       >
+        {/* Capa base: versión 8-bit (o la única foto con filtro GBC) */}
         <img
-          src={photo.src}
+          src={photo.src8 ?? photo.src}
           alt={photo.caption || ''}
           onError={() => setBroken(true)}
           loading="lazy"
@@ -102,16 +111,34 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
             objectFit: 'cover', display: 'block',
-            filter: GBC_FILTER,
+            filter: photo.src8 ? 'none' : GBC_FILTER,
             imageRendering: 'pixelated',
           }}
         />
-        {/* Scanlines */}
+        {/* Foto real: se revela con un wipe de izquierda a derecha */}
+        {has8 && (
+          <img
+            src={photo.src}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover', display: 'block',
+              clipPath: revealed ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)',
+              transition: 'clip-path 0.55s cubic-bezier(0.33, 1, 0.68, 1)',
+            }}
+          />
+        )}
+        {/* Scanlines (se apagan al revelar) */}
         <div
           aria-hidden="true"
           style={{
             position: 'absolute', inset: 0, pointerEvents: 'none',
             backgroundImage: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 3px)',
+            opacity: revealed ? 0 : 1,
+            transition: 'opacity 0.4s ease',
           }}
         />
         {/* Dither */}
@@ -121,8 +148,27 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
             position: 'absolute', inset: 0, pointerEvents: 'none',
             backgroundImage: 'repeating-linear-gradient(45deg, rgba(96,70,160,0.07) 0px, rgba(96,70,160,0.07) 1px, transparent 1px, transparent 4px)',
             mixBlendMode: 'overlay',
+            opacity: revealed ? 0 : 1,
+            transition: 'opacity 0.4s ease',
           }}
         />
+        {/* Indicador de modo */}
+        {has8 && (
+          <span
+            aria-hidden="true"
+            style={{
+              position: 'absolute', right: 8, bottom: 6,
+              fontFamily: MONO, fontSize: '9px', letterSpacing: '0.12em',
+              color: revealed ? '#e0d0ff' : C.faint,
+              background: 'rgba(10, 6, 16, 0.75)',
+              padding: '2px 6px',
+              transition: 'color 0.3s ease',
+              pointerEvents: 'none',
+            }}
+          >
+            {revealed ? 'RAW' : '8-BIT'}
+          </span>
+        )}
       </div>
       {photo.caption && (
         <figcaption style={{ fontFamily: MONO, fontSize: '11px', color: C.faint, marginTop: '8px' }}>

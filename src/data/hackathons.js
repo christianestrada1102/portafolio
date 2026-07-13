@@ -1,3 +1,6 @@
+import ethPix from '../assets/hacks/et.png';
+import ethReal from '../assets/hacks/ethereum.jpeg';
+
 export const hackathons = [
   {
     id: 'nasa-2025',
@@ -26,9 +29,7 @@ export const hackathons = [
     team: '5 personas',
     duration: '48 horas',
     photos: [
-      { src: '/hackathons/eth-mty/01.jpg', caption: 'el equipo, día 1' },
-      { src: '/hackathons/eth-mty/02.jpg', caption: 'durante el evento' },
-      { src: '/hackathons/eth-mty/03.jpg', caption: 'demo final' },
+      { src8: ethPix, src: ethReal, caption: 'el equipo — hover para revelar' },
     ],
     story: [
       'El hackathon más grande de Ethereum en Latinoamérica. Mucho café, poca dormida, y un equipo que se acababa de conocer pero que terminó funcionando como si llevara años junto.',
