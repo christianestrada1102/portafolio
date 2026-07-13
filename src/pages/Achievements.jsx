@@ -52,6 +52,7 @@ export default function Achievements() {
   const [imgModal, setImgModal]       = useState(null); // { src, alt }
   const [icatechOpen, setIcatechOpen] = useState(false);
   const certOriginRef = useRef(null);
+  const certModalRef  = useRef(null);
   const { t } = useLanguage();
 
   // Rect destino del certificado: usa la proporción real de la imagen para
@@ -113,27 +114,38 @@ export default function Achievements() {
     });
   };
 
-  // Cerrar: el certificado se contrae de regreso a la fila, terminando con la
-  // imagen y el encuadre que la carta tiene ahora
+  // Cerrar: el certificado se contrae de regreso a la fila. El clon parte del
+  // rect real del modal mostrando exactamente lo visible, y durante el vuelo
+  // hace crossfade hacia la imagen/encuadre actual de la carta.
   const closeCert = () => {
     const modal = imgModal;
     const origin = certOriginRef.current;
+    const modalEl = certModalRef.current;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || !modal || !origin?.el?.isConnected) {
+    if (reduced || !modal || !origin?.el?.isConnected || !modalEl) {
       setImgModal(null);
       certOriginRef.current = null;
       return;
     }
-    const from = certRect(modal.src);
+    const from = modalEl.getBoundingClientRect();
+
     const clone = document.createElement('div');
     clone.style.cssText =
       `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
       `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;background:#111;`;
-    const img = document.createElement('img');
-    img.src = origin.bgSrc;
-    img.style.cssText =
-      "width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;";
-    clone.appendChild(img);
+
+    // Capa base: la imagen que la carta tiene ahora (destino del crossfade)
+    const imgBase = document.createElement('img');
+    imgBase.src = origin.bgSrc;
+    imgBase.style.cssText =
+      `position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${origin.bgPos};display:block;`;
+    // Capa superior: lo que se está viendo en el modal (alineado arriba, como el scroll inicial)
+    const imgTop = document.createElement('img');
+    imgTop.src = modal.src;
+    imgTop.style.cssText =
+      'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;';
+    clone.append(imgBase, imgTop);
+
     const backdrop = document.createElement('div');
     backdrop.style.cssText =
       'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.8);pointer-events:none;';
@@ -141,12 +153,12 @@ export default function Achievements() {
     setImgModal(null);
 
     const to = origin.el.getBoundingClientRect();
-    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4, ease: 'power2.inOut' });
-    gsap.to(img, { objectPosition: origin.bgPos, duration: 0.45, ease: 'power3.out' });
+    gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.45, ease: 'power2.inOut' });
+    gsap.to(imgTop, { opacity: 0, duration: 0.4, ease: 'power2.in' });
     gsap.to(clone, {
       left: to.left, top: to.top, width: to.width, height: to.height,
-      duration: 0.45,
-      ease: 'power4.out',
+      duration: 0.5,
+      ease: 'power3.inOut',
       onComplete: () => {
         certOriginRef.current = null;
         gsap.to(clone, {
@@ -405,6 +417,7 @@ export default function Achievements() {
           onClick={closeCert}
         >
           <div
+            ref={certModalRef}
             className="relative max-h-[88vh] bg-neutral-900 border border-neutral-800 rounded-sm overflow-auto"
             style={{ width: imgModal.w, maxWidth: '92vw' }}
             onClick={(e) => e.stopPropagation()}
