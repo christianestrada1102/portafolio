@@ -4,6 +4,8 @@ import gsap from 'gsap';
 import { hackathons } from '../data/hackathons';
 import PixelIntro from '../components/PixelIntro';
 import CharacterWaves from '../components/CharacterWaves';
+import ASCIIText from '../components/ASCIIText';
+import { useLanguage } from '../context/LanguageContext';
 
 // ── Typography & palette ───────────────────────────────────────────────────────
 const SERIF = "'Fraunces', Georgia, serif";
@@ -20,6 +22,37 @@ const C = {
   faint:    '#6a5a8a',
   accent:   '#9b7fd4',
   italic:   '#b8a2e0',
+};
+
+const STRINGS = {
+  es: {
+    coverHi:    'que_onda',
+    coverPre:   'Bitácora de',
+    coverAccent:'experiencias',
+    coverP1:    'Este es mi blog personal. Acá comparto lo que he vivido gracias al desarrollo de software: hackathons, eventos y comunidad — como builder y founder.',
+    coverP2:    'Fotos en 8-bit, historias reales y lo que construimos en cada una.',
+    coverCta:   'Entrar a la bitácora ▶',
+    back:       '◀ Volver al portafolio',
+    eyebrow:    'BITÁCORA',
+    place:      'LUGAR',
+    team:       'EQUIPO',
+    duration:   'DURACIÓN',
+    hint:       '← → NAVEGAR · ESC VOLVER',
+  },
+  en: {
+    coverHi:    'hey_there',
+    coverPre:   'An archive of',
+    coverAccent:'experiences',
+    coverP1:    'This is my personal blog. Here I share what software development has let me live: hackathons, events and community — as a builder and founder.',
+    coverP2:    '8-bit photos, real stories, and what we built at each one.',
+    coverCta:   'Enter the archive ▶',
+    back:       '◀ Back to portfolio',
+    eyebrow:    'ARCHIVE',
+    place:      'PLACE',
+    team:       'TEAM',
+    duration:   'DURATION',
+    hint:       '← → NAVIGATE · ESC BACK',
+  },
 };
 
 const GBC_FILTER =
@@ -388,7 +421,7 @@ function EditorialLayout({ photos, story }) {
 
 // ── Top nav ────────────────────────────────────────────────────────────────────
 
-function TopNav({ currentIdx, total, onBack, onPrev, onNext }) {
+function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang, showNav, backLabel }) {
   const [open, setOpen] = useState(false);
 
   const btn = {
@@ -459,20 +492,48 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext }) {
           onMouseEnter={(e) => { e.currentTarget.style.color = C.text; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = C.muted; }}
         >
-          ◀ Volver al portafolio
+          {backLabel}
         </button>
       </div>
 
-      {/* Navegación + contador (sin fondo) */}
+      {/* Idioma + navegación (sin fondo) */}
       <div style={{ position: 'fixed', top: 16, right: 22, zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <button type="button" onClick={onPrev} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Anterior">
-          ◀
-        </button>
-        <span style={{ fontFamily: MONO, fontSize: '11px', color: C.muted, letterSpacing: '0.1em', minWidth: 52, textAlign: 'center', textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)' }}>
-          {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-        </span>
-        <button type="button" onClick={onNext} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Siguiente">
-          ▶
+        {showNav && (
+          <>
+            <button type="button" onClick={onPrev} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Anterior">
+              ◀
+            </button>
+            <span style={{ fontFamily: MONO, fontSize: '11px', color: C.muted, letterSpacing: '0.1em', minWidth: 52, textAlign: 'center', textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)' }}>
+              {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            </span>
+            <button type="button" onClick={onNext} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Siguiente">
+              ▶
+            </button>
+          </>
+        )}
+        {/* Toggle de idioma — notorio */}
+        <button
+          type="button"
+          onClick={onToggleLang}
+          aria-label="Cambiar idioma"
+          style={{
+            fontFamily: MONO,
+            fontSize: '12px',
+            letterSpacing: '0.12em',
+            padding: '7px 14px',
+            marginLeft: showNav ? '6px' : 0,
+            background: 'rgba(124, 58, 237, 0.16)',
+            border: `1px solid ${C.accent}`,
+            color: C.text,
+            cursor: 'pointer',
+            transition: 'background .2s, color .2s',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(124, 58, 237, 0.35)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(124, 58, 237, 0.16)'; }}
+        >
+          <span style={{ color: lang === 'es' ? '#ffffff' : C.faint, fontWeight: lang === 'es' ? 700 : 400 }}>ES</span>
+          <span style={{ color: C.faint }}> / </span>
+          <span style={{ color: lang === 'en' ? '#ffffff' : C.faint, fontWeight: lang === 'en' ? 700 : 400 }}>EN</span>
         </button>
       </div>
     </>
@@ -556,7 +617,7 @@ function BottomNav({ currentIdx, total, onPrev, onNext }) {
 
 // ── Hint bar ───────────────────────────────────────────────────────────────────
 
-function KeyHint() {
+function KeyHint({ text }) {
   return (
     <p
       style={{
@@ -569,7 +630,7 @@ function KeyHint() {
         opacity: 0.7,
       }}
     >
-      ← → NAVEGAR · ESC VOLVER
+      {text}
     </p>
   );
 }
@@ -583,6 +644,9 @@ export default function HackathonsPage() {
   const mountedRef  = useRef(false);
 
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [started, setStarted]       = useState(false);
+  const { lang, toggleLang }        = useLanguage();
+  const L = STRINGS[lang] ?? STRINGS.es;
   const total = hackathons.length;
 
   // SEO
@@ -654,18 +718,19 @@ export default function HackathonsPage() {
   // Keyboard
   useEffect(() => {
     const handle = (e) => {
+      if (e.key === 'Escape') { navigate('/'); return; }
+      if (!started) return;
       if (e.key === 'ArrowLeft')  prevHack();
       if (e.key === 'ArrowRight') nextHack();
-      if (e.key === 'Escape')     navigate('/');
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [prevHack, nextHack, navigate]);
+  }, [prevHack, nextHack, navigate, started]);
 
   // Touch swipe
   const onTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
   const onTouchEnd   = (e) => {
-    if (touchStartX.current === null) return;
+    if (!started || touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 48) { dx > 0 ? prevHack() : nextHack(); }
     touchStartX.current = null;
@@ -702,9 +767,78 @@ export default function HackathonsPage() {
           onBack={() => navigate('/')}
           onPrev={prevHack}
           onNext={nextHack}
+          lang={lang}
+          onToggleLang={toggleLang}
+          showNav={started}
+          backLabel={L.back}
         />
         <div style={{ height: '84px' }} aria-hidden="true" />
 
+        {/* ── Portada: bienvenida a la bitácora ── */}
+        {!started && (
+          <section
+            style={{
+              minHeight: 'calc(100vh - 160px)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              paddingBottom: '48px',
+            }}
+          >
+            {/* Saludo ASCII 3D (React Bits ASCIIText) */}
+            <div style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
+              <ASCIIText text={L.coverHi} enableWaves asciiFontSize={8} />
+            </div>
+
+            <h1
+              style={{
+                fontFamily: SERIF,
+                fontSize: 'clamp(2.2rem, 5.5vw, 3.4rem)',
+                fontWeight: 400,
+                lineHeight: 1.12,
+                color: C.text,
+                margin: '0 0 18px',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {L.coverPre}{' '}
+              <em style={{ fontStyle: 'italic', color: C.italic, fontWeight: 400 }}>
+                {L.coverAccent}
+              </em>
+            </h1>
+
+            <p style={{ fontFamily: SERIF, fontSize: '19px', lineHeight: 1.75, color: C.prose, maxWidth: '560px', margin: '0 0 12px' }}>
+              {L.coverP1}
+            </p>
+            <p style={{ fontFamily: SANS, fontSize: '14px', color: C.muted, maxWidth: '560px', margin: '0 0 32px' }}>
+              {L.coverP2}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => { setStarted(true); window.scrollTo(0, 0); }}
+              style={{
+                fontFamily: MONO,
+                fontSize: '13px',
+                letterSpacing: '0.12em',
+                padding: '13px 22px',
+                width: 'fit-content',
+                background: 'transparent',
+                border: `1px solid ${C.accent}`,
+                color: C.text,
+                cursor: 'pointer',
+                transition: 'background .25s, color .25s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = '#0a0610'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.text; }}
+            >
+              {L.coverCta}
+            </button>
+          </section>
+        )}
+
+        {started && (
+        <>
         {/* ── Article ── */}
         <article>
 
@@ -719,7 +853,7 @@ export default function HackathonsPage() {
               marginBottom: '16px',
             }}
           >
-            BITÁCORA — {h.date}
+            {L.eyebrow} — {h.date}
           </p>
 
           {/* Title */}
@@ -751,9 +885,9 @@ export default function HackathonsPage() {
             }}
           >
             {[
-              ['LUGAR',    h.location],
-              ['EQUIPO',   h.team],
-              ['DURACIÓN', h.duration],
+              [L.place,    h.location],
+              [L.team,     h.team],
+              [L.duration, h.duration],
             ].map(([label, value], i) => (
               <span key={label} style={{ display: 'flex', alignItems: 'center' }}>
                 {i > 0 && (
@@ -791,7 +925,9 @@ export default function HackathonsPage() {
           onNext={nextHack}
         />
 
-        <KeyHint />
+        <KeyHint text={L.hint} />
+        </>
+        )}
       </div>
     </div>
   );
