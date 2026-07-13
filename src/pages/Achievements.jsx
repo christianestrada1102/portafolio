@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect, useState } from 'react';
+import { useRef, useLayoutEffect, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
@@ -54,23 +54,31 @@ export default function Achievements() {
   const certOriginRef = useRef(null);
   const { t } = useLanguage();
 
-  // Rect destino del modal de certificado (max-w-2xl centrado, formato documento)
-  const certTargetRect = () => {
-    const w = Math.min(672, window.innerWidth * 0.92);
-    const h = Math.min(window.innerHeight * 0.82, w * 1.25);
+  // Rect destino del certificado: usa la proporción real de la imagen para
+  // que el recorte del vuelo y el documento completo coincidan al aterrizar
+  const certRect = (src) => {
+    const probe = new Image();
+    probe.src = src;
+    const ar = probe.naturalWidth > 0 ? probe.naturalHeight / probe.naturalWidth : 1.29;
+    let w = Math.min(672, window.innerWidth * 0.92);
+    let h = w * ar;
+    const maxH = window.innerHeight * 0.85;
+    if (h > maxH) { h = maxH; w = h / ar; }
     return { left: (window.innerWidth - w) / 2, top: (window.innerHeight - h) / 2, width: w, height: h };
   };
 
-  // Abrir con swap: la fila vuela y se convierte en el certificado
+  // Abrir con swap: la fila vuela y se convierte en el certificado completo
   const openCert = (src, alt, e) => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const origin = e?.currentTarget?.closest('.ach-row');
+    const target = certRect(src);
     if (reduced || !origin) {
-      setImgModal({ src, alt });
+      setImgModal({ src, alt, w: target.width });
       return;
     }
     const from = origin.getBoundingClientRect();
-    certOriginRef.current = origin;
+    const bgImg = origin.querySelector('.ach-bg img');
+    certOriginRef.current = { el: origin, bgSrc: bgImg?.src ?? src, bgPos: bgImg?.style.objectPosition || 'center 40%' };
 
     const backdrop = document.createElement('div');
     backdrop.style.cssText =
@@ -78,20 +86,26 @@ export default function Achievements() {
     const clone = document.createElement('div');
     clone.style.cssText =
       `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
-      `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
-      `background:#111 url(${src}) center 20%/cover no-repeat;box-shadow:0 24px 80px rgba(0,0,0,0.5);`;
+      `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;background:#111;`;
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.cssText =
+      `width:100%;height:100%;object-fit:cover;object-position:${certOriginRef.current.bgPos};display:block;`;
+    clone.appendChild(img);
     document.body.append(backdrop, clone);
 
     gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0.8)', duration: 0.35, ease: 'power2.out' });
+    // El encuadre se abre hacia el documento completo durante el vuelo
+    gsap.to(img, { objectPosition: '50% 50%', duration: 0.5, ease: 'power3.out' });
     gsap.to(clone, {
-      ...certTargetRect(),
+      ...target,
       duration: 0.5,
       ease: 'power4.out',
       onComplete: () => {
-        setImgModal({ src, alt });
+        setImgModal({ src, alt, w: target.width });
         gsap.to(clone, {
           opacity: 0,
-          duration: 0.3,
+          duration: 0.22,
           delay: 0.05,
           onComplete: () => { clone.remove(); backdrop.remove(); },
         });
@@ -99,36 +113,42 @@ export default function Achievements() {
     });
   };
 
-  // Cerrar con swap inverso hacia la fila de origen
+  // Cerrar: el certificado se contrae de regreso a la fila, terminando con la
+  // imagen y el encuadre que la carta tiene ahora
   const closeCert = () => {
     const modal = imgModal;
     const origin = certOriginRef.current;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || !modal || !origin || !origin.isConnected) {
+    if (reduced || !modal || !origin?.el?.isConnected) {
       setImgModal(null);
       certOriginRef.current = null;
       return;
     }
-    const from = certTargetRect();
+    const from = certRect(modal.src);
     const clone = document.createElement('div');
     clone.style.cssText =
       `position:fixed;z-index:9999;overflow:hidden;border-radius:4px;pointer-events:none;` +
-      `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;` +
-      `background:#111 url(${modal.src}) center 20%/cover no-repeat;`;
+      `left:${from.left}px;top:${from.top}px;width:${from.width}px;height:${from.height}px;background:#111;`;
+    const img = document.createElement('img');
+    img.src = origin.bgSrc;
+    img.style.cssText =
+      "width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;";
+    clone.appendChild(img);
     const backdrop = document.createElement('div');
     backdrop.style.cssText =
       'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.8);pointer-events:none;';
     document.body.append(backdrop, clone);
     setImgModal(null);
-    certOriginRef.current = null;
 
-    const to = origin.getBoundingClientRect();
+    const to = origin.el.getBoundingClientRect();
     gsap.to(backdrop, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.4, ease: 'power2.inOut' });
+    gsap.to(img, { objectPosition: origin.bgPos, duration: 0.45, ease: 'power3.out' });
     gsap.to(clone, {
       left: to.left, top: to.top, width: to.width, height: to.height,
       duration: 0.45,
       ease: 'power4.out',
       onComplete: () => {
+        certOriginRef.current = null;
         gsap.to(clone, {
           opacity: 0,
           duration: 0.18,
@@ -137,6 +157,12 @@ export default function Achievements() {
       },
     });
   };
+
+  // Precargar los certificados al abrir el acordeón (aspect ratio listo al click)
+  useEffect(() => {
+    if (!icatechOpen) return;
+    ICATECH_CERTS.forEach((c) => { if (c) { const im = new Image(); im.src = c; } });
+  }, [icatechOpen]);
 
   // ── Acordeón: las filas se despliegan en 3D ligadas al scroll ──
   useLayoutEffect(() => {
@@ -379,7 +405,8 @@ export default function Achievements() {
           onClick={closeCert}
         >
           <div
-            className="relative max-w-2xl w-full max-h-[88vh] bg-neutral-900 border border-neutral-800 rounded-sm overflow-auto"
+            className="relative max-h-[88vh] bg-neutral-900 border border-neutral-800 rounded-sm overflow-auto"
+            style={{ width: imgModal.w, maxWidth: '92vw' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
