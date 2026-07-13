@@ -160,6 +160,27 @@ export default function PixelIntro({ onDone }) {
       return null;
     };
 
+    // ── Disolve 8-bit: el fondo se descompone en bloques que desaparecen
+    //    radialmente desde el centro, con borde irregular por ruido ──
+    const BLOCK = 18;
+    const bw = Math.ceil(w / BLOCK);
+    const bh = Math.ceil(h / BLOCK);
+    const blockThr = new Float32Array(bw * bh);
+    for (let by = 0; by < bh; by++) {
+      for (let bx = 0; bx < bw; bx++) {
+        const px = bx * BLOCK + BLOCK / 2;
+        const py = by * BLOCK + BLOCK / 2;
+        blockThr[by * bw + bx] = Math.hypot(px - cx, py - cy) + Math.random() * 170;
+      }
+    }
+    const hole = { r: 0 };
+    const revealedAt = (x, y) => {
+      if (hole.r <= 0) return false;
+      const bx = Math.min(bw - 1, Math.max(0, Math.floor(x / BLOCK)));
+      const by = Math.min(bh - 1, Math.max(0, Math.floor(y / BLOCK)));
+      return hole.r >= blockThr[by * bw + bx];
+    };
+
     let raf;
     let last = performance.now();
     const loop = (now) => {
@@ -170,13 +191,27 @@ export default function PixelIntro({ onDone }) {
 
       ctx.clearRect(0, 0, w, h);
 
+      // Fondo: entero antes de la salida; por bloques durante el disolve
+      ctx.fillStyle = '#0a0610';
+      if (hole.r <= 0) {
+        ctx.fillRect(0, 0, w, h);
+      } else {
+        for (let by = 0; by < bh; by++) {
+          for (let bx = 0; bx < bw; bx++) {
+            if (hole.r < blockThr[by * bw + bx]) {
+              ctx.fillRect(bx * BLOCK, by * BLOCK, BLOCK, BLOCK);
+            }
+          }
+        }
+      }
+
       for (const p of bgPixels) {
-        if (!p.step()) continue;
+        if (revealedAt(p.x, p.y) || !p.step()) continue;
         const b = bandFor(p.y);
         p.draw(ctx, b ? b.shift : 0, b?.tint ?? null);
       }
       for (const p of txtPixels) {
-        if (!p.step()) continue;
+        if (revealedAt(p.x, p.y) || !p.step()) continue;
         const b = bandFor(p.y);
         if (b) {
           // Aberración cromática en el texto durante el burst
@@ -190,21 +225,13 @@ export default function PixelIntro({ onDone }) {
     };
     raf = requestAnimationFrame(loop);
 
-    // ── Salida: apertura radial desde el centro que revela la página ──
-    const overlay = overlayRef.current;
-    const maxR = Math.hypot(w, h) / 2 + 160;
-    const hole = { r: 0 };
-    const setMask = () => {
-      const m = `radial-gradient(circle at 50% 50%, transparent ${hole.r}px, black ${hole.r + 110}px)`;
-      overlay.style.webkitMaskImage = m;
-      overlay.style.maskImage = m;
-    };
+    // ── Salida: el radio del disolve crece hasta consumir toda la capa ──
+    const maxR = Math.hypot(w, h) / 2 + 220;
     const exit = gsap.to(hole, {
       r: maxR,
       delay: 2.1,
-      duration: 1.0,
-      ease: 'power4.inOut',
-      onUpdate: setMask,
+      duration: 1.1,
+      ease: 'power2.inOut',
       onComplete: () => {
         cancelAnimationFrame(raf);
         setGone(true);
@@ -223,8 +250,7 @@ export default function PixelIntro({ onDone }) {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[90] overflow-hidden"
-      style={{ background: '#0a0610' }}
+      className="fixed inset-0 z-[90] overflow-hidden pointer-events-none"
       aria-hidden="true"
     >
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
