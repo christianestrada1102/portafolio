@@ -30,13 +30,14 @@ const ROW_IMAGES = {
 
 // Grupo 1: certificaciones · Grupo 2: hackathons
 const CERTS = [
-  { id: 'nasa',    date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge',    result: '"Galactic Problem Solver"' },
-  { id: 'icatech', date: '2025',     title: 'MIT',             accent: 'ICATECH 2025', result: '80h · 5 módulos' },
+  { id: 'nasa',    date: 'Oct 2025', title: 'Galactic Problem', accent: 'Solver',       result: 'NASA Space Apps' },
+  { id: 'icatech', date: '2025',     title: 'MIT',              accent: 'ICATECH 2025', result: '80h · 5 módulos' },
 ];
 const HACKS = [
-  { id: 'eth',   date: 'Nov 2025', title: 'ETH Mexico', accent: 'MTY',     result: 'SettArb · MVP en 54h' },
-  { id: 'mit',   date: '2025',     title: 'MIT',        accent: 'ICATECH', result: 'SafeZone · MVP en 48h' },
-  { id: 'latam', date: '2026',     title: 'hack@',      accent: 'latam',   result: 'HAVEN · producción' },
+  { id: 'nasa',  date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: 'Yuyin · MVP en 48h' },
+  { id: 'eth',   date: 'Nov 2025', title: 'ETH Mexico',      accent: 'MTY',       result: 'SettArb · MVP en 54h' },
+  { id: 'mit',   date: '2025',     title: 'MIT',             accent: 'ICATECH',   result: 'SafeZone · MVP en 48h' },
+  { id: 'latam', date: '2026',     title: 'hack@',           accent: 'latam',     result: 'HAVEN · producción' },
 ];
 
 export default function Achievements() {
@@ -135,7 +136,8 @@ export default function Achievements() {
   );
 
   const groupLabel = (text) => (
-    <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500 pt-8 pb-3">
+    <p className="font-mono text-xs md:text-sm uppercase tracking-[0.35em] text-brand-400 pt-10 pb-3 flex items-center gap-3">
+      <span aria-hidden="true" className="inline-block w-8 h-px bg-brand-500/60" />
       {text}
     </p>
   );

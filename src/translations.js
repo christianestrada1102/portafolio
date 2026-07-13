@@ -91,7 +91,7 @@ export const translations = {
     'achievements.hacks.banner.accent': 'hackathons',
     'achievements.hacks.banner.sub':    'Fotos e historias de cada evento.',
     'achievements.group.certs':         'Certificaciones',
-    'achievements.group.hacks':         'Hackathons',
+    'achievements.group.hacks':         'Hackatones',
     'achievements.stats.0':          'Hackathons internacionales',
     'achievements.stats.1':          'Miembros INNOVA',
     'achievements.stats.2':          'Proyectos en producción',
