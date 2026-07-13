@@ -167,7 +167,7 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
     }
     gsap.to(progRef.current, {
       p: target,
-      duration: 0.85,
+      duration: 1.6,
       ease: 'power2.inOut',
       overwrite: true,
       onUpdate: () => drawRef.current(),
