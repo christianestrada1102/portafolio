@@ -96,59 +96,79 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
     const GS = 12;      // tamaño de celda (px css)
     const EDGE = 0.35;  // ruido del frente
 
+    // Offscreen con la imagen 8-bit ya recortada a cover: cada frame solo
+    // copia celdas de aquí (nada de reescalar el PNG grande por frame)
+    const off = document.createElement('canvas');
+    const offCtx = off.getContext('2d');
+
     const build = () => {
       const w = Math.max(1, box.clientWidth);
       const h = Math.max(1, box.clientHeight);
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
+      canvas.width = w;
+      canvas.height = h;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      off.width = w;
+      off.height = h;
+      if (img.complete && img.naturalWidth > 0) {
+        const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+        const dw = img.naturalWidth * scale;
+        const dh = img.naturalHeight * scale;
+        offCtx.clearRect(0, 0, w, h);
+        offCtx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      } else {
+        offCtx.fillStyle = '#0f0820';
+        offCtx.fillRect(0, 0, w, h);
+      }
 
       const cols = Math.max(1, Math.ceil(w / GS));
       const rows = Math.max(1, Math.ceil(h / GS));
-      const thr = new Float32Array(cols * rows);
+      // Celdas ordenadas por umbral para updates incrementales
+      const cells = [];
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const base = cols === 1 ? 0 : c / (cols - 1); // barrido hacia la derecha
-          thr[r * cols + c] = base * (1 - EDGE) + Math.random() * EDGE;
+          cells.push({ x: c * (w / cols), y: r * (h / rows), thr: base * (1 - EDGE) + Math.random() * EDGE });
         }
       }
-      gridRef.current = { w, h, cols, rows, cellW: w / cols, cellH: h / rows, thr };
+      cells.sort((a, b) => a.thr - b.thr);
+      gridRef.current = { w, h, cellW: w / cols, cellH: h / rows, cells, lastP: -1 };
     };
 
     const draw = () => {
       const g = gridRef.current;
       if (!g) return;
-      ctx.clearRect(0, 0, g.w, g.h);
-      if (img.complete && img.naturalWidth > 0) {
-        // cover manual
-        const scale = Math.max(g.w / img.naturalWidth, g.h / img.naturalHeight);
-        const dw = img.naturalWidth * scale;
-        const dh = img.naturalHeight * scale;
-        ctx.drawImage(img, (g.w - dw) / 2, (g.h - dh) / 2, dw, dh);
-      } else {
-        ctx.fillStyle = '#0f0820';
-        ctx.fillRect(0, 0, g.w, g.h);
-      }
-      // Perforar las celdas ya reveladas
       const p = progRef.current.p;
-      if (p > 0) {
-        ctx.globalCompositeOperation = 'destination-out';
-        for (let r = 0; r < g.rows; r++) {
-          for (let c = 0; c < g.cols; c++) {
-            if (g.thr[r * g.cols + c] <= p) {
-              ctx.fillRect(c * g.cellW, r * g.cellH, g.cellW + 1, g.cellH + 1);
-            }
+      if (p === g.lastP) return;
+
+      if (g.lastP < 0) {
+        // Primer paint: capa completa desde el offscreen
+        ctx.clearRect(0, 0, g.w, g.h);
+        ctx.drawImage(off, 0, 0);
+        for (const cell of g.cells) {
+          if (cell.thr <= p) ctx.clearRect(cell.x, cell.y, g.cellW + 1, g.cellH + 1);
+        }
+      } else if (p > g.lastP) {
+        // Avanza: perforar solo las celdas que acaban de cruzar el umbral
+        for (const cell of g.cells) {
+          if (cell.thr > p) break;
+          if (cell.thr > g.lastP) ctx.clearRect(cell.x, cell.y, g.cellW + 1, g.cellH + 1);
+        }
+      } else {
+        // Retrocede: restaurar solo las celdas que vuelven a cubrirse
+        for (const cell of g.cells) {
+          if (cell.thr > g.lastP) break;
+          if (cell.thr > p) {
+            ctx.drawImage(off, cell.x, cell.y, g.cellW + 1, g.cellH + 1, cell.x, cell.y, g.cellW + 1, g.cellH + 1);
           }
         }
-        ctx.globalCompositeOperation = 'source-over';
       }
+      g.lastP = p;
     };
     drawRef.current = draw;
 
-    img.onload = draw;
+    img.onload = () => { build(); draw(); };
     img.onerror = () => setBroken(true);
     build();
     draw();
@@ -250,23 +270,6 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
             transition: 'opacity 0.5s ease',
           }}
         />
-        {/* Indicador de modo */}
-        {has8 && (
-          <span
-            aria-hidden="true"
-            style={{
-              position: 'absolute', right: 8, bottom: 6,
-              fontFamily: MONO, fontSize: '9px', letterSpacing: '0.12em',
-              color: revealed ? '#e0d0ff' : C.faint,
-              background: 'rgba(10, 6, 16, 0.75)',
-              padding: '2px 6px',
-              transition: 'color 0.3s ease',
-              pointerEvents: 'none',
-            }}
-          >
-            {revealed ? 'RAW' : '8-BIT'}
-          </span>
-        )}
       </div>
       {photo.caption && (
         <figcaption style={{ fontFamily: MONO, fontSize: '11px', color: C.faint, marginTop: '8px' }}>
