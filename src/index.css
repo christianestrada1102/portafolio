@@ -877,8 +877,15 @@ html[data-theme='light']::view-transition-new(root) {
   transition: opacity 0.45s ease, transform 0.9s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .ach-row:hover .ach-bg {
-  opacity: 0.3;
+  opacity: 0.32;
   transform: scale(1);
+}
+.ach-bg-fade {
+  background: linear-gradient(90deg, var(--bg) 0%, transparent 38%, transparent 72%, var(--bg) 100%);
+}
+/* En tema claro las fotos se lavan sobre fondo claro: más presencia */
+[data-theme="light"] .ach-row:hover .ach-bg {
+  opacity: 0.6;
 }
 @media (prefers-reduced-motion: reduce) {
   .ach-bg { transition: opacity 0.2s ease; transform: none; }

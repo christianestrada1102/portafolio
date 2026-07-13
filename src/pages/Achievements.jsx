@@ -3,13 +3,6 @@ import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import nasaImg from '../assets/nasa-space-apps.webp';
-import { useLanguage } from '../context/LanguageContext';
-import { revealHeaders } from '../utils/sectionReveal';
-
-gsap.registerPlugin(ScrollTrigger);
-
-const ICATECH_HOURS = [40, 10, 10, 10, 10];
-
 import nasaPhoto from '../assets/hacks/nasa.jpeg';
 import ethPhoto from '../assets/hacks/ethereum.jpeg';
 import mitPhoto from '../assets/hacks/mit.jpeg';
@@ -18,8 +11,15 @@ import certPensamiento from '../assets/icatech/pensamiento.png';
 import certComunicacion from '../assets/icatech/comunicacion.png';
 import certEmprender from '../assets/icatech/emprender.png';
 import certEstrategias from '../assets/icatech/estrategias.png';
+import { useLanguage } from '../context/LanguageContext';
+import { revealHeaders } from '../utils/sectionReveal';
 
-// Fondo de cada fila
+gsap.registerPlugin(ScrollTrigger);
+
+const ICATECH_HOURS = [40, 10, 10, 10, 10];
+// Certificados por módulo (autogestión aún sin archivo)
+const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, certEstrategias];
+
 const ROW_IMAGES = {
   nasa: nasaPhoto,
   eth: ethPhoto,
@@ -27,17 +27,16 @@ const ROW_IMAGES = {
   latam: latamPhoto,
   icatech: certPensamiento,
 };
-const imageFor = (id) => ROW_IMAGES[id] ?? null;
 
-// Certificados por módulo ICATECH (índice = curso; autogestión aún sin archivo)
-const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, certEstrategias];
-
-const TIMELINE = [
-  { id: 'nasa',    date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: '"Galactic Problem Solver"', type: 'nasa' },
-  { id: 'eth',     date: 'Nov 2025', title: 'ETH Mexico',      accent: 'MTY',       result: 'SettArb · producción',      type: 'hack' },
-  { id: 'mit',     date: '2025',     title: 'MIT',             accent: 'ICATECH',   result: 'SafeZone · MVP en 48h',     type: 'hack' },
-  { id: 'icatech', date: '2025',     title: 'ICATECH',         accent: '2025',      result: null,                        type: 'icatech' },
-  { id: 'latam',   date: '2026',     title: 'hack@',           accent: 'latam',     result: 'HAVEN · producción',       type: 'hack' },
+// Grupo 1: certificaciones · Grupo 2: hackathons
+const CERTS = [
+  { id: 'nasa',    date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge',    result: '"Galactic Problem Solver"' },
+  { id: 'icatech', date: '2025',     title: 'MIT',             accent: 'ICATECH 2025', result: '80h · 5 módulos' },
+];
+const HACKS = [
+  { id: 'eth',   date: 'Nov 2025', title: 'ETH Mexico', accent: 'MTY',     result: 'SettArb · MVP en 54h' },
+  { id: 'mit',   date: '2025',     title: 'MIT',        accent: 'ICATECH', result: 'SafeZone · MVP en 48h' },
+  { id: 'latam', date: '2026',     title: 'hack@',      accent: 'latam',   result: 'HAVEN · producción' },
 ];
 
 export default function Achievements() {
@@ -47,7 +46,7 @@ export default function Achievements() {
   const [icatechOpen, setIcatechOpen] = useState(false);
   const { t } = useLanguage();
 
-  // ── Entrada scroll-triggered de las filas ──
+  // ── Acordeón: las filas se despliegan en 3D ligadas al scroll ──
   useLayoutEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) return;
@@ -55,8 +54,6 @@ export default function Achievements() {
     const ctx = gsap.context(() => {
       revealHeaders(containerRef.current);
 
-      // Acordeón: las filas están plegadas en 3D (como papel) y se van
-      // desplegando ligadas al scroll, alternando la bisagra arriba/abajo
       gsap.utils.toArray('.ach-row', containerRef.current).forEach((el, i) => {
         const hingeTop = i % 2 === 0;
         gsap.fromTo(
@@ -81,7 +78,6 @@ export default function Achievements() {
         );
       });
 
-      // Banner de la bitácora
       const banner = containerRef.current.querySelector('.ach-banner');
       if (banner) {
         gsap.from(banner, {
@@ -98,24 +94,22 @@ export default function Achievements() {
     return () => ctx.revert();
   }, []);
 
-  // ── Fondo de cada fila: imagen que se revela al hover ──
+  // ── Fondo de fila: imagen que se revela al hover ──
   const rowBg = (item) => {
-    const img = imageFor(item.id);
+    const img = ROW_IMAGES[item.id];
+    if (!img) return null;
     return (
       <span aria-hidden="true" className="ach-bg absolute inset-0 -z-10 pointer-events-none">
-        {img ? (
-          <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-        ) : (
-          <span
-            className="absolute inset-0"
-            style={{ background: 'radial-gradient(60% 150% at 72% 50%, rgba(124, 58, 237, 0.3), transparent 70%)' }}
-          />
-        )}
-        {/* Degradado para mantener legible el texto */}
-        <span
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(90deg, var(--bg) 0%, transparent 38%, transparent 72%, var(--bg) 100%)' }}
+        <img
+          src={img}
+          alt=""
+          className="w-full h-full object-cover"
+          style={{ objectPosition: 'center 30%' }}
+          loading="lazy"
+          decoding="async"
         />
+        {/* Degradado para mantener legible el texto */}
+        <span className="ach-bg-fade absolute inset-0" />
       </span>
     );
   };
@@ -126,7 +120,7 @@ export default function Achievements() {
       <span className="ach-date font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500 shrink-0 w-20 md:w-24 pt-2 md:pt-4">
         {item.date}
       </span>
-      <span className="ach-title flex-1 min-w-0 font-semibold text-white leading-[1.05] transition-transform duration-300"
+      <span className="ach-title flex-1 min-w-0 font-semibold text-white leading-[1.05]"
         style={{ fontSize: 'clamp(1.7rem, 4.5vw, 3.4rem)' }}
       >
         {item.title}{' '}
@@ -140,9 +134,15 @@ export default function Achievements() {
     </>
   );
 
+  const groupLabel = (text) => (
+    <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-neutral-500 pt-8 pb-3">
+      {text}
+    </p>
+  );
+
   return (
     <section id="achievements" ref={containerRef} className="pt-6 pb-5 md:pt-8 md:pb-6">
-      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-10">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-4 md:mb-6">
         <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
           {t('achievements.label')}
         </p>
@@ -152,165 +152,135 @@ export default function Achievements() {
         </h2>
       </div>
 
-      {/* ── Lista tipográfica ── */}
       <div className="max-w-6xl mx-auto px-4 md:px-6">
+
+        {/* ── Certificaciones ── */}
+        {groupLabel(t('achievements.group.certs'))}
         <div className="border-t border-neutral-800" style={{ perspective: '1200px' }}>
 
-          {TIMELINE.map((item) => {
-            if (item.type === 'hack') {
-              return (
-                <Link
-                  key={item.id}
-                  to="/hackathons"
-                  className="ach-row group relative isolate overflow-hidden flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
-                >
-                  {rowBg(item)}
-                  {rowInner(item)}
-                  <span
-                    aria-hidden="true"
-                    className="ach-cta shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1.5 transition-all duration-300 text-xl md:text-2xl"
-                  >
-                    →
-                  </span>
-                </Link>
-              );
-            }
+          {/* NASA */}
+          <button
+            type="button"
+            onClick={() => setImgModal({ src: nasaImg, alt: 'NASA Space Apps Challenge Certificate' })}
+            className="ach-row group relative isolate overflow-hidden w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
+          >
+            {rowBg(CERTS[0])}
+            {rowInner(CERTS[0])}
+            <span
+              aria-hidden="true"
+              className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-neutral-600 group-hover:text-brand-400 transition-colors duration-300"
+            >
+              {t('achievements.nasa.cta')}
+            </span>
+          </button>
 
-            if (item.type === 'nasa') {
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setImgModal({ src: nasaImg, alt: 'NASA Space Apps Challenge Certificate' })}
-                  className="ach-row group relative isolate overflow-hidden w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
-                >
-                  {rowBg(item)}
-                  {rowInner(item)}
-                  <span
-                    aria-hidden="true"
-                    className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-neutral-600 group-hover:text-brand-400 transition-colors duration-300"
-                  >
-                    {t('achievements.nasa.cta')}
-                  </span>
-                </button>
-              );
-            }
-
-            // icatech: fila expandible
-            return (
-              <div key={item.id} className="ach-row group relative isolate overflow-hidden border-b border-neutral-800">
-                {rowBg(item)}
-                <button
-                  type="button"
-                  onClick={() => setIcatechOpen((v) => !v)}
-                  aria-expanded={icatechOpen}
-                  className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
-                >
-                  <span className="ach-date font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500 shrink-0 w-20 md:w-24 pt-2 md:pt-4">
-                    {item.date}
-                  </span>
-                  <span className="flex-1 min-w-0">
-                    <span
-                      className="ach-title block font-semibold text-white leading-[1.05]"
-                      style={{ fontSize: 'clamp(1.7rem, 4.5vw, 3.4rem)' }}
-                    >
-                      {item.title}{' '}
-                      <em className="not-italic accent-subtle">{item.accent}</em>
-                    </span>
-                    <span className="block font-mono text-xs text-neutral-500 mt-2">
-                      {t('achievements.icatech.line')}
-                    </span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className={`shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-xl md:text-2xl ${
-                      icatechOpen ? 'rotate-45 text-brand-400' : ''
-                    }`}
-                  >
-                    +
-                  </span>
-                </button>
-                <div
-                  className="grid"
-                  style={{
-                    gridTemplateRows: icatechOpen ? '1fr' : '0fr',
-                    transition: 'grid-template-rows 0.4s cubic-bezier(0.33, 1, 0.68, 1)',
-                  }}
-                >
-                  <div className="overflow-hidden">
-                    <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
-                      {ICATECH_HOURS.map((hours, j) => {
-                        const cert = ICATECH_CERTS[j];
-                        const inner = (
-                          <>
-                            <span aria-hidden="true" className="text-neutral-600">→</span>
-                            <span>{t(`achievements.icatech.course.${j}`)}</span>
-                            <span className="font-mono text-[11px] text-neutral-600">{hours}h</span>
-                          </>
-                        );
-                        return (
-                          <li key={j} className="text-sm text-neutral-400">
-                            {cert ? (
-                              <button
-                                type="button"
-                                onClick={() => setImgModal({ src: cert, alt: t(`achievements.icatech.course.${j}`) })}
-                                className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
-                              >
-                                {inner}
-                                <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-neutral-600 group-hover/cert:text-brand-400 transition-colors duration-200">
-                                  {t('achievements.icatech.view')}
-                                </span>
-                              </button>
-                            ) : (
-                              <span className="flex items-baseline gap-3">{inner}</span>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </div>
+          {/* MIT ICATECH 2025 (expandible con certificados) */}
+          <div className="ach-row group relative isolate overflow-hidden border-b border-neutral-800">
+            {rowBg(CERTS[1])}
+            <button
+              type="button"
+              onClick={() => setIcatechOpen((v) => !v)}
+              aria-expanded={icatechOpen}
+              className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
+            >
+              {rowInner(CERTS[1])}
+              <span
+                aria-hidden="true"
+                className={`shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-xl md:text-2xl ${
+                  icatechOpen ? 'rotate-45 text-brand-400' : ''
+                }`}
+              >
+                +
+              </span>
+            </button>
+            <div
+              className="grid"
+              style={{
+                gridTemplateRows: icatechOpen ? '1fr' : '0fr',
+                transition: 'grid-template-rows 0.4s cubic-bezier(0.33, 1, 0.68, 1)',
+              }}
+            >
+              <div className="overflow-hidden">
+                <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
+                  {ICATECH_HOURS.map((hours, j) => {
+                    const cert = ICATECH_CERTS[j];
+                    const inner = (
+                      <>
+                        <span aria-hidden="true" className="text-neutral-600">→</span>
+                        <span>{t(`achievements.icatech.course.${j}`)}</span>
+                        <span className="font-mono text-[11px] text-neutral-600">{hours}h</span>
+                      </>
+                    );
+                    return (
+                      <li key={j} className="text-sm text-neutral-400">
+                        {cert ? (
+                          <button
+                            type="button"
+                            onClick={() => setImgModal({ src: cert, alt: t(`achievements.icatech.course.${j}`) })}
+                            className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
+                          >
+                            {inner}
+                            <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-neutral-600 group-hover/cert:text-brand-400 transition-colors duration-200">
+                              {t('achievements.icatech.view')}
+                            </span>
+                          </button>
+                        ) : (
+                          <span className="flex items-baseline gap-3">{inner}</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-            );
-          })}
+            </div>
+          </div>
         </div>
 
-        {/* ── Banner: invitación a la bitácora ── */}
-        <Link
-          to="/hackathons"
-          className="ach-banner group relative isolate overflow-hidden flex items-center justify-between gap-6 border-b border-neutral-800 py-8 md:py-12"
-        >
-          <span
-            aria-hidden="true"
-            className="ach-bg absolute inset-0 -z-10 pointer-events-none"
-          >
-            <span
-              className="absolute inset-0"
-              style={{ background: 'radial-gradient(70% 200% at 30% 50%, rgba(124, 58, 237, 0.22), transparent 70%)' }}
-            />
-          </span>
-          <span className="min-w-0">
-            <span className="block font-mono text-[11px] uppercase tracking-[0.25em] text-brand-400 mb-2">
-              {t('achievements.hacks.label')}
-            </span>
-            <span
-              className="block font-semibold text-white leading-[1.05]"
-              style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)' }}
+        {/* ── Hackathons ── */}
+        {groupLabel(t('achievements.group.hacks'))}
+        <div className="border-t border-neutral-800" style={{ perspective: '1200px' }}>
+          {HACKS.map((item) => (
+            <Link
+              key={item.id}
+              to="/hackathons"
+              className="ach-row group relative isolate overflow-hidden flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
             >
-              {t('achievements.hacks.banner.pre')}{' '}
-              <em className="not-italic accent-subtle">{t('achievements.hacks.banner.accent')}</em>
-            </span>
-            <span className="block text-neutral-400 text-sm mt-2">
-              {t('achievements.hacks.banner.sub')}
-            </span>
-          </span>
-          <span
-            aria-hidden="true"
-            className="shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-full border border-neutral-700 flex items-center justify-center text-xl md:text-2xl text-neutral-400 group-hover:border-brand-400 group-hover:text-brand-400 group-hover:translate-x-2 transition-all duration-300"
+              {rowBg(item)}
+              {rowInner(item)}
+              <span
+                aria-hidden="true"
+                className="ach-cta shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 group-hover:translate-x-1.5 transition-all duration-300 text-xl md:text-2xl"
+              >
+                →
+              </span>
+            </Link>
+          ))}
+
+          {/* Cierre: bitácora */}
+          <Link
+            to="/hackathons"
+            className="ach-banner group flex items-baseline justify-between gap-6 py-6 md:py-8"
           >
-            →
-          </span>
-        </Link>
+            <span className="min-w-0">
+              <span
+                className="block font-semibold text-white leading-[1.05]"
+                style={{ fontSize: 'clamp(1.3rem, 3vw, 2.1rem)' }}
+              >
+                {t('achievements.hacks.banner.pre')}{' '}
+                <em className="not-italic accent-subtle">{t('achievements.hacks.banner.accent')}</em>
+              </span>
+              <span className="block text-neutral-400 text-sm mt-1.5">
+                {t('achievements.hacks.banner.sub')}
+              </span>
+            </span>
+            <span
+              aria-hidden="true"
+              className="shrink-0 text-xl md:text-2xl text-neutral-500 group-hover:text-brand-400 group-hover:translate-x-1.5 transition-all duration-300"
+            >
+              →
+            </span>
+          </Link>
+        </div>
       </div>
 
       {/* ── Modal de certificado ── */}
