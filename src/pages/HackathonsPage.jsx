@@ -389,6 +389,8 @@ function EditorialLayout({ photos, story }) {
 // ── Top nav ────────────────────────────────────────────────────────────────────
 
 function TopNav({ currentIdx, total, onBack, onPrev, onNext }) {
+  const [open, setOpen] = useState(false);
+
   const btn = {
     fontFamily: MONO,
     fontSize: '12px',
@@ -407,82 +409,73 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext }) {
   const leave = (e) => { e.currentTarget.style.color = C.muted; e.currentTarget.style.borderColor = C.border; };
 
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 20,
-        background: 'rgba(10, 6, 16, 0.78)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        borderBottom: `1px solid ${C.border}`,
-      }}
-    >
+    <>
+      {/* Logo compacto (sin fondo): se expande y revela el volver */}
       <div
-        style={{
-          maxWidth: '880px',
-          margin: '0 auto',
-          padding: '0 36px',
-          height: '56px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-        }}
+        style={{ position: 'fixed', top: 18, left: 22, zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px' }}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
       >
-        {/* Logo → volver al portafolio */}
         <button
-          onClick={onBack}
+          type="button"
+          onClick={() => setOpen((v) => !v)}
           style={{
             fontFamily: MONO,
-            fontSize: '14px',
+            fontSize: '15px',
             fontWeight: 700,
             color: C.text,
             background: 'none',
             border: 'none',
             cursor: 'pointer',
             padding: 0,
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: '2px',
+            textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = C.text; }}
-          aria-label="Volver al portafolio"
+          aria-expanded={open}
+          aria-label="Menú"
         >
           <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
         </button>
-
-        {/* Título de sección */}
-        <span
-          className="hidden sm:inline"
+        <button
+          type="button"
+          onClick={onBack}
+          tabIndex={open ? 0 : -1}
           style={{
             fontFamily: MONO,
-            fontSize: '10px',
-            color: C.faint,
-            letterSpacing: '0.3em',
-            textTransform: 'uppercase',
+            fontSize: '11px',
+            letterSpacing: '0.1em',
+            color: C.muted,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            maxWidth: open ? '220px' : '0px',
+            opacity: open ? 1 : 0,
+            transform: open ? 'translateX(0)' : 'translateX(-8px)',
+            transition: 'max-width .45s cubic-bezier(0.33, 1, 0.68, 1), opacity .3s ease, transform .45s cubic-bezier(0.33, 1, 0.68, 1), color .2s',
+            textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = C.text; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = C.muted; }}
         >
-          Hackathon Archive
-        </span>
-
-        {/* Navegación + contador */}
-        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button type="button" onClick={onPrev} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Anterior">
-            ◀
-          </button>
-          <span style={{ fontFamily: MONO, fontSize: '11px', color: C.muted, letterSpacing: '0.1em', minWidth: 52, textAlign: 'center' }}>
-            {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-          </span>
-          <button type="button" onClick={onNext} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Siguiente">
-            ▶
-          </button>
-        </span>
+          ◀ Volver al portafolio
+        </button>
       </div>
-    </nav>
+
+      {/* Navegación + contador (sin fondo) */}
+      <div style={{ position: 'fixed', top: 16, right: 22, zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <button type="button" onClick={onPrev} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Anterior">
+          ◀
+        </button>
+        <span style={{ fontFamily: MONO, fontSize: '11px', color: C.muted, letterSpacing: '0.1em', minWidth: 52, textAlign: 'center', textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)' }}>
+          {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+        </span>
+        <button type="button" onClick={onNext} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Siguiente">
+          ▶
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -710,7 +703,7 @@ export default function HackathonsPage() {
           onPrev={prevHack}
           onNext={nextHack}
         />
-        <div style={{ height: '96px' }} aria-hidden="true" />
+        <div style={{ height: '84px' }} aria-hidden="true" />
 
         {/* ── Article ── */}
         <article>
