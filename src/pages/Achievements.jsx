@@ -11,8 +11,6 @@ import certPensamiento from '../assets/icatech/pensamiento.png';
 import certComunicacion from '../assets/icatech/comunicacion.png';
 import certEmprender from '../assets/icatech/emprender.png';
 import certEstrategias from '../assets/icatech/estrategias.png';
-import certNasaBg from '../assets/hacks/cert-nasa.jpeg';
-import certMitBg from '../assets/hacks/cert-mit-icatech.jpeg';
 import { useLanguage } from '../context/LanguageContext';
 import { revealHeaders } from '../utils/sectionReveal';
 
@@ -25,9 +23,9 @@ const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, c
 // Encuadre por imagen: `pos` es object-position (horizontal vertical).
 // Ajusta el % vertical para subir/bajar el recorte de cada foto por separado.
 const ROW_IMAGES = {
-  // Certificados (ya recortados a la medida)
-  'cert-nasa': { src: certNasaBg, pos: 'center 50%' },
-  icatech:     { src: certMitBg,  pos: 'center 50%' },
+  // Certificados reales como fondo
+  'cert-nasa': { src: nasaImg,         pos: 'center 40%' },
+  icatech:     { src: certPensamiento, pos: 'center 40%' },
   // Hackatones
   nasa:  { src: nasaPhoto,  pos: 'center 19%' },
   eth:   { src: ethPhoto,   pos: 'center 38%' },
