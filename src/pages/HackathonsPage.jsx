@@ -388,50 +388,100 @@ function EditorialLayout({ photos, story }) {
 
 // ── Top nav ────────────────────────────────────────────────────────────────────
 
-function TopNav({ currentIdx, total, onBack }) {
+function TopNav({ currentIdx, total, onBack, onPrev, onNext }) {
+  const btn = {
+    fontFamily: MONO,
+    fontSize: '12px',
+    width: 30,
+    height: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'transparent',
+    border: `1px solid ${C.border}`,
+    color: C.muted,
+    cursor: 'pointer',
+    transition: 'color .2s, border-color .2s',
+  };
+  const hover = (e) => { e.currentTarget.style.color = C.text; e.currentTarget.style.borderColor = C.accent; };
+  const leave = (e) => { e.currentTarget.style.color = C.muted; e.currentTarget.style.borderColor = C.border; };
+
   return (
     <nav
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '18px 0',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 20,
+        background: 'rgba(10, 6, 16, 0.78)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         borderBottom: `1px solid ${C.border}`,
-        marginBottom: '48px',
       }}
     >
-      <button
-        onClick={onBack}
+      <div
         style={{
-          fontFamily: SANS,
-          fontSize: '13px',
-          color: C.muted,
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0,
-          transition: 'color .2s',
+          maxWidth: '880px',
+          margin: '0 auto',
+          padding: '0 36px',
+          height: '56px',
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
+          justifyContent: 'space-between',
+          gap: '16px',
         }}
-        onMouseEnter={e => e.currentTarget.style.color = C.text}
-        onMouseLeave={e => e.currentTarget.style.color = C.muted}
       >
-        ◀ Volver al portafolio
-      </button>
+        {/* Logo → volver al portafolio */}
+        <button
+          onClick={onBack}
+          style={{
+            fontFamily: MONO,
+            fontSize: '14px',
+            fontWeight: 700,
+            color: C.text,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: '2px',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#ffffff'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = C.text; }}
+          aria-label="Volver al portafolio"
+        >
+          <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
+        </button>
 
-      <span
-        style={{
-          fontFamily: MONO,
-          fontSize: '11px',
-          color: C.faint,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-        }}
-      >
-        {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')} — HACKATHON ARCHIVE
-      </span>
+        {/* Título de sección */}
+        <span
+          className="hidden sm:inline"
+          style={{
+            fontFamily: MONO,
+            fontSize: '10px',
+            color: C.faint,
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Hackathon Archive
+        </span>
+
+        {/* Navegación + contador */}
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button type="button" onClick={onPrev} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Anterior">
+            ◀
+          </button>
+          <span style={{ fontFamily: MONO, fontSize: '11px', color: C.muted, letterSpacing: '0.1em', minWidth: 52, textAlign: 'center' }}>
+            {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </span>
+          <button type="button" onClick={onNext} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Siguiente">
+            ▶
+          </button>
+        </span>
+      </div>
     </nav>
   );
 }
@@ -653,7 +703,14 @@ export default function HackathonsPage() {
         className="px-5 md:px-9"
       >
         {/* Top nav */}
-        <TopNav currentIdx={currentIdx} total={total} onBack={() => navigate('/')} />
+        <TopNav
+          currentIdx={currentIdx}
+          total={total}
+          onBack={() => navigate('/')}
+          onPrev={prevHack}
+          onNext={nextHack}
+        />
+        <div style={{ height: '96px' }} aria-hidden="true" />
 
         {/* ── Article ── */}
         <article>
