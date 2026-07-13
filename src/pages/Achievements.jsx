@@ -11,6 +11,8 @@ import certPensamiento from '../assets/icatech/pensamiento.png';
 import certComunicacion from '../assets/icatech/comunicacion.png';
 import certEmprender from '../assets/icatech/emprender.png';
 import certEstrategias from '../assets/icatech/estrategias.png';
+import certNasaBg from '../assets/hacks/cert-nasa.jpeg';
+import certMitBg from '../assets/hacks/cert-mit-icatech.jpeg';
 import { useLanguage } from '../context/LanguageContext';
 import { revealHeaders } from '../utils/sectionReveal';
 
@@ -23,16 +25,19 @@ const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, c
 // Encuadre por imagen: `pos` es object-position (horizontal vertical).
 // Ajusta el % vertical para subir/bajar el recorte de cada foto por separado.
 const ROW_IMAGES = {
-  nasa:    { src: nasaPhoto,       pos: 'center 19%' },
-  eth:     { src: ethPhoto,        pos: 'center 38%' },
-  mit:     { src: mitPhoto,        pos: 'center 45%' },
-  latam:   { src: latamPhoto,      pos: 'center 22%' },
-  icatech: { src: certPensamiento, pos: 'center 57%' },
+  // Certificados (ya recortados a la medida)
+  'cert-nasa': { src: certNasaBg, pos: 'center 50%' },
+  icatech:     { src: certMitBg,  pos: 'center 50%' },
+  // Hackatones
+  nasa:  { src: nasaPhoto,  pos: 'center 19%' },
+  eth:   { src: ethPhoto,   pos: 'center 38%' },
+  mit:   { src: mitPhoto,   pos: 'center 45%' },
+  latam: { src: latamPhoto, pos: 'center 22%' },
 };
 
 // Grupo 1: certificaciones · Grupo 2: hackathons
 const CERTS = [
-  { id: 'nasa',    date: 'Oct 2025', title: 'Galactic Problem', accent: 'Solver',       result: 'NASA Space Apps' },
+  { id: 'cert-nasa', date: 'Oct 2025', title: 'Galactic Problem', accent: 'Solver',       result: 'NASA Space Apps' },
   { id: 'icatech', date: '2025',     title: 'MIT',              accent: 'ICATECH 2025', result: '80h · 5 módulos' },
 ];
 const HACKS = [
