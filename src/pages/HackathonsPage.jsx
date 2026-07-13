@@ -70,6 +70,109 @@ function PhotoPlaceholder({ idx, ratio = '16/9' }) {
 function GBCPhoto({ photo, idx, ratio = '16/9' }) {
   const [broken, setBroken] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const boxRef    = useRef(null);
+  const canvasRef = useRef(null);
+  const imgRef    = useRef(null);
+  const gridRef   = useRef(null);
+  const progRef   = useRef({ p: 0 });
+  const drawRef   = useRef(() => {});
+
+  const has8 = !!(photo.src8 && photo.src);
+
+  // Disolve por celdas (técnica del PixelReveal de OriginKit): la capa 8-bit
+  // vive en un canvas y sus celdas se perforan en barrido con frente ruidoso,
+  // revelando la foto real debajo. Reversible.
+  useLayoutEffect(() => {
+    if (!has8) return;
+    const box = boxRef.current;
+    const canvas = canvasRef.current;
+    if (!box || !canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const img = new Image();
+    img.src = photo.src8;
+    imgRef.current = img;
+
+    const GS = 12;      // tamaño de celda (px css)
+    const EDGE = 0.35;  // ruido del frente
+
+    const build = () => {
+      const w = Math.max(1, box.clientWidth);
+      const h = Math.max(1, box.clientHeight);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const cols = Math.max(1, Math.ceil(w / GS));
+      const rows = Math.max(1, Math.ceil(h / GS));
+      const thr = new Float32Array(cols * rows);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const base = cols === 1 ? 0 : c / (cols - 1); // barrido hacia la derecha
+          thr[r * cols + c] = base * (1 - EDGE) + Math.random() * EDGE;
+        }
+      }
+      gridRef.current = { w, h, cols, rows, cellW: w / cols, cellH: h / rows, thr };
+    };
+
+    const draw = () => {
+      const g = gridRef.current;
+      if (!g) return;
+      ctx.clearRect(0, 0, g.w, g.h);
+      if (img.complete && img.naturalWidth > 0) {
+        // cover manual
+        const scale = Math.max(g.w / img.naturalWidth, g.h / img.naturalHeight);
+        const dw = img.naturalWidth * scale;
+        const dh = img.naturalHeight * scale;
+        ctx.drawImage(img, (g.w - dw) / 2, (g.h - dh) / 2, dw, dh);
+      } else {
+        ctx.fillStyle = '#0f0820';
+        ctx.fillRect(0, 0, g.w, g.h);
+      }
+      // Perforar las celdas ya reveladas
+      const p = progRef.current.p;
+      if (p > 0) {
+        ctx.globalCompositeOperation = 'destination-out';
+        for (let r = 0; r < g.rows; r++) {
+          for (let c = 0; c < g.cols; c++) {
+            if (g.thr[r * g.cols + c] <= p) {
+              ctx.fillRect(c * g.cellW, r * g.cellH, g.cellW + 1, g.cellH + 1);
+            }
+          }
+        }
+        ctx.globalCompositeOperation = 'source-over';
+      }
+    };
+    drawRef.current = draw;
+
+    img.onload = draw;
+    img.onerror = () => setBroken(true);
+    build();
+    draw();
+
+    const ro = new ResizeObserver(() => { build(); draw(); });
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [has8, photo.src8]);
+
+  const animateTo = (target) => {
+    setRevealed(target === 1);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      progRef.current.p = target;
+      drawRef.current();
+      return;
+    }
+    gsap.to(progRef.current, {
+      p: target,
+      duration: 0.85,
+      ease: 'power2.inOut',
+      overwrite: true,
+      onUpdate: () => drawRef.current(),
+    });
+  };
 
   if ((!photo.src && !photo.src8) || broken) {
     return (
@@ -84,15 +187,13 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
     );
   }
 
-  // Con src8: la versión 8-bit vive en la card y el hover revela la foto real
-  const has8 = !!(photo.src8 && photo.src);
-
   return (
     <figure style={{ margin: 0 }}>
       <div
-        onPointerEnter={(e) => { if (e.pointerType === 'mouse' && has8) setRevealed(true); }}
-        onPointerLeave={(e) => { if (e.pointerType === 'mouse' && has8) setRevealed(false); }}
-        onClick={() => { if (has8) setRevealed((v) => !v); }}
+        ref={boxRef}
+        onPointerEnter={(e) => { if (e.pointerType === 'mouse' && has8) animateTo(1); }}
+        onPointerLeave={(e) => { if (e.pointerType === 'mouse' && has8) animateTo(0); }}
+        onClick={() => { if (has8) animateTo(revealed ? 0 : 1); }}
         style={{
           aspectRatio: ratio,
           position: 'relative',
@@ -101,9 +202,9 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
           cursor: has8 ? 'pointer' : 'default',
         }}
       >
-        {/* Capa base: versión 8-bit (o la única foto con filtro GBC) */}
+        {/* Foto real debajo (o única foto con filtro GBC) */}
         <img
-          src={photo.src8 ?? photo.src}
+          src={photo.src ?? photo.src8}
           alt={photo.caption || ''}
           onError={() => setBroken(true)}
           loading="lazy"
@@ -111,23 +212,20 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
             objectFit: 'cover', display: 'block',
-            filter: photo.src8 ? 'none' : GBC_FILTER,
-            imageRendering: 'pixelated',
+            filter: has8 ? 'none' : GBC_FILTER,
+            imageRendering: has8 ? 'auto' : 'pixelated',
           }}
         />
-        {/* Foto real: se revela con un wipe de izquierda a derecha */}
+        {/* Capa 8-bit en canvas: se disuelve celda a celda */}
         {has8 && (
-          <img
-            src={photo.src}
-            alt=""
+          <canvas
+            ref={canvasRef}
             aria-hidden="true"
-            loading="lazy"
             style={{
               position: 'absolute', inset: 0,
               width: '100%', height: '100%',
-              objectFit: 'cover', display: 'block',
-              clipPath: revealed ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)',
-              transition: 'clip-path 0.55s cubic-bezier(0.33, 1, 0.68, 1)',
+              display: 'block', pointerEvents: 'none',
+              imageRendering: 'pixelated',
             }}
           />
         )}
@@ -138,7 +236,7 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
             position: 'absolute', inset: 0, pointerEvents: 'none',
             backgroundImage: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 3px)',
             opacity: revealed ? 0 : 1,
-            transition: 'opacity 0.4s ease',
+            transition: 'opacity 0.5s ease',
           }}
         />
         {/* Dither */}
@@ -149,7 +247,7 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
             backgroundImage: 'repeating-linear-gradient(45deg, rgba(96,70,160,0.07) 0px, rgba(96,70,160,0.07) 1px, transparent 1px, transparent 4px)',
             mixBlendMode: 'overlay',
             opacity: revealed ? 0 : 1,
-            transition: 'opacity 0.4s ease',
+            transition: 'opacity 0.5s ease',
           }}
         />
         {/* Indicador de modo */}
