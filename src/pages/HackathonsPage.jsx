@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { hackathons } from '../data/hackathons';
 import PixelIntro from '../components/PixelIntro';
+import CharacterWaves from '../components/CharacterWaves';
 
 // ── Typography & palette ───────────────────────────────────────────────────────
 const SERIF = "'Fraunces', Georgia, serif";
@@ -493,10 +494,15 @@ export default function HackathonsPage() {
       {/* Intro: pixeles + </>CodeByNas, cortina que revela la bitácora */}
       <PixelIntro />
 
+      {/* Fondo: olas de caracteres ASCII (OriginKit character-waves) */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, opacity: 0.5, pointerEvents: 'none' }} aria-hidden="true">
+        <CharacterWaves />
+      </div>
+
       {/* Content wrapper — max 880px, centered */}
       <div
         ref={contentRef}
-        style={{ maxWidth: '880px', margin: '0 auto', padding: '0 36px' }}
+        style={{ maxWidth: '880px', margin: '0 auto', padding: '0 36px', position: 'relative', zIndex: 1 }}
         className="px-5 md:px-9"
       >
         {/* Top nav */}
