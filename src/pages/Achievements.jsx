@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect, useEffect, useState } from 'react';
+import { useRef, useLayoutEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
@@ -30,12 +30,9 @@ const TIMELINE = [
 
 export default function Achievements() {
   const containerRef = useRef(null);
-  const previewRef   = useRef(null);
-  const mouseRef     = useRef({ x: 0, y: 0 });
 
   const [nasaModal, setNasaModal]     = useState(false);
   const [icatechOpen, setIcatechOpen] = useState(false);
-  const [preview, setPreview]         = useState(null);
   const { t } = useLanguage();
 
   // ── Entrada scroll-triggered de las filas ──
@@ -61,58 +58,27 @@ export default function Achievements() {
     return () => ctx.revert();
   }, []);
 
-  // ── Preview flotante que sigue al cursor ──
-  useEffect(() => {
-    const onMove = (e) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => window.removeEventListener('pointermove', onMove);
-  }, []);
-
-  useEffect(() => {
-    const el = previewRef.current;
-    if (!preview || !el) return;
-
-    gsap.set(el, {
-      x: mouseRef.current.x + 28,
-      y: mouseRef.current.y - 80,
-      rotation: 0,
-      opacity: 0,
-      scale: 0.9,
-    });
-    gsap.to(el, { opacity: 1, scale: 1, duration: 0.28, ease: 'power2.out' });
-
-    const xTo = gsap.quickTo(el, 'x',        { duration: 0.45, ease: 'power3' });
-    const yTo = gsap.quickTo(el, 'y',        { duration: 0.45, ease: 'power3' });
-    const rTo = gsap.quickTo(el, 'rotation', { duration: 0.6,  ease: 'power3' });
-
-    let lastX = mouseRef.current.x;
-    let settle;
-    const onMove = (e) => {
-      xTo(e.clientX + 28);
-      yTo(e.clientY - 80);
-      rTo(Math.max(-9, Math.min(9, (e.clientX - lastX) * 0.7)));
-      lastX = e.clientX;
-      clearTimeout(settle);
-      settle = setTimeout(() => rTo(0), 90);
-    };
-    window.addEventListener('pointermove', onMove, { passive: true });
-    return () => {
-      clearTimeout(settle);
-      window.removeEventListener('pointermove', onMove);
-    };
-  }, [preview]);
-
-  const canHover = typeof window !== 'undefined' &&
-    window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-  const hoverProps = (item) => canHover
-    ? {
-        onMouseEnter: () => setPreview(item),
-        onMouseLeave: () => setPreview(null),
-      }
-    : {};
-
-  const previewImg = preview ? imageFor(preview.id) : null;
+  // ── Fondo de cada fila: imagen que se revela al hover ──
+  const rowBg = (item) => {
+    const img = imageFor(item.id);
+    return (
+      <span aria-hidden="true" className="ach-bg absolute inset-0 -z-10 pointer-events-none">
+        {img ? (
+          <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <span
+            className="absolute inset-0"
+            style={{ background: 'radial-gradient(60% 150% at 72% 50%, rgba(124, 58, 237, 0.3), transparent 70%)' }}
+          />
+        )}
+        {/* Degradado para mantener legible el texto */}
+        <span
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(90deg, var(--bg) 0%, transparent 38%, transparent 72%, var(--bg) 100%)' }}
+        />
+      </span>
+    );
+  };
 
   // ── Contenido común de cada fila ──
   const rowInner = (item) => (
@@ -156,9 +122,9 @@ export default function Achievements() {
                 <Link
                   key={item.id}
                   to="/hackathons"
-                  className="ach-row group flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7 hover:bg-neutral-900/40 transition-colors duration-300"
-                  {...hoverProps(item)}
+                  className="ach-row group relative isolate overflow-hidden flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
                 >
+                  {rowBg(item)}
                   {rowInner(item)}
                   <span
                     aria-hidden="true"
@@ -176,9 +142,9 @@ export default function Achievements() {
                   key={item.id}
                   type="button"
                   onClick={() => setNasaModal(true)}
-                  className="ach-row group w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7 hover:bg-neutral-900/40 transition-colors duration-300"
-                  {...hoverProps(item)}
+                  className="ach-row group relative isolate overflow-hidden w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
                 >
+                  {rowBg(item)}
                   {rowInner(item)}
                   <span
                     aria-hidden="true"
@@ -192,13 +158,13 @@ export default function Achievements() {
 
             // icatech: fila expandible
             return (
-              <div key={item.id} className="ach-row border-b border-neutral-800">
+              <div key={item.id} className="ach-row group relative isolate overflow-hidden border-b border-neutral-800">
+                {rowBg(item)}
                 <button
                   type="button"
                   onClick={() => setIcatechOpen((v) => !v)}
                   aria-expanded={icatechOpen}
-                  className="group w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7 hover:bg-neutral-900/40 transition-colors duration-300"
-                  {...hoverProps(item)}
+                  className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
                 >
                   <span className="ach-date font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500 shrink-0 w-20 md:w-24 pt-2 md:pt-4">
                     {item.date}
@@ -257,27 +223,6 @@ export default function Achievements() {
           </Link>
         </div>
       </div>
-
-      {/* ── Preview flotante (hover) ── */}
-      {preview && canHover && (
-        <div
-          ref={previewRef}
-          className="fixed left-0 top-0 z-[60] w-72 pointer-events-none"
-          aria-hidden="true"
-        >
-          {previewImg ? (
-            <div className="rounded-md overflow-hidden border border-neutral-800 shadow-2xl bg-neutral-900">
-              <img src={previewImg} alt="" className="w-full h-auto block" />
-            </div>
-          ) : (
-            <div className="rounded-md border border-dashed border-neutral-700 bg-neutral-950/90 shadow-2xl aspect-[4/3] flex items-center justify-center">
-              <span className="font-mono text-[11px] text-neutral-500 px-4 text-center">
-                {preview.title} {preview.accent}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* ── NASA Modal ── */}
       {nasaModal && (

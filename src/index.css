@@ -869,3 +869,17 @@ html[data-theme='light']::view-transition-new(root) {
   animation: ring-info-in 0.45s cubic-bezier(0.33, 1, 0.68, 1) both;
 }
 
+
+/* ── Logros: imagen de fondo que se revela al hover ── */
+.ach-bg {
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 0.45s ease, transform 0.9s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.ach-row:hover .ach-bg {
+  opacity: 0.3;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ach-bg { transition: opacity 0.2s ease; transform: none; }
+}
