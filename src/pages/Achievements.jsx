@@ -20,12 +20,14 @@ const ICATECH_HOURS = [40, 10, 10, 10, 10];
 // Certificados por módulo (autogestión aún sin archivo)
 const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, certEstrategias];
 
+// Encuadre por imagen: `pos` es object-position (horizontal vertical).
+// Ajusta el % vertical para subir/bajar el recorte de cada foto por separado.
 const ROW_IMAGES = {
-  nasa: nasaPhoto,
-  eth: ethPhoto,
-  mit: mitPhoto,
-  latam: latamPhoto,
-  icatech: certPensamiento,
+  nasa:    { src: nasaPhoto,       pos: 'center 25%' },
+  eth:     { src: ethPhoto,        pos: 'center 25%' },
+  mit:     { src: mitPhoto,        pos: 'center 25%' },
+  latam:   { src: latamPhoto,      pos: 'center 25%' },
+  icatech: { src: certPensamiento, pos: 'center 25%' },
 };
 
 // Grupo 1: certificaciones · Grupo 2: hackathons
@@ -102,10 +104,10 @@ export default function Achievements() {
     return (
       <span aria-hidden="true" className="ach-bg absolute inset-0 -z-10 pointer-events-none">
         <img
-          src={img}
+          src={img.src}
           alt=""
           className="w-full h-full object-cover"
-          style={{ objectPosition: 'center 30%' }}
+          style={{ objectPosition: img.pos }}
           loading="lazy"
           decoding="async"
         />
