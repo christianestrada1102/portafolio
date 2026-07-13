@@ -10,15 +10,27 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ICATECH_HOURS = [40, 10, 10, 10, 10];
 
-// Imágenes del hover: coloca archivos en src/assets/achievements/<id>.(jpg|png|webp)
-// ids: nasa, eth, mit, icatech, latam — NASA usa su certificado por defecto
-const ACH_IMAGES = import.meta.glob('../assets/achievements/*.{jpg,jpeg,png,webp}', { eager: true });
-function imageFor(id) {
-  for (const [path, mod] of Object.entries(ACH_IMAGES)) {
-    if (path.includes(`/${id}.`)) return mod.default;
-  }
-  return id === 'nasa' ? nasaImg : null;
-}
+import nasaPhoto from '../assets/hacks/nasa.jpeg';
+import ethPhoto from '../assets/hacks/ethereum.jpeg';
+import mitPhoto from '../assets/hacks/mit.jpeg';
+import latamPhoto from '../assets/hacks/hack@latam.jpeg';
+import certPensamiento from '../assets/icatech/pensamiento.png';
+import certComunicacion from '../assets/icatech/comunicacion.png';
+import certEmprender from '../assets/icatech/emprender.png';
+import certEstrategias from '../assets/icatech/estrategias.png';
+
+// Fondo de cada fila
+const ROW_IMAGES = {
+  nasa: nasaPhoto,
+  eth: ethPhoto,
+  mit: mitPhoto,
+  latam: latamPhoto,
+  icatech: certPensamiento,
+};
+const imageFor = (id) => ROW_IMAGES[id] ?? null;
+
+// Certificados por módulo ICATECH (índice = curso; autogestión aún sin archivo)
+const ICATECH_CERTS = [certPensamiento, certComunicacion, certEmprender, null, certEstrategias];
 
 const TIMELINE = [
   { id: 'nasa',    date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: '"Galactic Problem Solver"', type: 'nasa' },
@@ -31,7 +43,7 @@ const TIMELINE = [
 export default function Achievements() {
   const containerRef = useRef(null);
 
-  const [nasaModal, setNasaModal]     = useState(false);
+  const [imgModal, setImgModal]       = useState(null); // { src, alt }
   const [icatechOpen, setIcatechOpen] = useState(false);
   const { t } = useLanguage();
 
@@ -169,7 +181,7 @@ export default function Achievements() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setNasaModal(true)}
+                  onClick={() => setImgModal({ src: nasaImg, alt: 'NASA Space Apps Challenge Certificate' })}
                   className="ach-row group relative isolate overflow-hidden w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
                 >
                   {rowBg(item)}
@@ -227,13 +239,34 @@ export default function Achievements() {
                 >
                   <div className="overflow-hidden">
                     <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
-                      {ICATECH_HOURS.map((hours, j) => (
-                        <li key={j} className="flex items-baseline gap-3 text-sm text-neutral-400">
-                          <span aria-hidden="true" className="text-neutral-600">→</span>
-                          <span>{t(`achievements.icatech.course.${j}`)}</span>
-                          <span className="font-mono text-[11px] text-neutral-600">{hours}h</span>
-                        </li>
-                      ))}
+                      {ICATECH_HOURS.map((hours, j) => {
+                        const cert = ICATECH_CERTS[j];
+                        const inner = (
+                          <>
+                            <span aria-hidden="true" className="text-neutral-600">→</span>
+                            <span>{t(`achievements.icatech.course.${j}`)}</span>
+                            <span className="font-mono text-[11px] text-neutral-600">{hours}h</span>
+                          </>
+                        );
+                        return (
+                          <li key={j} className="text-sm text-neutral-400">
+                            {cert ? (
+                              <button
+                                type="button"
+                                onClick={() => setImgModal({ src: cert, alt: t(`achievements.icatech.course.${j}`) })}
+                                className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
+                              >
+                                {inner}
+                                <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-neutral-600 group-hover/cert:text-brand-400 transition-colors duration-200">
+                                  {t('achievements.icatech.view')}
+                                </span>
+                              </button>
+                            ) : (
+                              <span className="flex items-baseline gap-3">{inner}</span>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 </div>
@@ -280,25 +313,25 @@ export default function Achievements() {
         </Link>
       </div>
 
-      {/* ── NASA Modal ── */}
-      {nasaModal && (
+      {/* ── Modal de certificado ── */}
+      {imgModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-          onClick={() => setNasaModal(false)}
+          onClick={() => setImgModal(null)}
         >
           <div
-            className="relative max-w-2xl w-full bg-neutral-900 border border-neutral-800 rounded-sm overflow-hidden"
+            className="relative max-w-2xl w-full max-h-[88vh] bg-neutral-900 border border-neutral-800 rounded-sm overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={() => setNasaModal(false)}
-              className="absolute top-3 right-3 text-neutral-500 hover:text-white transition-colors duration-200 font-mono text-xs z-10"
+              onClick={() => setImgModal(null)}
+              className="sticky top-3 float-right mr-3 text-neutral-500 hover:text-white transition-colors duration-200 font-mono text-xs z-10 bg-neutral-900/80 px-2 py-1 rounded-sm"
             >
               {t('achievements.nasa.close')}
             </button>
             <img
-              src={nasaImg}
-              alt="NASA Space Apps Challenge Certificate"
+              src={imgModal.src}
+              alt={imgModal.alt}
               className="w-full h-auto"
               loading="lazy"
             />
