@@ -2,6 +2,7 @@ import { useRef, useLayoutEffect, useEffect, useState, useCallback } from 'react
 import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { hackathons } from '../data/hackathons';
+import PixelIntro from '../components/PixelIntro';
 
 // ── Typography & palette ───────────────────────────────────────────────────────
 const SERIF = "'Fraunces', Georgia, serif";
@@ -489,6 +490,9 @@ export default function HackathonsPage() {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
+      {/* Intro: pixeles + </>CodeByNas, cortina que revela la bitácora */}
+      <PixelIntro />
+
       {/* Content wrapper — max 880px, centered */}
       <div
         ref={contentRef}
