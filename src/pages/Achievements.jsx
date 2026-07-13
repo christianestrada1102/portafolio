@@ -264,10 +264,12 @@ export default function Achievements() {
             <span className="min-w-0">
               <span
                 className="block font-semibold text-white leading-[1.05]"
-                style={{ fontSize: 'clamp(1.3rem, 3vw, 2.1rem)' }}
+                style={{ fontSize: 'clamp(1.7rem, 4.5vw, 3.4rem)' }}
               >
                 {t('achievements.hacks.banner.pre')}{' '}
-                <em className="not-italic accent-subtle">{t('achievements.hacks.banner.accent')}</em>
+                <em className="not-italic accent-subtle underline decoration-1 underline-offset-8 decoration-brand-500/40 group-hover:decoration-brand-400 transition-colors duration-300">
+                  {t('achievements.hacks.banner.accent')}
+                </em>
               </span>
               <span className="block text-neutral-400 text-sm mt-1.5">
                 {t('achievements.hacks.banner.sub')}
