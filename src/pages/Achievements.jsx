@@ -261,7 +261,7 @@ export default function Achievements() {
             {rowInner(CERTS[0])}
             <span
               aria-hidden="true"
-              className="ach-cta shrink-0 mt-2 md:mt-4 font-mono text-[11px] uppercase tracking-[0.15em] px-3 py-1.5 rounded-sm border border-brand-500/50 text-brand-300 group-hover:bg-brand-500/15 group-hover:border-brand-400 group-hover:text-brand-200 transition-all duration-300"
+              className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400/80 group-hover:text-brand-300 underline-offset-4 group-hover:underline transition-colors duration-300"
             >
               {t('achievements.nasa.cta')}
             </span>
@@ -313,7 +313,7 @@ export default function Achievements() {
                             className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
                           >
                             {inner}
-                            <span className="font-mono text-[10px] uppercase tracking-[0.15em] px-2 py-0.5 rounded-sm border border-brand-500/40 text-brand-300 group-hover/cert:bg-brand-500/15 group-hover/cert:text-brand-200 transition-all duration-200">
+                            <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-brand-400/80 group-hover/cert:text-brand-300 underline-offset-4 group-hover/cert:underline transition-colors duration-200">
                               {t('achievements.icatech.view')}
                             </span>
                           </button>
