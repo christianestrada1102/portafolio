@@ -6,6 +6,7 @@ import innovathonImg from '../assets/innovathon.png';
 import lavanderiaImg from '../assets/lavanderia.png';
 import cotiestimaImg from '../assets/cotistima.png';
 
+import poisedVideo    from '../assets/Videos/poised-demo.mp4';
 import cotiestimaVideo from '../assets/Videos/cotiestima-demo.mp4';
 import innovathonVideo from '../assets/Videos/innovathon-demo.mp4';
 import havenVideo from '../assets/Videos/haven-demo.mp4';
@@ -17,6 +18,18 @@ import safezoneVideo from '../assets/Videos/safezone-demo.mp4';
 export const PROJECTS = [
   {
     num: '01',
+    name: 'Poised',
+    url: 'https://poised.codebynas.dev/',
+    github: 'https://github.com/christianestrada1102/The-Realtime_Hack',
+    videoSrc: poisedVideo,
+    image: null,
+    descriptionKey: 'projects.desc.poised',
+    stack: ['Next.js', 'TypeScript', 'Portal SDK', 'Claude Haiku', 'Whisper', 'ElevenLabs', 'Neon', 'Drizzle'],
+    badgeKey: 'projects.badge.poised',
+    status: 'done',
+  },
+  {
+    num: '02',
     name: 'CotiEstima',
     url: 'https://cotiestima.xyz',
     github: null,
@@ -28,7 +41,7 @@ export const PROJECTS = [
     status: 'done',
   },
   {
-    num: '02',
+    num: '03',
     name: 'INNOVATHON 2026',
     url: 'https://innovathon.innovacuu.xyz',
     github: null,
@@ -40,7 +53,7 @@ export const PROJECTS = [
     status: 'done',
   },
   {
-    num: '03',
+    num: '04',
     name: 'HAVEN',
     url: 'https://haven-lat.codebynas.dev',
     github: 'https://github.com/christianestrada1102/Hack_Latam',
@@ -52,7 +65,7 @@ export const PROJECTS = [
     status: 'done',
   },
   {
-    num: '04',
+    num: '05',
     name: 'Plataforma de Gestión',
     url: null,
     github: null,
@@ -64,7 +77,7 @@ export const PROJECTS = [
     status: 'private',
   },
   {
-    num: '05',
+    num: '06',
     name: 'Yuyin',
     url: 'https://github.com/christianestrada1102/SpaceYuyin',
     github: 'https://github.com/christianestrada1102/SpaceYuyin',
@@ -76,7 +89,7 @@ export const PROJECTS = [
     status: 'done',
   },
   {
-    num: '06',
+    num: '07',
     name: 'SettArb',
     url: 'https://settarb.codebynas.dev',
     github: 'https://github.com/christianestrada1102/EthMexico',
@@ -88,7 +101,7 @@ export const PROJECTS = [
     status: 'done',
   },
   {
-    num: '07',
+    num: '08',
     name: 'SafeZone',
     url: 'https://safezone.codebynas.dev',
     github: 'https://github.com/christianestrada1102/SafeZone.git',

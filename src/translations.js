@@ -50,6 +50,8 @@ export const translations = {
     'projects.cta.open':       'Abrir sitio',
     'projects.cta.github':     'GitHub',
     'projects.modal.close':    'Cerrar modal',
+    'projects.desc.poised':    'Simulador de entrevistas técnicas con IA conversacional en tiempo real. Ana, la entrevistadora virtual, conduce la sesión completa con voz sintetizada, transcripción automática y editor de código integrado.',
+    'projects.badge.poised':   'The Realtime Hackathon 2026',
     'projects.desc.haven':     'Plataforma de inteligencia defensiva colectiva desarrollada en hack@latam 2026 que detecta fraudes digitales, phishing, extorsión y manipulación psicológica en tiempo real mediante IA multimodal, alertando y protegiendo a usuarios de LATAM a través de una red colaborativa de incidentes.',
     'projects.desc.settarb':   'Plataforma Web3 desarrollada en EthMexico MTY 2025 que reduce el tiempo de retiro de Arbitrum a Ethereum de 7 días a menos de 2 minutos mediante smart contracts.',
     'projects.desc.astro':     'Yuyin es una plataforma educativa digital que fortalece la atención y el lenguaje en niños, diseñada como apoyo complementario para terapeutas y especialistas. Nacida en el NASA Space Apps Challenge 2025.',
@@ -128,6 +130,8 @@ export const translations = {
     'contact.validate.email':      'Email inválido',
     'contact.validate.required':   'Campo requerido',
     'contact.validate.message':    'Mínimo 20 caracteres',
+    'contact.email.hint':          'click para copiar',
+    'contact.email.copied':        'copiado',
   },
 
   en: {
@@ -181,6 +185,8 @@ export const translations = {
     'projects.cta.open':       'Open site',
     'projects.cta.github':     'GitHub',
     'projects.modal.close':    'Close modal',
+    'projects.desc.poised':    'Real-time AI-powered technical interview simulator. Ana, the virtual interviewer, leads the full session with synthesized voice, automatic transcription, and an integrated code editor.',
+    'projects.badge.poised':   'The Realtime Hackathon 2026',
     'projects.desc.haven':     'Collective defensive intelligence platform built at hack@latam 2026 that detects digital fraud, phishing, extortion and psychological manipulation in real time using multimodal AI, alerting and protecting LATAM users through a collaborative incident network.',
     'projects.desc.settarb':   'Web3 platform developed at EthMexico MTY 2025 that reduces Arbitrum to Ethereum withdrawal time from 7 days to under 2 minutes via smart contracts.',
     'projects.desc.astro':     'Yuyin is a digital educational platform that strengthens attention and language skills in children, designed as a complementary support tool for therapists and specialists. It originated in the NASA Space Apps Challenge 2025.',
@@ -259,5 +265,7 @@ export const translations = {
     'contact.validate.email':      'Invalid email',
     'contact.validate.required':   'Required field',
     'contact.validate.message':    'Minimum 20 characters',
+    'contact.email.hint':          'click to copy',
+    'contact.email.copied':        'copied',
   },
 };
