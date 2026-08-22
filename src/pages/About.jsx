@@ -202,7 +202,7 @@ export default function About() {
               hoverSpeed={12}
               scaleOnHover
               fadeOut
-              fadeOutColor="var(--bg)"
+              fadeOutColor="#0a0a0a"
               ariaLabel={t('about.stack.label')}
             />
           </div>
