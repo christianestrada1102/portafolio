@@ -17,7 +17,7 @@
 }
 
 [data-theme="dark"] .logoloop {
-  --logoloop-fadeColorAuto: #000000;
+  --logoloop-fadeColorAuto: #0a0a0a;
 }
 
 .logoloop__track {
