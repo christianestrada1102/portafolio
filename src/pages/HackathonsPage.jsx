@@ -2,7 +2,6 @@ import { useRef, useLayoutEffect, useEffect, useState, useCallback } from 'react
 import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { hackathons } from '../data/hackathons';
-import savedLayouts from '../data/layouts.json';
 import PixelIntro from '../components/PixelIntro';
 import CharacterWaves from '../components/CharacterWaves';
 import ASCIIText from '../components/ASCIIText';
@@ -27,32 +26,32 @@ const C = {
 
 const STRINGS = {
   es: {
-    coverWords: ['hola', 'soy_christian', 'fullstack_dev', 'builder', 'founder', 'bienvenido'],
+    coverHi:    'que_onda',
     coverPre:   'Bitácora de',
     coverAccent:'experiencias',
-    coverP1:    'Apasionado por la tecnología. Este es mi blog personal: lo que he vivido gracias al desarrollo de software — hackathons, eventos y comunidad.',
-    coverP2:    'Te invito a recorrer mi camino por el ecosistema.',
+    coverP1:    'Este es mi blog personal. Acá comparto lo que he vivido gracias al desarrollo de software: hackathons, eventos y comunidad — como builder y founder.',
+    coverP2:    'Fotos en 8-bit, historias reales y lo que construimos en cada una.',
     coverCta:   'Entrar a la bitácora ▶',
     back:       '◀ Volver al portafolio',
     eyebrow:    'BITÁCORA',
     place:      'LUGAR',
     team:       'EQUIPO',
     duration:   'DURACIÓN',
-    hint:       '← → NAVEGAR',
+    hint:       '← → NAVEGAR · ESC VOLVER',
   },
   en: {
-    coverWords: ['hi', "i'm_christian", 'fullstack_dev', 'builder', 'founder', 'welcome'],
+    coverHi:    'hey_there',
     coverPre:   'An archive of',
     coverAccent:'experiences',
-    coverP1:    'Passionate about technology. This is my personal blog: everything software development has let me live — hackathons, events and community.',
-    coverP2:    'Come walk my path through the ecosystem.',
+    coverP1:    'This is my personal blog. Here I share what software development has let me live: hackathons, events and community — as a builder and founder.',
+    coverP2:    '8-bit photos, real stories, and what we built at each one.',
     coverCta:   'Enter the archive ▶',
     back:       '◀ Back to portfolio',
     eyebrow:    'ARCHIVE',
     place:      'PLACE',
     team:       'TEAM',
     duration:   'DURATION',
-    hint:       '← → NAVIGATE',
+    hint:       '← → NAVIGATE · ESC BACK',
   },
 };
 
@@ -256,7 +255,7 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
           cursor: has8 ? 'pointer' : 'default',
         }}
       >
-        {/* Foto real debajo — siempre con filtro GBC para consistencia */}
+        {/* Foto real debajo (o única foto con filtro GBC) */}
         <img
           src={photo.src ?? photo.src8}
           alt={photo.caption || ''}
@@ -266,8 +265,8 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
             objectFit: 'cover', display: 'block',
-            filter: GBC_FILTER,
-            imageRendering: 'pixelated',
+            filter: has8 ? 'none' : GBC_FILTER,
+            imageRendering: has8 ? 'auto' : 'pixelated',
           }}
         />
         {/* Capa 8-bit en canvas: se disuelve celda a celda */}
@@ -316,21 +315,15 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
 
 // ── Text components ────────────────────────────────────────────────────────────
 
-function Paragraphs({ paragraphs, dropCap = false, editor = false, onText }) {
+function Paragraphs({ paragraphs, dropCap = false }) {
   return (
     <>
       {paragraphs.map((text, i) => {
-        // En modo editor el párrafo es texto plano editable (sin capitular,
-        // que partiría el primer carácter)
-        const isFirst = dropCap && i === 0 && !editor;
+        const isFirst = dropCap && i === 0;
         return (
           <p
             key={i}
-            contentEditable={editor}
-            suppressContentEditableWarning={editor}
-            onBlur={editor ? (e) => onText?.(i, e.currentTarget.innerText.replace(/\s*\n+\s*/g, ' ').trim()) : undefined}
             style={{
-              ...(editor ? { cursor: 'text', outline: '1px dotted rgba(167,139,250,0.35)', outlineOffset: '4px' } : {}),
               fontFamily: SERIF,
               fontSize: '19px',
               lineHeight: 1.78,
@@ -369,346 +362,64 @@ function Paragraphs({ paragraphs, dropCap = false, editor = false, onText }) {
 
 // ── Photo + story interleaved layout ──────────────────────────────────────────
 
-// Aparece al entrar en viewport: sube, se endereza y asienta con una
-// inclinación sutil permanente (efecto foto pegada en diario)
-function ScrollReveal({ children, y = 44, x = 0, tilt = 0, delay = 0 }) {
-  const ref = useRef(null);
-  const [seen, setSeen] = useState(false);
+function EditorialLayout({ photos, story }) {
+  const hasPhotos = photos.length > 0;
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setSeen(true);
-      return;
-    }
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setSeen(true); obs.disconnect(); }
-    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity: seen ? 1 : 0,
-        transform: seen
-          ? `rotate(${tilt}deg)`
-          : `translate(${x}px, ${y}px) rotate(${tilt * 3}deg) scale(0.96)`,
-        transition: `opacity 0.7s ease ${delay}s, transform 0.9s cubic-bezier(0.22, 0.9, 0.3, 1) ${delay}s`,
-        willChange: 'opacity, transform',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// Modo editor (?editor=1): envuelve cada foto y permite arrastrarla (mover),
-// redimensionarla (cuadro inferior-derecha) y rotarla (círculo superior-derecha).
-// Los ajustes se guardan como overrides {dx, dy, w, rot} por artículo/slot.
-function Arrangeable({ editor, ov = {}, onOv, textMode = false, children }) {
-  const startDrag = (mode) => (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const sx = e.clientX, sy = e.clientY;
-    const base = { dx: ov.dx ?? 0, dy: ov.dy ?? 0, w: ov.w ?? 100, rot: ov.rot ?? 0 };
-    const move = (ev) => {
-      const mx = ev.clientX - sx, my = ev.clientY - sy;
-      if (mode === 'move')      onOv({ dx: Math.round(base.dx + mx), dy: Math.round(base.dy + my) });
-      else if (mode === 'size') onOv({ w: Math.round(Math.min(170, Math.max(30, base.w + mx / 4))) });
-      else                      onOv({ rot: Math.round(Math.min(20, Math.max(-20, base.rot + mx / 6)) * 10) / 10 });
-    };
-    const up = () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-    };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-  };
-
-  const handleBase = {
-    position: 'absolute',
-    width: '16px',
-    height: '16px',
-    background: C.accent,
-    zIndex: 3,
-    touchAction: 'none',
-  };
-
-  return (
-    <div
-      onPointerDown={editor && !textMode ? startDrag('move') : undefined}
-      style={{
-        width: `${ov.w ?? 100}%`,
-        transform: `translate(${ov.dx ?? 0}px, ${ov.dy ?? 0}px) rotate(${ov.rot ?? 0}deg)`,
-        position: 'relative',
-        touchAction: editor && !textMode ? 'none' : undefined,
-        ...(editor ? {
-          outline: `1px dashed rgba(167,139,250,${textMode ? 0.35 : 0.7})`,
-          cursor: textMode ? undefined : 'grab',
-        } : {}),
-      }}
-    >
-      {children}
-      {editor && (
-        <>
-          {/* En fotos se bloquean sus clics; el texto queda libre para editar */}
-          {!textMode && <div style={{ position: 'absolute', inset: 0, zIndex: 2 }} />}
-          {/* Asa de mover para bloques de texto */}
-          {textMode && (
-            <div
-              onPointerDown={startDrag('move')}
-              title="Arrastra para mover el bloque"
-              style={{ ...handleBase, left: '-24px', top: '2px', cursor: 'grab', borderRadius: '2px' }}
-            />
-          )}
-          <div
-            onPointerDown={startDrag('size')}
-            title="Arrastra para redimensionar"
-            style={{ ...handleBase, right: '-8px', bottom: '-8px', cursor: 'nwse-resize' }}
-          />
-          {!textMode && (
-            <div
-              onPointerDown={startDrag('rot')}
-              title="Arrastra para rotar"
-              style={{ ...handleBase, right: '-8px', top: '-8px', borderRadius: '50%', cursor: 'ew-resize' }}
-            />
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
-// Layout editorial asimétrico: la foto principal rompe ancho, las secundarias
-// se flotan alternando lado (el texto las envuelve) y una ancha se desplaza
-// fuera del margen. Nada de rejillas cuadradas.
-function EditorialLayout({ photos, story, dropCap = true, editor = false, ovs = {}, onOv }) {
-  const wrap = (idx, node) => (
-    <Arrangeable editor={editor} ov={ovs[idx]} onOv={(patch) => onOv?.(idx, patch)}>
-      {node}
-    </Arrangeable>
-  );
-
-  // Bloque de texto: movible/redimensionable y con párrafos editables en
-  // modo editor. El texto corregido se guarda como override (ov.text)
-  const textBlock = (key, paras, extra = {}) => {
-    const ov = ovs[key] ?? {};
-    const eff = ov.text ?? paras;
-    if (eff.length === 0) return null;
-    return (
-      <Arrangeable editor={editor} textMode ov={ov} onOv={(patch) => onOv?.(key, patch)}>
-        <Paragraphs
-          paragraphs={eff}
-          {...extra}
-          editor={editor}
-          onText={(i, t) => {
-            const next = [...eff];
-            next[i] = t;
-            onOv?.(key, { text: next });
-          }}
-        />
-      </Arrangeable>
-    );
-  };
-
-  if (photos.length === 0) {
-    return textBlock('tA', story, { dropCap });
+  if (!hasPhotos) {
+    return <Paragraphs paragraphs={story} dropCap />;
   }
 
-  const [main, ...rest] = photos;
-  // Reparto del texto en hasta 3 bloques alrededor de las inserciones
-  const cut1 = Math.max(1, Math.ceil(story.length / 3));
-  const cut2 = Math.max(cut1 + 1, Math.ceil((story.length * 2) / 3));
-  const blockA = story.slice(0, cut1);
-  const blockB = story.slice(cut1, cut2);
-  const blockC = story.slice(cut2);
+  if (photos.length === 1) {
+    return (
+      <>
+        <div style={{ marginBottom: '2.5rem' }}>
+          <GBCPhoto photo={photos[0]} idx={0} ratio="16/9" />
+        </div>
+        <Paragraphs paragraphs={story} dropCap />
+      </>
+    );
+  }
 
-  const floatBox = (side) => ({
-    float: side,
-    width: 'clamp(170px, 44%, 330px)',
-    margin: side === 'right'
-      ? '0.35em 0 1.2rem clamp(16px, 3vw, 32px)'
-      : '0.35em clamp(16px, 3vw, 32px) 1.2rem 0',
-  });
-
-  // Foto ancha que se sale del margen de la columna
-  const bleed = 'min(48px, 4vw)';
+  // 2+ photos: main photo → first half of story → photo grid → rest of story
+  const mid   = Math.ceil(story.length / 2);
+  const grid  = photos.slice(1);               // all except main
+  const cols  = grid.length >= 2 ? 2 : 1;     // 2-col grid if 2+ secondary
 
   return (
     <>
-      {/* Foto principal: panorámica, fuera de margen a ambos lados */}
-      <div
-        style={{
-          width: `calc(100% + ${bleed} * 2)`,
-          marginLeft: `calc(${bleed} * -1)`,
-          marginBottom: '2.75rem',
-        }}
-      >
-        <ScrollReveal y={52}>
-          {wrap(0, <GBCPhoto photo={main} idx={0} ratio="21/9" />)}
-        </ScrollReveal>
+      {/* Main photo */}
+      <div style={{ marginBottom: '2.5rem' }}>
+        <GBCPhoto photo={photos[0]} idx={0} ratio="16/9" />
       </div>
 
-      {/* Bloque 1: primera foto secundaria flotada a la derecha */}
-      {rest[0] && (
-        <div style={floatBox('right')}>
-          <ScrollReveal x={44} y={24} tilt={1.4} delay={0.1}>
-            {wrap(1, <GBCPhoto photo={rest[0]} idx={1} ratio="4/5" />)}
-          </ScrollReveal>
-        </div>
-      )}
-      {textBlock('tA', blockA, { dropCap })}
-      <div style={{ clear: 'both' }} />
-
-      {/* Bloque 2: foto vertical flotada a la izquierda */}
-      {rest[1] && blockB.length > 0 && (
-        <div style={floatBox('left')}>
-          <ScrollReveal x={-44} y={24} tilt={-1.2}>
-            {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="3/4" />)}
-          </ScrollReveal>
-        </div>
-      )}
-      {rest[1] && blockB.length === 0 && (
-        <div style={{ margin: '0 0 2.5rem' }}>
-          <ScrollReveal y={48} tilt={-0.8}>
-            {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="16/9" />)}
-          </ScrollReveal>
-        </div>
-      )}
-      {textBlock('tB', blockB)}
-      <div style={{ clear: 'both' }} />
-
-      {/* Foto ancha desplazada hacia un lado, rompiendo el margen */}
-      {rest[2] && (
-        <div
-          style={{
-            width: `calc(88% + ${bleed})`,
-            marginLeft: 'auto',
-            marginRight: `calc(${bleed} * -1)`,
-            margin: `2.75rem calc(${bleed} * -1) 2.75rem auto`,
-          }}
-        >
-          <ScrollReveal x={56} y={36} tilt={0.7}>
-            {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="16/9" />)}
-          </ScrollReveal>
-        </div>
+      {/* First chunk of text */}
+      {story.slice(0, mid).length > 0 && (
+        <Paragraphs paragraphs={story.slice(0, mid)} dropCap />
       )}
 
-      {textBlock('tC', blockC)}
+      {/* Secondary photos grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gap: '12px',
+          margin: '2.5rem 0',
+        }}
+      >
+        {grid.slice(0, 4).map((photo, i) => (
+          <GBCPhoto key={i} photo={photo} idx={i + 1} ratio="4/3" />
+        ))}
+      </div>
 
-      {/* Sobrantes: par escalonado (una baja respecto a la otra) */}
-      {rest.length > 3 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: 'clamp(12px, 2.5vw, 24px)',
-            alignItems: 'flex-start',
-            margin: '2.75rem 0 1rem',
-          }}
-        >
-          {rest.slice(3, 5).map((photo, i) => (
-            <div
-              key={i}
-              style={{
-                flex: i === 0 ? '1.15' : '0.85',
-                marginTop: i === 1 ? 'clamp(24px, 5vw, 56px)' : 0,
-              }}
-            >
-              <ScrollReveal y={48} tilt={i === 0 ? -1.1 : 1.5} delay={i * 0.14}>
-                {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio={i === 0 ? '4/3' : '3/4'} />)}
-              </ScrollReveal>
-            </div>
-          ))}
-        </div>
+      {/* Remaining text */}
+      {story.slice(mid).length > 0 && (
+        <Paragraphs paragraphs={story.slice(mid)} />
       )}
     </>
   );
 }
 
-// Encabezado de capítulo dentro de un artículo con varias partes (mismo viaje)
-function ChapterHeading({ index, title, titleItalic }) {
-  return (
-    <div style={{ margin: '0 0 28px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px' }}>
-        <span
-          style={{
-            fontFamily: MONO,
-            fontSize: '11px',
-            color: C.accent,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Cap. {String(index + 1).padStart(2, '0')}
-        </span>
-        <span style={{ flex: 1, height: '1px', background: C.border }} />
-      </div>
-      <h2
-        style={{
-          fontFamily: SERIF,
-          fontSize: 'clamp(1.7rem, 4vw, 2.4rem)',
-          fontWeight: 400,
-          lineHeight: 1.15,
-          color: C.text,
-          margin: 0,
-          letterSpacing: '-0.01em',
-        }}
-      >
-        {title}{' '}
-        <em style={{ fontStyle: 'italic', color: C.italic, fontWeight: 400 }}>
-          {titleItalic}
-        </em>
-      </h2>
-    </div>
-  );
-}
-
 // ── Top nav ────────────────────────────────────────────────────────────────────
-
-// ── Avión pixel (para artículos con viaje) ──────────────────────────────────
-// Sprite 8-bit dibujado con rects: cola a la izquierda, nariz a la derecha.
-const PLANE_ART = [
-  'X..................',
-  'XX.................',
-  'XXX................',
-  '.XXXXXXXXXXXXXXX...',
-  '.XXoXoXoXoXXXXXXXX.',
-  '.XXXXXXXXXXXXXXX...',
-  '....XXXX...........',
-  '......XXX..........',
-  '........X..........',
-];
-
-function PixelPlane({ size = 6 }) {
-  return (
-    <svg
-      width={PLANE_ART[0].length * size}
-      height={PLANE_ART.length * size}
-      style={{ display: 'block', shapeRendering: 'crispEdges' }}
-      aria-hidden="true"
-    >
-      {PLANE_ART.flatMap((row, y) =>
-        [...row].map((ch, x) =>
-          ch === '.' ? null : (
-            <rect
-              key={`${x}-${y}`}
-              x={x * size}
-              y={y * size}
-              width={size}
-              height={size}
-              fill={ch === 'o' ? '#2a0626' : '#d8baee'}
-            />
-          )
-        )
-      )}
-    </svg>
-  );
-}
 
 function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang, showNav, backLabel }) {
   const [open, setOpen] = useState(false);
@@ -929,104 +640,14 @@ function KeyHint({ text }) {
 export default function HackathonsPage() {
   const navigate    = useNavigate();
   const contentRef  = useRef(null);
-  const articleRef  = useRef(null);
-  const passOverlayRef = useRef(null);
-  const passRef        = useRef(null);
-  const stampRef       = useRef(null);
-  const stubRef        = useRef(null);
-  const planeRef       = useRef(null);
-  const routeRef       = useRef(null);
-  const boardingTlRef  = useRef(null);
   const touchStartX = useRef(null);
   const mountedRef  = useRef(false);
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [started, setStarted]       = useState(false);
-  // La portada no arranca (rotación del saludo) hasta que el intro termina
-  const [introDone, setIntroDone]   = useState(false);
-  const handleIntroDone = useCallback(() => setIntroDone(true), []);
-
-  // Modo editor (?editor=1): arrastra fotos para acomodarlas; los overrides
-  // viven en localStorage y se exportan a src/data/layouts.json para producción
-  const editorMode = new URLSearchParams(window.location.search).has('editor');
-  const [layoutOv, setLayoutOv] = useState(() => {
-    let ls = {};
-    try { ls = JSON.parse(localStorage.getItem('bitacora-layout') || '{}'); } catch { /* corrupto: se ignora */ }
-    return { ...savedLayouts, ...ls };
-  });
-  const setOv = useCallback((scope, idx, patch) => {
-    setLayoutOv((prev) => {
-      const next = {
-        ...prev,
-        [scope]: { ...prev[scope], [idx]: { ...prev[scope]?.[idx], ...patch } },
-      };
-      try { localStorage.setItem('bitacora-layout', JSON.stringify(next)); } catch { /* sin espacio */ }
-      return next;
-    });
-  }, []);
-  const exportLayout = useCallback(() => {
-    const blob = new Blob([JSON.stringify(layoutOv, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'layouts.json';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }, [layoutOv]);
-  const resetLayout = useCallback((articleId) => {
-    setLayoutOv((prev) => {
-      const next = Object.fromEntries(
-        Object.entries(prev).filter(([k]) => k !== articleId && !k.startsWith(`${articleId}#`)),
-      );
-      try { localStorage.setItem('bitacora-layout', JSON.stringify(next)); } catch { /* sin espacio */ }
-      return next;
-    });
-  }, []);
   const { lang, toggleLang }        = useLanguage();
   const L = STRINGS[lang] ?? STRINGS.es;
   const total = hackathons.length;
-
-  // Saludo rotativo de la portada — scramble entre palabras
-  const asciiWrapRef = useRef(null);
-  const [coverWord, setCoverWord] = useState(STRINGS.es.coverWords[0]);
-  useEffect(() => {
-    const words = (STRINGS[lang] ?? STRINGS.es).coverWords;
-    setCoverWord(words[0]);
-    if (started || !introDone) return;
-
-    // Transición scramble (técnica del ScrambleText de OriginKit): las letras
-    // se revuelven con glifos aleatorios y se resuelven de izquierda a derecha
-    const GLYPHS = 'abcdefghijklmnopqrstuvwxyz<>/_*+=#%';
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let idx = 0;
-    let raf = 0;
-    let lastFrame = 0;
-
-    const scrambleTo = (word) => {
-      const dur = 750;
-      const start = performance.now();
-      const step = (now) => {
-        const t = Math.min(1, (now - start) / dur);
-        if (now - lastFrame >= 40 || t === 1) {
-          lastFrame = now;
-          let out = '';
-          for (let i = 0; i < word.length; i++) {
-            const reveal = 0.15 + (i / word.length) * 0.75;
-            out += t >= reveal ? word[i] : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-          }
-          setCoverWord(out);
-        }
-        if (t < 1) raf = requestAnimationFrame(step);
-      };
-      raf = requestAnimationFrame(step);
-    };
-
-    const id = setInterval(() => {
-      idx = (idx + 1) % words.length;
-      if (reduced) setCoverWord(words[idx]);
-      else scrambleTo(words[idx]);
-    }, 1700);
-    return () => { clearInterval(id); cancelAnimationFrame(raf); };
-  }, [started, lang, introDone]);
 
   // SEO
   useEffect(() => {
@@ -1057,62 +678,6 @@ export default function HackathonsPage() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) { mountedRef.current = true; return; }
 
-    // Artículo con viaje: pase de abordar — cae, se sella ABORDADO, se rasga
-    // el talón y el artículo entra con un fade normal
-    const art     = articleRef.current;
-    const overlay = passOverlayRef.current;
-    const pass    = passRef.current;
-    const stamp   = stampRef.current;
-    const stub    = stubRef.current;
-    const plane   = planeRef.current;
-    const route   = routeRef.current;
-
-    // Si había un abordaje en curso (flechas rápidas), se cancela y se
-    // limpia todo su rastro antes de animar el artículo nuevo
-    const killBoarding = () => {
-      if (boardingTlRef.current) {
-        boardingTlRef.current.kill();
-        boardingTlRef.current = null;
-      }
-      // Resets explícitos: clearProps:'all' borraría también los estilos
-      // inline que puso React (display, background, position...)
-      if (overlay) gsap.set(overlay, { display: 'none', opacity: 1 });
-      if (pass) gsap.set(pass, { y: 0, rotation: 0, scale: 1, opacity: 1 });
-      if (stamp) gsap.set(stamp, { opacity: 0, scale: 1, rotation: 0 });
-      if (plane) gsap.set(plane, { left: '0%', xPercent: -50, yPercent: -50 });
-      if (route) gsap.set(route, { scaleX: 0 });
-      if (art) gsap.set(art, { opacity: 1, y: 0 });
-    };
-    killBoarding();
-
-    if (started && hackathons[currentIdx]?.travel && art && overlay && pass && stamp && stub && plane && route) {
-      mountedRef.current = true;
-      gsap.set(el, { opacity: 1, y: 0 });
-      gsap.set(art, { opacity: 0, y: 18 });
-      const tl = gsap.timeline({ onComplete: killBoarding });
-      boardingTlRef.current = tl;
-      tl.set(overlay, { display: 'flex' })
-        .set(plane, { xPercent: -50, yPercent: -50, left: '0%' })
-        // Entra el pase, suave
-        .fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.22, ease: 'power1.out' })
-        .fromTo(pass,
-          { y: 26, opacity: 0, scale: 0.97 },
-          { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: 'power3.out' }, '-=0.08')
-        // El vuelo: la línea se dibuja y el avión la recorre CUU → MTY
-        .to(route, { scaleX: 1, duration: 0.85, ease: 'power1.inOut' }, '-=0.05')
-        .to(plane, { left: '100%', duration: 0.85, ease: 'power1.inOut' }, '<')
-        // Sello ABORDADO al aterrizar
-        .fromTo(stamp,
-          { opacity: 0, scale: 1.9, rotation: -20 },
-          { opacity: 1, scale: 1, rotation: -8, duration: 0.22, ease: 'power3.in' }, '+=0.06')
-        // Sale hacia arriba y entra el artículo
-        .to(pass, { y: -34, opacity: 0, duration: 0.38, ease: 'power2.in' }, '+=0.32')
-        .to(overlay, { opacity: 0, duration: 0.32, ease: 'power1.in' }, '<0.06')
-        .set(overlay, { display: 'none' })
-        .to(art, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '<');
-      return () => killBoarding();
-    }
-
     if (!mountedRef.current) {
       mountedRef.current = true;
       gsap.fromTo(el,
@@ -1125,7 +690,7 @@ export default function HackathonsPage() {
         { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out' },
       );
     }
-  }, [currentIdx, started]);
+  }, [currentIdx]);
 
   // Navigate between hackathons
   const goTo = useCallback((newIdx) => {
@@ -1153,6 +718,7 @@ export default function HackathonsPage() {
   // Keyboard
   useEffect(() => {
     const handle = (e) => {
+      if (e.key === 'Escape') { navigate('/'); return; }
       if (!started) return;
       if (e.key === 'ArrowLeft')  prevHack();
       if (e.key === 'ArrowRight') nextHack();
@@ -1181,153 +747,7 @@ export default function HackathonsPage() {
       onTouchEnd={onTouchEnd}
     >
       {/* Intro: pixeles + </>CodeByNas, cortina que revela la bitácora */}
-      <PixelIntro onDone={handleIntroDone} />
-
-      {/* Pase de abordar — overlay para artículos con viaje */}
-      <div
-        ref={passOverlayRef}
-        aria-hidden="true"
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 40,
-          display: 'none',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(10, 6, 16, 0.93)',
-          pointerEvents: 'none',
-        }}
-      >
-        <div
-          ref={passRef}
-          style={{
-            display: 'flex',
-            fontFamily: MONO,
-            filter: 'drop-shadow(0 18px 50px rgba(0,0,0,0.65))',
-            maxWidth: '92vw',
-          }}
-        >
-          {/* Cuerpo del pase */}
-          <div
-            style={{
-              position: 'relative',
-              background: '#150b26',
-              border: `1px solid ${C.border}`,
-              borderRight: 'none',
-              borderRadius: '10px 0 0 10px',
-              overflow: 'hidden',
-              minWidth: 0,
-              flex: 1,
-            }}
-          >
-            {/* Cabecera de aerolínea */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: '18px',
-                padding: '10px clamp(18px, 3.5vw, 30px)',
-                background: 'rgba(124, 58, 237, 0.18)',
-                borderBottom: `1px solid ${C.border}`,
-              }}
-            >
-              <span style={{ fontSize: '10px', letterSpacing: '0.22em', color: C.text }}>{'</>'}CODEBYNAS AIR</span>
-              <span style={{ fontSize: '10px', letterSpacing: '0.22em', color: C.accent }}>PASE DE ABORDAR</span>
-            </div>
-            <div style={{ padding: 'clamp(14px, 2.5vw, 22px) clamp(18px, 3.5vw, 30px)' }}>
-              {/* Ruta: la línea se dibuja y el avión la recorre */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 2.5vw, 20px)', marginBottom: '18px' }}>
-                <div>
-                  <div style={{ fontSize: 'clamp(24px, 4.5vw, 36px)', color: C.text, letterSpacing: '0.06em' }}>CUU</div>
-                  <div style={{ fontSize: '9px', letterSpacing: '0.16em', color: C.faint }}>CHIHUAHUA</div>
-                </div>
-                <div style={{ flex: 1, position: 'relative', height: '30px', minWidth: 'clamp(90px, 16vw, 190px)' }}>
-                  <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% - 1px)', borderTop: `2px dashed ${C.border}` }} />
-                  <div
-                    ref={routeRef}
-                    style={{
-                      position: 'absolute', left: 0, right: 0, top: 'calc(50% - 1px)',
-                      height: '2px', background: C.accent,
-                      transform: 'scaleX(0)', transformOrigin: 'left center',
-                    }}
-                  />
-                  <div style={{ position: 'absolute', left: '-2px', top: 'calc(50% - 3px)', width: '6px', height: '6px', borderRadius: '50%', background: C.accent }} />
-                  <div style={{ position: 'absolute', right: '-2px', top: 'calc(50% - 3px)', width: '6px', height: '6px', borderRadius: '50%', background: C.muted }} />
-                  <div ref={planeRef} style={{ position: 'absolute', left: 0, top: '50%' }}>
-                    <PixelPlane size={2} />
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 'clamp(24px, 4.5vw, 36px)', color: C.text, letterSpacing: '0.06em' }}>MTY</div>
-                  <div style={{ fontSize: '9px', letterSpacing: '0.16em', color: C.faint }}>MONTERREY</div>
-                </div>
-              </div>
-              {/* Datos del pasajero */}
-              <div style={{ display: 'flex', gap: 'clamp(14px, 3vw, 26px)', flexWrap: 'wrap', marginBottom: '16px' }}>
-                {[['PASAJERO', 'CHRISTIAN'], ['FECHA', 'NOV 2025'], ['VUELO', 'BIT-025'], ['PUERTA', 'A7'], ['ASIENTO', '4E']].map(([k, v]) => (
-                  <div key={k}>
-                    <div style={{ fontSize: '9px', letterSpacing: '0.18em', color: C.faint, marginBottom: '3px' }}>{k}</div>
-                    <div style={{ fontSize: '13px', color: C.prose }}>{v}</div>
-                  </div>
-                ))}
-              </div>
-              {/* Código de barras */}
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '24px' }}>
-                {[3,1,2,1,4,1,1,3,2,1,3,1,1,2,4,1,2,1,3,1,2,2,1,4,1,1,3,1,2,1].map((w, i) => (
-                  <div key={i} style={{ width: `${w}px`, height: '100%', background: i % 3 ? C.muted : C.accent, opacity: 0.8 }} />
-                ))}
-              </div>
-            </div>
-            {/* Sello ABORDADO */}
-            <div
-              ref={stampRef}
-              style={{
-                position: 'absolute',
-                top: '34%',
-                left: '50%',
-                marginLeft: '-90px',
-                border: `3px solid ${C.accent}`,
-                borderRadius: '4px',
-                color: C.accent,
-                fontSize: '19px',
-                letterSpacing: '0.3em',
-                padding: '7px 16px',
-                opacity: 0,
-                background: 'rgba(10, 6, 16, 0.4)',
-              }}
-            >
-              ABORDADO
-            </div>
-          </div>
-          {/* Perforación + talón */}
-          <div
-            ref={stubRef}
-            style={{
-              position: 'relative',
-              background: '#150b26',
-              border: `1px solid ${C.border}`,
-              borderLeft: `2px dashed ${C.border}`,
-              borderRadius: '0 10px 10px 0',
-              padding: 'clamp(16px, 3vw, 26px) clamp(14px, 2.5vw, 22px)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              gap: '14px',
-            }}
-          >
-            {/* Muescas de la perforación */}
-            <div style={{ position: 'absolute', left: '-9px', top: '-9px', width: '16px', height: '16px', borderRadius: '50%', background: '#0a0610', zIndex: 1 }} />
-            <div style={{ position: 'absolute', left: '-9px', bottom: '-9px', width: '16px', height: '16px', borderRadius: '50%', background: '#0a0610', zIndex: 1 }} />
-            <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: C.faint }}>TALÓN</div>
-            <div style={{ fontSize: '17px', color: C.text, lineHeight: 1.5, textAlign: 'center' }}>
-              CUU
-              <div style={{ fontSize: '11px', color: C.accent }}>▼</div>
-              MTY
-            </div>
-            <div style={{ fontSize: '10px', color: C.faint }}>BIT-025 · 4E</div>
-          </div>
-        </div>
-      </div>
+      <PixelIntro />
 
       {/* Fondo: olas de caracteres ASCII (OriginKit character-waves) */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, opacity: 0.5, pointerEvents: 'none' }} aria-hidden="true">
@@ -1363,15 +783,11 @@ export default function HackathonsPage() {
               flexDirection: 'column',
               justifyContent: 'center',
               paddingBottom: '48px',
-              position: 'relative',
-              zIndex: 0,
             }}
           >
             {/* Saludo ASCII 3D (React Bits ASCIIText) */}
-            <div ref={asciiWrapRef} style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
-              <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-                <ASCIIText text={coverWord} enableWaves asciiFontSize={8} />
-              </div>
+            <div style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
+              <ASCIIText text={L.coverHi} enableWaves asciiFontSize={8} />
             </div>
 
             <h1
@@ -1424,7 +840,7 @@ export default function HackathonsPage() {
         {started && (
         <>
         {/* ── Article ── */}
-        <article ref={articleRef} key={h.id}>
+        <article>
 
           {/* Eyebrow */}
           <p
@@ -1497,41 +913,7 @@ export default function HackathonsPage() {
           </div>
 
           {/* Editorial content */}
-          {h.chapters ? (
-            <>
-              {h.intro && (
-                <EditorialLayout
-                  photos={[]}
-                  story={h.intro}
-                  dropCap
-                  editor={editorMode}
-                  ovs={layoutOv[`${h.id}#intro`] ?? {}}
-                  onOv={(key, patch) => setOv(`${h.id}#intro`, key, patch)}
-                />
-              )}
-              {h.chapters.map((c, i) => (
-                <section key={i} style={{ marginTop: i === 0 ? '3rem' : '5rem' }}>
-                  <ChapterHeading index={i} title={c.title} titleItalic={c.titleItalic} />
-                  <EditorialLayout
-                    photos={c.photos}
-                    story={c.story}
-                    dropCap={false}
-                    editor={editorMode}
-                    ovs={layoutOv[`${h.id}#${i}`] ?? {}}
-                    onOv={(idx, patch) => setOv(`${h.id}#${i}`, idx, patch)}
-                  />
-                </section>
-              ))}
-            </>
-          ) : (
-            <EditorialLayout
-              photos={h.photos}
-              story={h.story}
-              editor={editorMode}
-              ovs={layoutOv[h.id] ?? {}}
-              onOv={(idx, patch) => setOv(h.id, idx, patch)}
-            />
-          )}
+          <EditorialLayout photos={h.photos} story={h.story} />
 
         </article>
 
@@ -1544,53 +926,6 @@ export default function HackathonsPage() {
         />
 
         <KeyHint text={L.hint} />
-
-        {/* Barra del modo editor */}
-        {editorMode && (
-          <div
-            style={{
-              position: 'fixed',
-              bottom: '18px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 60,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '10px 14px',
-              background: 'rgba(16, 9, 30, 0.95)',
-              border: `1px solid ${C.accent}`,
-              fontFamily: MONO,
-              fontSize: '11px',
-              letterSpacing: '0.1em',
-            }}
-          >
-            <span style={{ color: C.accent }}>MODO EDITOR</span>
-            <span style={{ color: C.faint }}>arrastra: mover · cuadro: tamaño · círculo: rotar</span>
-            <button
-              type="button"
-              onClick={exportLayout}
-              style={{
-                fontFamily: MONO, fontSize: '11px', letterSpacing: '0.1em',
-                padding: '6px 10px', background: C.accent, color: '#0a0610',
-                border: 'none', cursor: 'pointer',
-              }}
-            >
-              EXPORTAR JSON
-            </button>
-            <button
-              type="button"
-              onClick={() => resetLayout(h.id)}
-              style={{
-                fontFamily: MONO, fontSize: '11px', letterSpacing: '0.1em',
-                padding: '6px 10px', background: 'transparent', color: C.text,
-                border: `1px solid ${C.border}`, cursor: 'pointer',
-              }}
-            >
-              RESET ARTÍCULO
-            </button>
-          </div>
-        )}
         </>
         )}
       </div>
