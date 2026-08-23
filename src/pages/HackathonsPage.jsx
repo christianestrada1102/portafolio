@@ -600,31 +600,37 @@ function EditorialLayout({ photos, story, dropCap = true, editor = false, ovs = 
         </div>
       )}
 
-      {/* Sobrantes: par escalonado (una baja respecto a la otra) */}
-      {rest.length > 3 && (
-        <div
-          style={{
-            display: 'flex',
-            gap: 'clamp(12px, 2.5vw, 24px)',
-            alignItems: 'flex-start',
-            margin: '2.75rem 0 1rem',
-          }}
-        >
-          {rest.slice(3, 5).map((photo, i) => (
-            <div
-              key={i}
-              style={{
-                flex: i === 0 ? '1.15' : '0.85',
-                marginTop: i === 1 ? 'clamp(24px, 5vw, 56px)' : 0,
-              }}
-            >
-              <ScrollReveal y={48} tilt={i === 0 ? -1.1 : 1.5} delay={i * 0.14}>
-                {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio={i === 0 ? '4/3' : '3/4'} />)}
-              </ScrollReveal>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Sobrantes: par escalonado, o trío si hay 3+ */}
+      {rest.length > 3 && (() => {
+        const extras = rest.slice(3);
+        const tilts  = [-1.1, 1.5, -0.9];
+        const ratios = ['4/3', '3/4', '4/3'];
+        const offsets = [0, 1, 2];
+        return (
+          <div
+            style={{
+              display: 'flex',
+              gap: 'clamp(12px, 2.5vw, 24px)',
+              alignItems: 'flex-start',
+              margin: '2.75rem 0 1rem',
+            }}
+          >
+            {extras.slice(0, 3).map((photo, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  marginTop: offsets[i] % 2 === 1 ? 'clamp(24px, 5vw, 56px)' : 0,
+                }}
+              >
+                <ScrollReveal y={48} tilt={tilts[i]} delay={i * 0.12}>
+                  {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio={ratios[i]} />)}
+                </ScrollReveal>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
     </>
   );
 }
