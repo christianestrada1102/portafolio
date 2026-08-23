@@ -5,11 +5,12 @@ const imgs = import.meta.glob('../assets/hacks/*/p*.{jpg,png}', {
   import: 'default',
 });
 
-const photosFor = (folder, captions = [], positions = []) => {
+const photosFor = (folder, captions = [], positions = [], skip = []) => {
   const out = [];
   for (let i = 1; ; i++) {
     const src = imgs[`../assets/hacks/${folder}/p${i}.jpg`];
     if (!src) break;
+    if (skip.includes(i)) continue;
     out.push({
       src,
       src8: imgs[`../assets/hacks/${folder}/p${i}-8bit.png`] ?? null,
@@ -58,15 +59,20 @@ export const hackathons = [
     location: 'Chihuahua, MX',
     team: 'Christian · Kikin · Fer · Saúl · Mayrim · Leo',
     duration: '48 horas',
-    photos: photosFor('nasa', [
-      'El equipo listo para arrancar',
-      'Workshop de apertura',
-      'Primera noche de código',
-      'Actividades de descanso',
-      'Segunda jornada — bugs y café',
-      'Presentación final',
-      'Los Yuyines',
-    ]),
+    photos: photosFor(
+      'nasa',
+      [
+        'Arranca el hackathon',           // p1
+        '',                               // p2 — skip
+        'El equipo en acción',            // p3: Saúl, Fer y yo en los minijuegos, Mayrim en diseño, Kikin en guion
+        'Noche de trabajo',               // p4
+        'Presentación del proyecto',      // p5
+        'Los Yuyines',                    // p6: foto de equipo
+        'La comunidad — NASA Space Apps', // p7: foto grupal del evento
+      ],
+      [],
+      [2], // saltar p2, es igual a p1
+    ),
     coda: [
       'Éramos seis, y la química que se formó en esas 48 horas fue lo mejor del hackathon. Fer, Saúl, Kikin, Mayrim, Leo y yo — cada quien con su parte, todos con las mismas ganas. Aunque el proyecto no se calificó como queríamos, lo terminamos después, lo subimos, y quedó. Yuyin existe. Eso no se pierde.',
     ],
