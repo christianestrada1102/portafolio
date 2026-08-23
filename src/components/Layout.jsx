@@ -179,12 +179,12 @@ export default function Layout({ children }) {
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
 
           {/* Logo */}
-          <ScrambleButton
+          <button
             onClick={() => scrollTo('#home')}
             className="font-sans font-bold text-base text-white tracking-tight hover:text-neutral-300 transition-colors duration-200 select-none cursor-pointer"
           >
             CodeByNas
-          </ScrambleButton>
+          </button>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8">
