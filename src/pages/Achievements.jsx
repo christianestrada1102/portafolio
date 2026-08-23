@@ -435,7 +435,7 @@ export default function Achievements() {
               <div className="overflow-hidden">
                 <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
                   {[
-                    { cert: certDiplomado,      label: 'Diplomado en Fundamentos Full Stack' },
+                    { cert: certDiplomado,      label: 'Certificado Full Stack — CENALTEC' },
                     { cert: certReconocimiento, label: 'Reconocimiento CENALTEC / SEP' },
                   ].map(({ cert, label }, j) => (
                     <li key={j} className="text-sm text-neutral-400">
