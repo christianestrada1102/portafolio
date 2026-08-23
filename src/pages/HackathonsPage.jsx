@@ -588,10 +588,10 @@ function EditorialLayout({ photos, story, dropCap = true, editor = false, ovs = 
       {rest[2] && (
         <div
           style={{
-            width: `calc(88% + ${bleed})`,
-            marginLeft: 'auto',
-            marginRight: `calc(${bleed} * -1)`,
-            margin: `2.75rem calc(${bleed} * -1) 2.75rem auto`,
+            width: `calc(100% + ${bleed} * 2)`,
+            marginLeft: `calc(${bleed} * -1)`,
+            marginBottom: '2.75rem',
+            marginTop: '2.75rem',
           }}
         >
           <ScrollReveal y={52}>
