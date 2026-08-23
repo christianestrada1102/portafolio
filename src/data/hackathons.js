@@ -5,7 +5,7 @@ const imgs = import.meta.glob('../assets/hacks/*/p*.{jpg,png}', {
   import: 'default',
 });
 
-const photosFor = (folder, captions = []) => {
+const photosFor = (folder, captions = [], positions = []) => {
   const out = [];
   for (let i = 1; ; i++) {
     const src = imgs[`../assets/hacks/${folder}/p${i}.jpg`];
@@ -14,6 +14,7 @@ const photosFor = (folder, captions = []) => {
       src,
       src8: imgs[`../assets/hacks/${folder}/p${i}-8bit.png`] ?? null,
       caption: captions[i - 1] ?? '',
+      pos: positions[i - 1] ?? 'center',
     });
   }
   return out;
@@ -132,7 +133,7 @@ export const hackathons = [
     location: 'Chihuahua, MX',
     team: 'Christian',
     duration: 'Una noche',
-    photos: photosFor('twcuu'),
+    photos: photosFor('twcuu', [], ['center 70%']),
     story: [
       'De parte de Innova nos invitaron al cierre de la Tech Week — una noche de networking, música en vivo y conversaciones con builders de toda la ciudad. No sabía exactamente qué esperar, pero fue la primera entrada real al ecosistema tecnológico de Chihuahua como tal.',
       'Tuve la oportunidad de hablar con gente que llevaba años construyendo cosas aquí — proyectos, startups, comunidades. Me di cuenta de que todo esto ya estaba pasando y yo simplemente no lo conocía. Nuevos amigos, contactos, y una pregunta que no me pude quitar de la cabeza: ¿cómo ayudo a que más personas sepan que esto existe?',
