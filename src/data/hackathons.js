@@ -56,12 +56,13 @@ export const hackathons = [
     eventItalic: 'Challenge',
     date: 'OCT 2025',
     location: 'Chihuahua, MX',
-    team: 'TBD',
+    team: 'Christian · Kikin · Fer · Saúl · Mayrim · Leo',
     duration: '48 horas',
     photos: photosFor('nasa'),
     story: [
-      'Párrafo 1 aquí — voy a escribirlo después.',
-      'Párrafo 2 aquí.',
+      'El primer hackathon de verdad — 48 horas para construir una experiencia que enseñara a niños sobre el espacio. Después de una lluvia de ideas, decidimos hacer un videojuego. Sí, un videojuego, sin saber lo que eso implicaba. Primero pensamos en una web, pero no conocíamos nada de JS ni TypeScript. Teníamos experiencia con C#, así que optamos por Unity. No entendíamos nada. Pasamos a Godot. Lo mismo pero más limitado. Hasta pensamos en Roblox con Lua. Al final me puse a aprender Unity solo, me robé unos sprites e hice la primer demo de Yuyin — un minijuego de plataformas donde el objetivo era recolectar energía para la nave. Kikin y Mayrim investigaron Fungus para integrar una novela visual interactiva que fuera la parte de aprendizaje. Llegamos al hackathon con todos los componentes listos — no se podía empezar antes.',
+      'Nos dieron merch y la emoción estaba. Ver a otras personas construyendo junto a nosotros fue algo único. Empezamos a organizarnos: Fer, Saúl y yo haríamos tres minijuegos; Kikin y Mayrim se encargarían de la historia y la novela visual; Leo buscaría información para el pitch. Trabajamos hasta tener algo funcional el primer día. A la noche había bugs y mucho estrés, así que salimos a unas actividades que tenían para desestresarnos. Volvimos y seguimos. Yo para ese punto no había dormido nada — si mucho, dos horas en todo el hackathon.',
+      'La mañana del segundo día escucho a Fer preocupado: se había corrompido la parte de su minijuego. Intentamos recuperarlo, no pudimos — empezó de cero. Llegaron los mentores y nos dijeron que nuestro producto era muy genérico y difícil de ganar. Nos valió. Seguimos. A la noche tuvimos junta porque estábamos cansados y había que ver cómo presentar al día siguiente — remontamos, rehacimos todo. El juego estaba quedando muy bien y... se rompió. Era la primera vez que usábamos GitHub Desktop, y al juntar todas las partes se corrompió gran parte del proyecto. Terminamos entregando una versión vacía y presentando lo que pudimos rescatar. Después del hack lo terminamos completo, pero ellos tenían la versión rota. Así fue como perdimos el primer hackathon — y ganamos experiencia, presión, y una muy buena química como equipo.',
     ],
   },
   {
