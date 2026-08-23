@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import nasPhoto from '../assets/nas2.webp';
-import ScrambleButton from '../components/ScrambleButton';
 import { useLanguage } from '../context/LanguageContext';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -116,18 +115,18 @@ export default function Home() {
 
             {/* CTAs */}
             <div ref={ctaRef} className="flex flex-wrap gap-3">
-              <ScrambleButton
+              <button
                 onClick={() => scrollTo('#projects')}
                 className="bg-white text-neutral-950 rounded-sm px-5 py-2.5 text-sm font-medium"
               >
                 {t('home.cta.projects')} <span aria-hidden="true">→</span>
-              </ScrambleButton>
-              <ScrambleButton
+              </button>
+              <button
                 onClick={() => scrollTo('#contact')}
                 className="border border-neutral-700 text-neutral-300 rounded-sm px-5 py-2.5 text-sm font-medium hover:border-neutral-500 hover:text-white transition-colors duration-200"
               >
                 {t('home.cta.contact')}
-              </ScrambleButton>
+              </button>
             </div>
 
             {/* Stats */}
