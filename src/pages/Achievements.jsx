@@ -12,6 +12,8 @@ import certComunicacion from '../assets/icatech/comunicacion.png';
 import certEmprender from '../assets/icatech/emprender.png';
 import certEstrategias from '../assets/icatech/estrategias.png';
 import certAutogestion from '../assets/icatech/autogestion.png';
+import certDiplomado from '../assets/FullStack/diplomado.png';
+import certReconocimiento from '../assets/FullStack/reconocimiento.png';
 import { useLanguage } from '../context/LanguageContext';
 import { revealHeaders } from '../utils/sectionReveal';
 
@@ -27,6 +29,7 @@ const ROW_IMAGES = {
   // Certificados reales como fondo
   'cert-nasa': { src: nasaImg,         pos: 'center 40%' },
   icatech:     { src: certPensamiento, pos: 'center 40%' },
+  fullstack:   { src: certDiplomado,   pos: 'center 40%' },
   // Hackatones
   nasa:  { src: nasaPhoto,  pos: 'center 19%' },
   eth:   { src: ethPhoto,   pos: 'center 38%' },
@@ -36,8 +39,9 @@ const ROW_IMAGES = {
 
 // Grupo 1: certificaciones · Grupo 2: hackathons
 const CERTS = [
-  { id: 'cert-nasa', date: 'Oct 2025', title: 'Galactic Problem', accent: 'Solver',       result: 'NASA Space Apps' },
-  { id: 'icatech', date: '2025',     title: 'MIT',              accent: 'ICATECH 2025', result: '80h · 5 módulos' },
+  { id: 'cert-nasa',   date: 'Oct 2025', title: 'Galactic Problem', accent: 'Solver',       result: 'NASA Space Apps' },
+  { id: 'icatech',     date: '2025',     title: 'MIT',              accent: 'ICATECH 2025', result: '80h · 5 módulos' },
+  { id: 'fullstack',   date: 'Ago 2026', title: 'Diplomado Full',   accent: 'Stack',        result: 'CENALTEC / SEP · 126h' },
 ];
 const HACKS = [
   { id: 'nasa',  date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: 'Yuyin · MVP en 48h' },
@@ -49,8 +53,9 @@ const HACKS = [
 export default function Achievements() {
   const containerRef = useRef(null);
 
-  const [imgModal, setImgModal]       = useState(null); // { src, alt }
-  const [icatechOpen, setIcatechOpen] = useState(false);
+  const [imgModal, setImgModal]         = useState(null); // { src, alt }
+  const [icatechOpen, setIcatechOpen]   = useState(false);
+  const [fullstackOpen, setFullstackOpen] = useState(false);
   const certOriginRef = useRef(null);
   const certModalRef  = useRef(null);
   const { t } = useLanguage();
@@ -224,7 +229,14 @@ export default function Achievements() {
     return () => ctx.revert();
   }, []);
 
-  // ── Fondo de fila: imagen que se revela al hover ──
+  // El halo de color de la foto sigue al cursor dentro de la fila
+  const rowMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`);
+  };
+
+  // ── Fondo de fila: se revela en mono y el color florece desde el cursor ──
   const rowBg = (item) => {
     const img = ROW_IMAGES[item.id];
     if (!img) return null;
@@ -233,7 +245,15 @@ export default function Achievements() {
         <img
           src={img.src}
           alt=""
-          className="w-full h-full object-cover"
+          className="ach-bg-mono w-full h-full object-cover"
+          style={{ objectPosition: img.pos }}
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          src={img.src}
+          alt=""
+          className="ach-bg-color absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: img.pos }}
           loading="lazy"
           decoding="async"
@@ -245,7 +265,9 @@ export default function Achievements() {
   };
 
   // ── Contenido común de cada fila ──
-  const rowInner = (item) => (
+  // `roll`: el título rueda hacia arriba al hover (dos copias apiladas,
+  // técnica del hover-image-reveal de OriginKit)
+  const rowInner = (item, roll = false) => (
     <>
       <span className="ach-date font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500 shrink-0 w-20 md:w-24 pt-2 md:pt-4">
         {item.date}
@@ -253,8 +275,25 @@ export default function Achievements() {
       <span className="ach-title flex-1 min-w-0 font-semibold text-white leading-[1.05]"
         style={{ fontSize: 'clamp(1.7rem, 4.5vw, 3.4rem)' }}
       >
-        {item.title}{' '}
-        <em className="not-italic accent-subtle">{item.accent}</em>
+        {roll ? (
+          <span className="ach-roll">
+            <span className="ach-roll-inner">
+              <span className="block">
+                {item.title}{' '}
+                <em className="not-italic accent-subtle">{item.accent}</em>
+              </span>
+              <span className="block absolute top-full left-0 w-full" aria-hidden="true">
+                {item.title}{' '}
+                <em className="not-italic accent-subtle">{item.accent}</em>
+              </span>
+            </span>
+          </span>
+        ) : (
+          <>
+            {item.title}{' '}
+            <em className="not-italic accent-subtle">{item.accent}</em>
+          </>
+        )}
       </span>
       {item.result && (
         <span className="ach-result hidden md:block font-mono text-xs text-neutral-500 shrink-0 pt-4 max-w-[220px] text-right">
@@ -287,16 +326,17 @@ export default function Achievements() {
 
         {/* ── Certificaciones ── */}
         {groupLabel(t('achievements.group.certs'))}
-        <div className="border-t border-neutral-800" style={{ perspective: '1200px' }}>
+        <div className="ach-hacks border-t border-neutral-800" style={{ perspective: '1200px' }}>
 
           {/* NASA */}
           <button
             type="button"
             onClick={(e) => openCert(nasaImg, 'NASA Space Apps Challenge Certificate', e)}
+            onMouseMove={rowMove}
             className="ach-row group relative isolate overflow-hidden w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
           >
             {rowBg(CERTS[0])}
-            {rowInner(CERTS[0])}
+            {rowInner(CERTS[0], true)}
             <span
               aria-hidden="true"
               className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400/80 group-hover:text-brand-300 underline-offset-4 group-hover:underline transition-colors duration-300"
@@ -306,7 +346,7 @@ export default function Achievements() {
           </button>
 
           {/* MIT ICATECH 2025 (expandible con certificados) */}
-          <div className="ach-row group relative isolate overflow-hidden border-b border-neutral-800">
+          <div className="ach-row group relative isolate overflow-hidden border-b border-neutral-800" onMouseMove={rowMove}>
             {rowBg(CERTS[1])}
             <button
               type="button"
@@ -314,7 +354,7 @@ export default function Achievements() {
               aria-expanded={icatechOpen}
               className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
             >
-              {rowInner(CERTS[1])}
+              {rowInner(CERTS[1], true)}
               <span
                 aria-hidden="true"
                 className={`shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-xl md:text-2xl ${
@@ -365,19 +405,71 @@ export default function Achievements() {
               </div>
             </div>
           </div>
+
+          {/* Diplomado Full Stack (expandible con diplomado + reconocimiento) */}
+          <div className="ach-row group relative isolate overflow-hidden border-b border-neutral-800" onMouseMove={rowMove}>
+            {rowBg(CERTS[2])}
+            <button
+              type="button"
+              onClick={() => setFullstackOpen((v) => !v)}
+              aria-expanded={fullstackOpen}
+              className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
+            >
+              {rowInner(CERTS[2], true)}
+              <span
+                aria-hidden="true"
+                className={`shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-xl md:text-2xl ${
+                  fullstackOpen ? 'rotate-45 text-brand-400' : ''
+                }`}
+              >
+                +
+              </span>
+            </button>
+            <div
+              className="grid"
+              style={{
+                gridTemplateRows: fullstackOpen ? '1fr' : '0fr',
+                transition: 'grid-template-rows 0.4s cubic-bezier(0.33, 1, 0.68, 1)',
+              }}
+            >
+              <div className="overflow-hidden">
+                <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
+                  {[
+                    { cert: certDiplomado,      label: 'Diplomado en Fundamentos Full Stack' },
+                    { cert: certReconocimiento, label: 'Reconocimiento CENALTEC / SEP' },
+                  ].map(({ cert, label }, j) => (
+                    <li key={j} className="text-sm text-neutral-400">
+                      <button
+                        type="button"
+                        onClick={(e) => openCert(cert, label, e)}
+                        className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
+                      >
+                        <span aria-hidden="true" className="text-neutral-600">→</span>
+                        <span>{label}</span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-brand-400/80 group-hover/cert:text-brand-300 underline-offset-4 group-hover/cert:underline transition-colors duration-200">
+                          ver
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ── Hackathons ── */}
         {groupLabel(t('achievements.group.hacks'))}
-        <div className="border-t border-neutral-800" style={{ perspective: '1200px' }}>
+        <div className="ach-hacks border-t border-neutral-800" style={{ perspective: '1200px' }}>
           {HACKS.map((item) => (
             <Link
               key={item.id}
               to="/hackathons"
+              onMouseMove={rowMove}
               className="ach-row group relative isolate overflow-hidden flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
             >
               {rowBg(item)}
-              {rowInner(item)}
+              {rowInner(item, true)}
             </Link>
           ))}
 
