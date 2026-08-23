@@ -134,9 +134,8 @@ export const hackathons = [
     duration: 'Una noche',
     photos: photosFor('twcuu'),
     story: [
-      'De parte de Innova nos invitaron al cierre de la Tech Week — networking, música, y la primera entrada real al ecosistema tecnológico de Chihuahua.',
-      'Tuve la oportunidad de hablar con otros builders, de conocer un poco más de cómo se estaba viviendo esto en la ciudad — una comunidad que no sabía que existía: eventos, proyectos, gente construyendo cosas.',
-      'Nuevos amigos, contactos, y una sensación muy clara: yo quiero formar parte de esto, y ayudar a que más personas lo conozcan.',
+      'De parte de Innova nos invitaron al cierre de la Tech Week — una noche de networking, música en vivo y conversaciones con builders de toda la ciudad. No sabía exactamente qué esperar, pero fue la primera entrada real al ecosistema tecnológico de Chihuahua como tal.',
+      'Tuve la oportunidad de hablar con gente que llevaba años construyendo cosas aquí — proyectos, startups, comunidades. Me di cuenta de que todo esto ya estaba pasando y yo simplemente no lo conocía. Nuevos amigos, contactos, y una pregunta que no me pude quitar de la cabeza: ¿cómo ayudo a que más personas sepan que esto existe?',
     ],
   },
 ];
