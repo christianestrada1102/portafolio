@@ -41,7 +41,7 @@ const ROW_IMAGES = {
 const CERTS = [
   { id: 'cert-nasa',   date: 'Oct 2025', title: 'Galactic Problem', accent: 'Solver',       result: 'NASA Space Apps' },
   { id: 'icatech',     date: '2025',     title: 'MIT',              accent: 'ICATECH 2025', result: '80h · 5 módulos' },
-  { id: 'fullstack',   date: 'Ago 2026', title: 'Diplomado Full',   accent: 'Stack',        result: 'CENALTEC / SEP · 126h' },
+  { id: 'fullstack',   date: 'Ago 2026', title: 'Diplomado',        accent: 'Full Stack',   result: 'CENALTEC / SEP · 126h' },
 ];
 const HACKS = [
   { id: 'nasa',  date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: 'Yuyin · MVP en 48h' },
