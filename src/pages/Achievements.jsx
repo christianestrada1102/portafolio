@@ -41,7 +41,6 @@ const ROW_IMAGES = {
 const CERTS = [
   { id: 'cert-nasa',   date: 'Oct 2025', title: 'Galactic Problem', accent: 'Solver',       result: 'NASA Space Apps' },
   { id: 'icatech',     date: '2025',     title: 'MIT',              accent: 'ICATECH 2025', result: '80h · 5 módulos' },
-  { id: 'fullstack',   date: 'Ago 2026', title: 'Certificado',      accent: 'Full Stack',   result: 'CENALTEC / SEP · 126h' },
 ];
 const HACKS = [
   { id: 'nasa',  date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: 'Yuyin · MVP en 48h' },
@@ -59,6 +58,8 @@ export default function Achievements() {
   const certOriginRef = useRef(null);
   const certModalRef  = useRef(null);
   const { t } = useLanguage();
+
+  const FULLSTACK_CERT = { id: 'fullstack', date: 'Ago 2026', title: t('achievements.fullstack.title'), accent: t('achievements.fullstack.accent'), result: 'CENALTEC / SEP · 126h' };
 
   // Rect destino del certificado: usa la proporción real de la imagen para
   // que el recorte del vuelo y el documento completo coincidan al aterrizar
@@ -408,14 +409,14 @@ export default function Achievements() {
 
           {/* Diplomado Full Stack (expandible con diplomado + reconocimiento) */}
           <div className="ach-row group relative isolate overflow-hidden border-b border-neutral-800" onMouseMove={rowMove}>
-            {rowBg(CERTS[2])}
+            {rowBg(FULLSTACK_CERT)}
             <button
               type="button"
               onClick={() => setFullstackOpen((v) => !v)}
               aria-expanded={fullstackOpen}
               className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
             >
-              {rowInner(CERTS[2], true)}
+              {rowInner(FULLSTACK_CERT, true)}
               <span
                 aria-hidden="true"
                 className={`shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-xl md:text-2xl ${
