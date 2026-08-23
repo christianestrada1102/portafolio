@@ -594,7 +594,7 @@ function EditorialLayout({ photos, story, dropCap = true, editor = false, ovs = 
             margin: `2.75rem calc(${bleed} * -1) 2.75rem auto`,
           }}
         >
-          <ScrollReveal x={56} y={36} tilt={0.7}>
+          <ScrollReveal y={52}>
             {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="21/9" />)}
           </ScrollReveal>
         </div>
