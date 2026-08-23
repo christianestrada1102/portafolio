@@ -1,16 +1,25 @@
-import { useRef, useCallback } from 'react';
-import gsap from 'gsap';
+import { useRef, useEffect } from 'react';
+import { useAnimationFrame } from 'framer-motion';
 
-const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%!&*';
+const FONT_FACE = `
+@font-face {
+  font-family: "InterVariableFramer";
+  src: url("https://rsms.me/inter/font-files/InterVariable.woff2?v=4.0") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+`;
+let fontInjected = false;
 
-/**
- * Converts children into per-letter <span data-char="X"> elements.
- * Non-string children (icons, arrows) are wrapped as-is.
- */
+const FROM_WEIGHT = 300;
+const TO_WEIGHT = 800;
+const REACH = 180; // px
+const TAU = 0.2;   // transition speed (seconds)
+
 function buildSpans(children) {
   const result = [];
   const kids = Array.isArray(children) ? children.flat() : [children];
-
   kids.forEach((child, ci) => {
     if (typeof child === 'string') {
       [...child].forEach((char, i) => {
@@ -18,79 +27,88 @@ function buildSpans(children) {
           result.push(<span key={`${ci}-${i}`}>&nbsp;</span>);
         } else {
           result.push(
-            <span key={`${ci}-${i}`} data-char={char} className="inline-block">
+            <span key={`${ci}-${i}`} data-dw className="inline-block">
               {char}
             </span>
           );
         }
       });
     } else {
-      // icon, nested element — render untouched
       result.push(<span key={`el-${ci}`} className="inline-block">{child}</span>);
     }
   });
-
   return result;
 }
 
-export default function ScrambleButton({ children, className = '', ...props }) {
+export default function ScrambleButton({ children, className = '', style, ...props }) {
   const btnRef = useRef(null);
-  const tlRef = useRef(null);
+  const mouseRef = useRef({ x: -99999, y: -99999 });
+  const factorsRef = useRef([]);
+  const lastFrameRef = useRef(0);
 
-  /* mouseenter — scramble left → right, resolve in place */
-  const scramble = useCallback(() => {
-    const spans = Array.from(btnRef.current?.querySelectorAll('[data-char]') ?? []);
+  // Inject variable font once globally
+  useEffect(() => {
+    if (fontInjected) return;
+    const s = document.createElement('style');
+    s.textContent = FONT_FACE;
+    document.head.appendChild(s);
+    fontInjected = true;
+  }, []);
+
+  useEffect(() => {
+    const el = btnRef.current;
+    if (!el) return;
+    const onMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+    const onLeave = () => { mouseRef.current = { x: -99999, y: -99999 }; };
+    el.addEventListener('mousemove', onMove);
+    el.addEventListener('mouseleave', onLeave);
+    return () => {
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('mouseleave', onLeave);
+    };
+  }, []);
+
+  useAnimationFrame((now) => {
+    const el = btnRef.current;
+    if (!el) return;
+    const spans = el.querySelectorAll('[data-dw]');
     if (!spans.length) return;
 
-    if (tlRef.current) tlRef.current.kill();
-    const tl = gsap.timeline();
-    tlRef.current = tl;
+    const containerRect = el.getBoundingClientRect();
+    const mx = mouseRef.current.x;
+    const my = mouseRef.current.y;
+
+    const prevT = lastFrameRef.current || now;
+    const dtSec = Math.min(0.1, Math.max(0, (now - prevT) / 1000));
+    lastFrameRef.current = now;
+    const a = 1 - Math.exp(-dtSec / TAU);
 
     spans.forEach((span, i) => {
-      const original = span.dataset.char;
-      const proxy = { t: 0 };
+      const rect = span.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2 - containerRect.left;
+      const cy = rect.top + rect.height / 2 - containerRect.top;
+      const dist = Math.sqrt((mx - cx) ** 2 + (my - cy) ** 2);
+      const target = Math.min(Math.max(1 - dist / REACH, 0), 1);
+      const prev = factorsRef.current[i] ?? 0;
+      const f = prev + (target - prev) * a;
+      factorsRef.current[i] = f;
 
-      tl.to(
-        proxy,
-        {
-          t: 1,
-          duration: 0.45,
-          ease: 'power1.inOut',
-          onUpdate() {
-            span.textContent =
-              proxy.t < 0.75
-                ? CHARS[Math.floor(Math.random() * CHARS.length)]
-                : original;
-          },
-          onComplete() {
-            span.textContent = original;
-          },
-        },
-        i * 0.035, // stagger — liquid/melting feel
-      );
+      const w = Math.round(FROM_WEIGHT + (TO_WEIGHT - FROM_WEIGHT) * f);
+      const val = `'wght' ${w}`;
+      if (span.style.fontVariationSettings !== val) {
+        span.style.fontVariationSettings = val;
+      }
     });
-  }, []);
-
-  /* mouseleave — restore right → left */
-  const restore = useCallback(() => {
-    if (tlRef.current) tlRef.current.kill();
-    const spans = Array.from(
-      btnRef.current?.querySelectorAll('[data-char]') ?? [],
-    ).reverse();
-
-    const tl = gsap.timeline();
-    tlRef.current = tl;
-    spans.forEach((span, i) => {
-      tl.call(() => { span.textContent = span.dataset.char; }, null, i * 0.025);
-    });
-  }, []);
+  });
 
   return (
     <button
       ref={btnRef}
-      onMouseEnter={scramble}
-      onMouseLeave={restore}
       className={className}
+      style={{ fontFamily: '"InterVariableFramer", "Inter Variable", "Inter", system-ui, sans-serif', fontVariationSettings: `'wght' ${FROM_WEIGHT}`, ...style }}
       {...props}
     >
       {buildSpans(children)}
