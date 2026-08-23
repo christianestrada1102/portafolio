@@ -39,6 +39,20 @@ export const hackathons = [
     ],
   },
   {
+    id: 'twcuu',
+    event: 'Tech Week',
+    eventItalic: 'Chihuahua',
+    date: '2025',
+    location: 'Chihuahua, MX',
+    team: 'Christian',
+    duration: 'Una noche',
+    photos: photosFor('twcuu', [], ['center 70%']),
+    story: [
+      'De parte de Innova nos invitaron al cierre de la Tech Week — una noche de networking, música en vivo y conversaciones con builders de toda la ciudad. No sabía exactamente qué esperar, pero fue la primera entrada real al ecosistema tecnológico de Chihuahua como tal.',
+      'Tuve la oportunidad de hablar con gente que llevaba años construyendo cosas aquí — proyectos, startups, comunidades. Me di cuenta de que todo esto ya estaba pasando y yo simplemente no lo conocía. Nuevos amigos, contactos, y una pregunta que no me pude quitar de la cabeza: ¿cómo ayudo a que más personas sepan que esto existe?',
+    ],
+  },
+  {
     id: 'nasa-2025',
     event: 'NASA Space Apps',
     eventItalic: 'Challenge',
@@ -123,20 +137,6 @@ export const hackathons = [
     photos: photosFor('aim'),
     story: [
       'Párrafo placeholder.',
-    ],
-  },
-  {
-    id: 'twcuu',
-    event: 'Tech Week',
-    eventItalic: 'Chihuahua',
-    date: '2025',
-    location: 'Chihuahua, MX',
-    team: 'Christian',
-    duration: 'Una noche',
-    photos: photosFor('twcuu', [], ['center 70%']),
-    story: [
-      'De parte de Innova nos invitaron al cierre de la Tech Week — una noche de networking, música en vivo y conversaciones con builders de toda la ciudad. No sabía exactamente qué esperar, pero fue la primera entrada real al ecosistema tecnológico de Chihuahua como tal.',
-      'Tuve la oportunidad de hablar con gente que llevaba años construyendo cosas aquí — proyectos, startups, comunidades. Me di cuenta de que todo esto ya estaba pasando y yo simplemente no lo conocía. Nuevos amigos, contactos, y una pregunta que no me pude quitar de la cabeza: ¿cómo ayudo a que más personas sepan que esto existe?',
     ],
   },
 ];
