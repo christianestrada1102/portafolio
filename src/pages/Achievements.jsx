@@ -16,6 +16,7 @@ import certDiplomado from '../assets/FullStack/diplomado.png';
 import certReconocimiento from '../assets/FullStack/reconocimiento.png';
 import { useLanguage } from '../context/LanguageContext';
 import { revealHeaders } from '../utils/sectionReveal';
+import DynamicWeight from '../components/originkit/DynamicWeight';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -266,35 +267,22 @@ export default function Achievements() {
   };
 
   // ── Contenido común de cada fila ──
-  // `roll`: el título rueda hacia arriba al hover (dos copias apiladas,
-  // técnica del hover-image-reveal de OriginKit)
-  const rowInner = (item, roll = false) => (
+  const rowInner = (item) => (
     <>
       <span className="ach-date font-mono text-[11px] uppercase tracking-[0.2em] text-neutral-500 shrink-0 w-20 md:w-24 pt-2 md:pt-4">
         {item.date}
       </span>
-      <span className="ach-title flex-1 min-w-0 font-semibold text-white leading-[1.05]"
-        style={{ fontSize: 'clamp(1.7rem, 4.5vw, 3.4rem)' }}
-      >
-        {roll ? (
-          <span className="ach-roll">
-            <span className="ach-roll-inner">
-              <span className="block">
-                {item.title}{' '}
-                <em className="not-italic accent-subtle">{item.accent}</em>
-              </span>
-              <span className="block absolute top-full left-0 w-full" aria-hidden="true">
-                {item.title}{' '}
-                <em className="not-italic accent-subtle">{item.accent}</em>
-              </span>
-            </span>
-          </span>
-        ) : (
-          <>
-            {item.title}{' '}
-            <em className="not-italic accent-subtle">{item.accent}</em>
-          </>
-        )}
+      <span className="ach-title flex-1 min-w-0 leading-[1.05]" style={{ height: 'clamp(2rem, 5.5vw, 4rem)' }}>
+        <DynamicWeight
+          label={`${item.title}${item.accent ? ' ' + item.accent : ''}`}
+          fromWeight={300}
+          toWeight={800}
+          strength={30}
+          fontSize="clamp(1.7rem, 4.5vw, 3.4rem)"
+          color="white"
+          transition={{ duration: 0.25 }}
+          style={{ justifyContent: 'flex-start', height: '100%' }}
+        />
       </span>
       {item.result && (
         <span className="ach-result hidden md:block font-mono text-xs text-neutral-500 shrink-0 pt-4 max-w-[220px] text-right">
@@ -337,7 +325,7 @@ export default function Achievements() {
             className="ach-row group relative isolate overflow-hidden w-full text-left flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
           >
             {rowBg(CERTS[0])}
-            {rowInner(CERTS[0], true)}
+            {rowInner(CERTS[0])}
             <span
               aria-hidden="true"
               className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400/80 group-hover:text-brand-300 underline-offset-4 group-hover:underline transition-colors duration-300"
@@ -355,7 +343,7 @@ export default function Achievements() {
               aria-expanded={icatechOpen}
               className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
             >
-              {rowInner(CERTS[1], true)}
+              {rowInner(CERTS[1])}
               <span
                 aria-hidden="true"
                 className={`shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-xl md:text-2xl ${
@@ -416,7 +404,7 @@ export default function Achievements() {
               aria-expanded={fullstackOpen}
               className="w-full text-left flex items-start gap-4 md:gap-8 py-5 md:py-7"
             >
-              {rowInner(FULLSTACK_CERT, true)}
+              {rowInner(FULLSTACK_CERT)}
               <span
                 aria-hidden="true"
                 className={`shrink-0 pt-2 md:pt-4 text-neutral-600 group-hover:text-brand-400 transition-all duration-300 text-xl md:text-2xl ${
@@ -470,7 +458,7 @@ export default function Achievements() {
               className="ach-row group relative isolate overflow-hidden flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
             >
               {rowBg(item)}
-              {rowInner(item, true)}
+              {rowInner(item)}
             </Link>
           ))}
 
