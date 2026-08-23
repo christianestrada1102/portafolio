@@ -595,7 +595,7 @@ function EditorialLayout({ photos, story, dropCap = true, editor = false, ovs = 
           }}
         >
           <ScrollReveal x={56} y={36} tilt={0.7}>
-            {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="16/9" />)}
+            {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="21/9" />)}
           </ScrollReveal>
         </div>
       )}
