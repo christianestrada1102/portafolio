@@ -435,19 +435,19 @@ export default function Achievements() {
               <div className="overflow-hidden">
                 <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
                   {[
-                    { cert: certDiplomado,      label: 'Certificado Full Stack — CENALTEC' },
-                    { cert: certReconocimiento, label: 'Reconocimiento CENALTEC / SEP' },
-                  ].map(({ cert, label }, j) => (
+                    { cert: certDiplomado,      labelKey: 'achievements.fullstack.cert' },
+                    { cert: certReconocimiento, labelKey: 'achievements.fullstack.reco' },
+                  ].map(({ cert, labelKey }, j) => (
                     <li key={j} className="text-sm text-neutral-400">
                       <button
                         type="button"
-                        onClick={(e) => openCert(cert, label, e)}
+                        onClick={(e) => openCert(cert, t(labelKey), e)}
                         className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
                       >
                         <span aria-hidden="true" className="text-neutral-600">→</span>
-                        <span>{label}</span>
+                        <span>{t(labelKey)}</span>
                         <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-brand-400/80 group-hover/cert:text-brand-300 underline-offset-4 group-hover/cert:underline transition-colors duration-200">
-                          ver
+                          {t('achievements.fullstack.view')}
                         </span>
                       </button>
                     </li>
