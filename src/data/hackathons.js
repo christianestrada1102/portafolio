@@ -67,6 +67,9 @@ export const hackathons = [
       'Presentación final',
       'Los Yuyines',
     ]),
+    coda: [
+      'Éramos seis, y la química que se formó en esas 48 horas fue lo mejor del hackathon. Fer, Saúl, Kikin, Mayrim, Leo y yo — cada quien con su parte, todos con las mismas ganas. Aunque el proyecto no se calificó como queríamos, lo terminamos después, lo subimos, y quedó. Yuyin existe. Eso no se pierde.',
+    ],
     story: [
       'El primer hackathon de verdad — 48 horas para construir una experiencia que enseñara a niños sobre el espacio. Después de una lluvia de ideas nos decidimos por este track: hacer un videojuego. Sí, un videojuego, sin idea de lo que eso implicaba. En la semana previa aprendimos a desarrollar un juego rebotando entre plataformas: primero pensamos en una web, pero no conocíamos nada de JS ni TypeScript. Optamos por un juego porque la mayoría del equipo tenía experiencia con C#. Probamos Unity — no entendíamos nada. Pasamos a Godot — lo mismo pero más limitado. Hasta llegamos a pensar en hacerlo en Roblox con Lua.',
       'Al final me puse a aprender Unity solo: me robé sprites y escenarios de internet y armé la primera demo de Yuyin, un minijuego de plataformas donde el objetivo era recolectar energía para la nave. Kikin y Mayrim investigaron Fungus para integrarlo a Unity y construir una novela visual interactiva como capa de aprendizaje. Llegamos al hackathon con todos los componentes preparados — no se podía empezar el proyecto antes. Nos dieron merch, la emoción estaba. Ver a más personas construyendo junto a nosotros fue algo único.',

@@ -486,7 +486,7 @@ function Arrangeable({ editor, ov = {}, onOv, textMode = false, children }) {
 // Layout editorial asimétrico: la foto principal rompe ancho, las secundarias
 // se flotan alternando lado (el texto las envuelve) y una ancha se desplaza
 // fuera del margen. Nada de rejillas cuadradas.
-function EditorialLayout({ photos, story, dropCap = true, editor = false, ovs = {}, onOv }) {
+function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, ovs = {}, onOv }) {
   const wrap = (idx, node) => (
     <Arrangeable editor={editor} ov={ovs[idx]} onOv={(patch) => onOv?.(idx, patch)}>
       {node}
@@ -599,6 +599,8 @@ function EditorialLayout({ photos, story, dropCap = true, editor = false, ovs = 
           </ScrollReveal>
         </div>
       )}
+
+      {coda && coda.length > 0 && textBlock('tD', coda)}
 
       {/* Sobrantes: par escalonado, o trío si hay 3+ */}
       {rest.length > 3 && (() => {
@@ -1533,6 +1535,7 @@ export default function HackathonsPage() {
             <EditorialLayout
               photos={h.photos}
               story={h.story}
+              coda={h.coda}
               editor={editorMode}
               ovs={layoutOv[h.id] ?? {}}
               onOv={(idx, patch) => setOv(h.id, idx, patch)}
