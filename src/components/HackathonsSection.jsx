@@ -63,6 +63,9 @@ const HACKATHONS = [
   },
 ];
 
+// Game Boy–ish CSS filter tuned to the #6046a0 purple palette
+const GAMEBOY_FILTER =
+  'grayscale(100%) sepia(60%) hue-rotate(220deg) saturate(400%) brightness(0.85) contrast(1.2)';
 
 // ── Pixel logo animation ───────────────────────────────────────────────────────
 
@@ -184,7 +187,8 @@ function PhotoSlot({ src, alt }) {
       <img
         src={src}
         alt={alt}
-        className="gbc-photo w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+        style={{ filter: GAMEBOY_FILTER }}
         loading="lazy"
       />
     </div>
