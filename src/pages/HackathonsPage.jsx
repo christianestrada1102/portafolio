@@ -56,8 +56,6 @@ const STRINGS = {
   },
 };
 
-const GBC_FILTER =
-  'grayscale(100%) sepia(60%) hue-rotate(220deg) saturate(450%) brightness(0.85) contrast(1.4)';
 
 // ── Photo components ───────────────────────────────────────────────────────────
 
@@ -262,12 +260,11 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
           alt={photo.caption || ''}
           onError={() => setBroken(true)}
           loading="lazy"
+          className="gbc-photo"
           style={{
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
             objectFit: 'cover', objectPosition: photo.pos ?? 'center', display: 'block',
-            filter: has8 ? 'none' : GBC_FILTER,
-            imageRendering: has8 ? 'auto' : 'pixelated',
           }}
         />
         {/* Capa 8-bit en canvas: se disuelve celda a celda */}
