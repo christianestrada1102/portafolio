@@ -497,7 +497,7 @@ function Arrangeable({ editor, ov = {}, onOv, textMode = false, children }) {
 // Layout editorial asimétrico: la foto principal rompe ancho, las secundarias
 // se flotan alternando lado (el texto las envuelve) y una ancha se desplaza
 // fuera del margen. Nada de rejillas cuadradas.
-function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, ovs = {}, onOv }) {
+function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, ovs = {}, onOv, mobile = false }) {
   const wrap = (idx, node) => (
     <Arrangeable editor={editor} ov={ovs[idx]} onOv={(patch) => onOv?.(idx, patch)}>
       {node}
@@ -549,11 +549,75 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
   // Foto ancha que se sale del margen de la columna
   const bleed = 'min(48px, 4vw)';
 
+  // ── Mobile: layout lineal apilado ──────────────────────────────────────────
+  if (mobile) {
+    const allPhotos = [main, ...rest];
+    return (
+      <>
+        {/* Foto principal: 16/9, ancho completo */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <ScrollReveal y={28}>
+            {wrap(0, <GBCPhoto photo={main} idx={0} ratio="16/9" />)}
+          </ScrollReveal>
+        </div>
+
+        {/* Texto bloque A */}
+        {textBlock('tA', blockA, { dropCap })}
+
+        {/* Foto secundaria 1 — 4/3 acotada */}
+        {rest[0] && (
+          <div style={{ margin: '1.25rem 0' }}>
+            <ScrollReveal y={24}>
+              {wrap(1, <GBCPhoto photo={rest[0]} idx={1} ratio="4/3" />)}
+            </ScrollReveal>
+          </div>
+        )}
+
+        {/* Texto bloque B */}
+        {textBlock('tB', blockB)}
+
+        {/* Foto secundaria 2 — 4/3 acotada */}
+        {rest[1] && (
+          <div style={{ margin: '1.25rem 0' }}>
+            <ScrollReveal y={24}>
+              {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="4/3" />)}
+            </ScrollReveal>
+          </div>
+        )}
+
+        {/* Texto bloque C */}
+        {textBlock('tC', blockC)}
+
+        {/* Foto ancha final */}
+        {rest[2] && (
+          <div style={{ margin: '1.5rem 0' }}>
+            <ScrollReveal y={28}>
+              {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="16/9" />)}
+            </ScrollReveal>
+          </div>
+        )}
+
+        {coda && coda.length > 0 && textBlock('tD', coda)}
+
+        {/* Sobrantes: 2 columnas en mobile */}
+        {rest.length > 3 && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', margin: '1.5rem 0 1rem' }}>
+            {rest.slice(3, 7).map((photo, i) => (
+              <ScrollReveal key={i} y={24} delay={i * 0.08}>
+                {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio="4/3" />)}
+              </ScrollReveal>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // ── Desktop: layout editorial con floats ────────────────────────────────────
   return (
     <>
       {/* Foto principal: panorámica, fuera de margen a ambos lados */}
       <div
-        className="hack-main-photo"
         style={{
           width: `calc(100% + ${bleed} * 2)`,
           marginLeft: `calc(${bleed} * -1)`,
@@ -1013,6 +1077,12 @@ export default function HackathonsPage() {
   }, []);
   const { lang, toggleLang }        = useLanguage();
   const L = STRINGS[lang] ?? STRINGS.es;
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
   const total = hackathons.length;
 
   // Saludo rotativo de la portada — scramble entre palabras
@@ -1537,6 +1607,7 @@ export default function HackathonsPage() {
                   photos={[]}
                   story={h.intro}
                   dropCap
+                  mobile={isMobile}
                   editor={editorMode}
                   ovs={layoutOv[`${h.id}#intro`] ?? {}}
                   onOv={(key, patch) => setOv(`${h.id}#intro`, key, patch)}
@@ -1549,6 +1620,7 @@ export default function HackathonsPage() {
                     photos={c.photos}
                     story={c.story}
                     dropCap={false}
+                    mobile={isMobile}
                     editor={editorMode}
                     ovs={layoutOv[`${h.id}#${i}`] ?? {}}
                     onOv={(idx, patch) => setOv(`${h.id}#${i}`, idx, patch)}
@@ -1561,6 +1633,7 @@ export default function HackathonsPage() {
               photos={h.photos}
               story={h.story}
               coda={h.coda}
+              mobile={isMobile}
               editor={editorMode}
               ovs={layoutOv[h.id] ?? {}}
               onOv={(idx, patch) => setOv(h.id, idx, patch)}
