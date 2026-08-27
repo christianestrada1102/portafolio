@@ -698,11 +698,14 @@ body {
 
 /* ── Mobile responsive fixes ── */
 
-/* Tech stack marquee: narrower fade edges so icons aren't hidden by gradients */
+/* Tech stack marquee: narrower fade edges + smaller icons on mobile */
 @media (max-width: 767px) {
   .logoloop--fade::before,
   .logoloop--fade::after {
     width: clamp(12px, 3%, 28px);
+  }
+  .tech-row {
+    height: 56px !important;
   }
 }
 
@@ -712,6 +715,9 @@ body {
     font-size: clamp(1.25rem, 5.5vw, 1.7rem) !important;
   }
 }
+
+/* ── Light theme: make sure interactive elements stay visible ── */
+/* Hamburger lines use bg-[var(--text-primary)] so they inherit theme color */
 
 /* ── HackathonsPage: responsive overrides ── */
 
@@ -729,6 +735,51 @@ body {
 @media (max-width: 479px) {
   .hack-nav-counter {
     display: none;
+  }
+}
+
+/* Hackathons TopNav touch targets */
+@media (max-width: 767px) {
+  .hack-topnav-btn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+}
+
+/* Hackathons cover hero: reduce sizes on mobile */
+@media (max-width: 767px) {
+  .hack-cover-ascii {
+    height: min(180px, 24vh) !important;
+  }
+  .hack-cover-h1 {
+    font-size: clamp(1.5rem, 6vw, 2.6rem) !important;
+    margin-bottom: 12px !important;
+  }
+  .hack-cover-p1 {
+    font-size: 15px !important;
+    line-height: 1.65 !important;
+  }
+  .hack-cover-p2 {
+    font-size: 13px !important;
+  }
+}
+
+/* Hackathons article: reduce title and body text on mobile */
+@media (max-width: 767px) {
+  .hack-article-title {
+    font-size: clamp(1.55rem, 6vw, 3rem) !important;
+  }
+  .hack-article-meta {
+    gap: 8px 0 !important;
+    margin-bottom: 28px !important;
+  }
+  .hack-article-prose p {
+    font-size: 15px !important;
+    line-height: 1.7 !important;
+  }
+  .hack-main-photo {
+    width: 100% !important;
+    margin-left: 0 !important;
   }
 }
 

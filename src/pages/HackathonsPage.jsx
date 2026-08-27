@@ -329,7 +329,7 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
 
 function Paragraphs({ paragraphs, dropCap = false, editor = false, onText }) {
   return (
-    <>
+    <div className="hack-article-prose">
       {paragraphs.map((text, i) => {
         // En modo editor el párrafo es texto plano editable (sin capitular,
         // que partiría el primer carácter)
@@ -374,7 +374,7 @@ function Paragraphs({ paragraphs, dropCap = false, editor = false, onText }) {
           </p>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -553,6 +553,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
     <>
       {/* Foto principal: panorámica, fuera de margen a ambos lados */}
       <div
+        className="hack-main-photo"
         style={{
           width: `calc(100% + ${bleed} * 2)`,
           marginLeft: `calc(${bleed} * -1)`,
@@ -735,8 +736,8 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang,
   const btn = {
     fontFamily: MONO,
     fontSize: '12px',
-    width: 30,
-    height: 30,
+    width: 44,
+    height: 44,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1397,13 +1398,14 @@ export default function HackathonsPage() {
             }}
           >
             {/* Saludo ASCII 3D (React Bits ASCIIText) */}
-            <div ref={asciiWrapRef} style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
+            <div ref={asciiWrapRef} className="hack-cover-ascii" style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
               <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
                 <ASCIIText text={coverWord} enableWaves asciiFontSize={8} />
               </div>
             </div>
 
             <h1
+              className="hack-cover-h1"
               style={{
                 fontFamily: SERIF,
                 fontSize: 'clamp(2.2rem, 5.5vw, 3.4rem)',
@@ -1420,10 +1422,10 @@ export default function HackathonsPage() {
               </em>
             </h1>
 
-            <p style={{ fontFamily: SERIF, fontSize: '19px', lineHeight: 1.75, color: C.prose, maxWidth: '560px', margin: '0 0 12px' }}>
+            <p className="hack-cover-p1" style={{ fontFamily: SERIF, fontSize: '19px', lineHeight: 1.75, color: C.prose, maxWidth: '560px', margin: '0 0 12px' }}>
               {L.coverP1}
             </p>
-            <p style={{ fontFamily: SANS, fontSize: '14px', color: C.muted, maxWidth: '560px', margin: '0 0 32px' }}>
+            <p className="hack-cover-p2" style={{ fontFamily: SANS, fontSize: '14px', color: C.muted, maxWidth: '560px', margin: '0 0 32px' }}>
               {L.coverP2}
             </p>
 
@@ -1471,6 +1473,7 @@ export default function HackathonsPage() {
 
           {/* Title */}
           <h1
+            className="hack-article-title"
             style={{
               fontFamily: SERIF,
               fontSize: 'clamp(2.4rem, 6vw, 3.6rem)',
@@ -1489,6 +1492,7 @@ export default function HackathonsPage() {
 
           {/* Meta row */}
           <div
+            className="hack-article-meta"
             style={{
               display: 'flex',
               flexWrap: 'wrap',

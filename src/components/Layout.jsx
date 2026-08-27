@@ -221,49 +221,67 @@ export default function Layout({ children }) {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="md:hidden flex flex-col gap-[5px] p-2 text-neutral-400 hover:text-white transition-colors"
             aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
+            className="md:hidden relative z-[60] flex flex-col justify-center items-center w-10 h-10 gap-[5px]"
           >
-            <span className={`block h-px w-5 bg-current transition-all duration-300 origin-center ${mobileOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
-            <span className={`block h-px w-5 bg-current transition-all duration-300 ${mobileOpen ? 'opacity-0 scale-x-0' : ''}`} />
-            <span className={`block h-px w-5 bg-current transition-all duration-300 origin-center ${mobileOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
+            <span className={`block h-px w-5 transition-all duration-300 origin-center ${mobileOpen ? 'rotate-45 translate-y-[6px]' : ''}`} style={{ background: 'var(--text-primary)' }} />
+            <span className={`block h-px w-5 transition-all duration-300 ${mobileOpen ? 'opacity-0 scale-x-0' : ''}`} style={{ background: 'var(--text-primary)' }} />
+            <span className={`block h-px w-5 transition-all duration-300 origin-center ${mobileOpen ? '-rotate-45 -translate-y-[6px]' : ''}`} style={{ background: 'var(--text-primary)' }} />
           </button>
         </div>
+      </header>
 
-        {/* Mobile menu */}
-        <div className={`md:hidden overflow-hidden transition-all duration-300 ${mobileOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-          <nav className="border-t border-neutral-800/60 bg-neutral-950/95 backdrop-blur-md p-8 flex flex-col gap-6">
+      {/* Mobile menu — dropdown */}
+      <div className={`md:hidden fixed top-16 left-0 right-0 z-40 overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen ? 'max-h-[420px] opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="backdrop-blur-md border-b border-neutral-800/60" style={{ background: 'color-mix(in srgb, var(--bg) 95%, transparent)' }}>
+          <nav className="px-6 py-5 flex flex-col">
             {NAV.map(({ href, key }) => (
               <button
                 key={href}
                 onClick={() => scrollTo(href)}
-                className={`text-left text-xl transition-colors duration-200 cursor-pointer ${
-                  active === href
-                    ? 'font-medium text-white'
-                    : 'text-neutral-400 hover:text-white'
-                }`}
+                className="py-3.5 border-b border-neutral-800/40 text-left cursor-pointer transition-colors duration-200 last:border-0"
+                style={{ color: active === href ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: active === href ? 500 : 400 }}
               >
-                {t(key)}
+                <span className="text-base tracking-wide">{t(key)}</span>
               </button>
             ))}
-            <button
-              onClick={() => { toggleLang(); setMobileOpen(false); }}
-              className="font-mono text-xl text-left text-neutral-400 cursor-pointer select-none hover:text-white transition-colors duration-200"
-              aria-label="Toggle language"
-            >
-              {lang === 'es' ? 'EN' : 'ES'}
-            </button>
-            <button
-              onClick={(e) => { toggleTheme(e); setMobileOpen(false); }}
-              className="font-mono text-xl text-left cursor-pointer select-none transition-colors duration-200"
-              style={{ color: '#7c3aed' }}
-              aria-label="Toggle theme"
-            >
-              {'<Theme/>'}
-            </button>
           </nav>
+
+          <div className="px-6 pb-5 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => { toggleLang(); setMobileOpen(false); }}
+                className="font-mono text-xs text-neutral-500 hover:text-white transition-colors duration-200 select-none"
+                aria-label="Toggle language"
+              >
+                {lang === 'es' ? 'EN' : 'ES'}
+              </button>
+              <button
+                onClick={(e) => { toggleTheme(e); setMobileOpen(false); }}
+                className="font-mono text-xs text-neutral-500 hover:text-white select-none transition-colors duration-200"
+                aria-label="Toggle theme"
+              >
+                {'<Theme/>'}
+              </button>
+            </div>
+            <div className="flex items-center gap-3.5">
+              {SOCIAL.map(({ href, Icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="text-neutral-500 hover:text-white transition-colors duration-200"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Icon size={15} />
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* ── Page content ── */}
       <main>{children}</main>

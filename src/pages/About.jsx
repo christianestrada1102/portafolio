@@ -197,12 +197,12 @@ export default function About() {
               logos={TECH_LOGOS}
               speed={70}
               direction="left"
-              logoHeight={32}
-              gap={48}
+              logoHeight={window.innerWidth < 768 ? 22 : 32}
+              gap={window.innerWidth < 768 ? 28 : 48}
               hoverSpeed={12}
               scaleOnHover
               fadeOut
-                            ariaLabel={t('about.stack.label')}
+              ariaLabel={t('about.stack.label')}
             />
           </div>
         </div>

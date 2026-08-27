@@ -58,7 +58,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
       setCard(mobile
         // móvil: cartas más pequeñas, sin tilt para evitar que el anillo se
         // desplace verticalmente por perspectiva, altura de escenario compacta
-        ? { w: 200, h: 125, hm: 2.0, tilt: 0 }
+        ? { w: 170, h: 106, hm: 2.2, tilt: 0 }
         : { w: 320, h: 200, hm: 2.1, tilt: -7 });
     };
     set();
