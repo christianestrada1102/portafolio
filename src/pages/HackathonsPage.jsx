@@ -1,5 +1,5 @@
 import { useRef, useLayoutEffect, useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { hackathons } from '../data/hackathons';
 import savedLayouts from '../data/layouts.json';
@@ -149,8 +149,19 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
         const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
         const dw = img.naturalWidth * scale;
         const dh = img.naturalHeight * scale;
+        // Parsear photo.pos para replicar object-position en el canvas
+        const pos = (photo.pos ?? 'center').split(' ');
+        const parseAxis = (val, overflow) => {
+          if (!val || val === 'center') return -overflow / 2;
+          if (val === 'top' || val === 'left')   return 0;
+          if (val === 'bottom' || val === 'right') return -overflow;
+          if (val.endsWith('%')) return -(parseFloat(val) / 100) * overflow;
+          return -overflow / 2;
+        };
+        const ox = parseAxis(pos[0], dw - w);
+        const oy = parseAxis(pos[1] ?? pos[0], dh - h);
         offCtx.clearRect(0, 0, w, h);
-        offCtx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+        offCtx.drawImage(img, ox, oy, dw, dh);
       } else {
         offCtx.fillStyle = '#0f0820';
         offCtx.fillRect(0, 0, w, h);
@@ -555,7 +566,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
 
       {/* Bloque 1: primera foto secundaria flotada a la derecha */}
       {rest[0] && (
-        <div style={floatBox('right')}>
+        <div className="hack-float-r" style={floatBox('right')}>
           <ScrollReveal x={44} y={24} tilt={1.4} delay={0.1}>
             {wrap(1, <GBCPhoto photo={rest[0]} idx={1} ratio="4/5" />)}
           </ScrollReveal>
@@ -566,7 +577,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
 
       {/* Bloque 2: foto vertical flotada a la izquierda */}
       {rest[1] && blockB.length > 0 && (
-        <div style={floatBox('left')}>
+        <div className="hack-float-l" style={floatBox('left')}>
           <ScrollReveal x={-44} y={24} tilt={-1.2}>
             {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="3/4" />)}
           </ScrollReveal>
@@ -800,7 +811,7 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang,
             <button type="button" onClick={onPrev} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Anterior">
               ◀
             </button>
-            <span style={{ fontFamily: MONO, fontSize: '11px', color: C.muted, letterSpacing: '0.1em', minWidth: 52, textAlign: 'center', textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)' }}>
+            <span className="hack-nav-counter" style={{ fontFamily: MONO, fontSize: '11px', color: C.muted, letterSpacing: '0.1em', minWidth: 52, textAlign: 'center', textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)' }}>
               {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
             </span>
             <button type="button" onClick={onNext} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Siguiente">
@@ -936,6 +947,7 @@ function KeyHint({ text }) {
 
 export default function HackathonsPage() {
   const navigate    = useNavigate();
+  const location    = useLocation();
   const contentRef  = useRef(null);
   const articleRef  = useRef(null);
   const passOverlayRef = useRef(null);
@@ -948,11 +960,20 @@ export default function HackathonsPage() {
   const touchStartX = useRef(null);
   const mountedRef  = useRef(false);
 
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [started, setStarted]       = useState(false);
-  // La portada no arranca (rotación del saludo) hasta que el intro termina
-  const [introDone, setIntroDone]   = useState(false);
-  const handleIntroDone = useCallback(() => setIntroDone(true), []);
+  // Soporte para deep-link desde el portfolio (?h=2) y desde location.state
+  const _params  = new URLSearchParams(location.search);
+  const deepIdx  = _params.has('h')
+    ? parseInt(_params.get('h'), 10)
+    : (location.state?.idx ?? null);
+  const [currentIdx, setCurrentIdx] = useState(deepIdx ?? 0);
+  // Si viene del portfolio el hackathon ya está listo debajo; PixelIntro corre encima como overlay
+  const [started, setStarted]     = useState(deepIdx != null);
+  const [introDone, setIntroDone] = useState(false);
+  const handleIntroDone = useCallback(() => {
+    setIntroDone(true);
+    if (deepIdx == null) return; // portada normal: el CTA button activa started
+    // deepIdx: ya estaba started=true, nada más que hacer
+  }, [deepIdx]);
 
   // Modo editor (?editor=1): arrastra fotos para acomodarlas; los overrides
   // viven en localStorage y se exportan a src/data/layouts.json para producción
@@ -1345,7 +1366,7 @@ export default function HackathonsPage() {
       {/* Content wrapper — max 880px, centered */}
       <div
         ref={contentRef}
-        style={{ maxWidth: '880px', margin: '0 auto', padding: '0 36px', position: 'relative', zIndex: 1, opacity: 0 }}
+        style={{ maxWidth: '880px', margin: '0 auto', position: 'relative', zIndex: 1, opacity: 0 }}
         className="px-5 md:px-9"
       >
         {/* Top nav */}
@@ -1363,7 +1384,7 @@ export default function HackathonsPage() {
         <div style={{ height: '84px' }} aria-hidden="true" />
 
         {/* ── Portada: bienvenida a la bitácora ── */}
-        {!started && (
+        {!started && deepIdx == null && (
           <section
             style={{
               minHeight: 'calc(100vh - 160px)',

@@ -3,118 +3,89 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-import ScrambleButton from '../components/ScrambleButton';
 import { useLanguage } from '../context/LanguageContext';
 import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ENDPOINT = 'https://christian-estrada-backend.onrender.com/api/sendEmail';
+const BACKEND = import.meta.env.VITE_BACKEND_URL ?? 'https://portafolioweb-backend.onrender.com';
+const EMAIL   = 'christianestrada1102.dev@gmail.com';
 
 const SOCIAL = [
   { Icon: FaGithub,    label: 'GitHub',    href: 'https://github.com/christianestrada1102' },
   { Icon: FaLinkedin,  label: 'LinkedIn',  href: 'https://www.linkedin.com/in/christian-estrada-a59130386/' },
-  { Icon: FaXTwitter,  label: 'Twitter/X', href: 'https://x.com/CodeByNAS' },
+  { Icon: FaXTwitter,  label: 'X',         href: 'https://x.com/CodeByNAS' },
   { Icon: FaInstagram, label: 'Instagram', href: 'https://www.instagram.com/christian_estrada1102' },
 ];
 
-export default function Contact() {
-  const [form,    setForm]    = useState({ name: '', email: '', subject: '', message: '' });
-  const [status,  setStatus]  = useState('idle');
-  const [errors,  setErrors]  = useState({});
-  const [touched, setTouched] = useState({});
-  const containerRef          = useRef(null);
-  const { t }                 = useLanguage();
+const EMPTY = { name: '', email: '', subject: '', message: '' };
 
-  const validate = (name, value) => {
-    if (name === 'name')    return value.length < 2    ? t('contact.validate.name')     : null;
-    if (name === 'email')   return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? t('contact.validate.email') : null;
-    if (name === 'subject') return !value.trim()       ? t('contact.validate.required') : null;
-    if (name === 'message') return value.length < 20   ? t('contact.validate.message')  : null;
-    return null;
-  };
+function validate(fields, t) {
+  const errors = {};
+  if (!fields.name.trim() || fields.name.trim().length < 2)      errors.name    = t('contact.validate.name');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))          errors.email   = t('contact.validate.email');
+  if (!fields.subject.trim())                                      errors.subject = t('contact.validate.required');
+  if (!fields.message.trim() || fields.message.trim().length < 20) errors.message = t('contact.validate.message');
+  return errors;
+}
+
+export default function Contact() {
+  const [fields,      setFields]      = useState(EMPTY);
+  const [errors,      setErrors]      = useState({});
+  const [status,      setStatus]      = useState('idle'); // idle | sending | success | error
+  const containerRef                   = useRef(null);
+  const { t }                          = useLanguage();
 
   useLayoutEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) return;
-
     const ctx = gsap.context(() => {
       revealHeaders(containerRef.current);
-
       gsap.utils.toArray('[data-reveal]', containerRef.current).forEach((el) => {
         gsap.from(el, {
-          y: 40,
-          opacity: 0,
-          duration: 0.65,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 88%',
-            toggleActions: 'play none none none',
-          },
+          y: 32, opacity: 0, duration: 0.6, ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
         });
       });
     }, containerRef);
-
     return () => ctx.revert();
   }, []);
 
-  const handleChange = (e) => {
+  const change = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validate(name, value) }));
-    }
+    setFields((f) => ({ ...f, [name]: value }));
+    if (errors[name]) setErrors((er) => { const n = { ...er }; delete n[name]; return n; });
   };
 
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors((prev) => ({ ...prev, [name]: validate(name, value) }));
-  };
-
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    const allErrors = {};
-    Object.entries(form).forEach(([k, v]) => { allErrors[k] = validate(k, v); });
-    setErrors(allErrors);
-    setTouched({ name: true, email: true, subject: true, message: true });
-    if (Object.values(allErrors).some(Boolean)) return;
-
-    setStatus('loading');
+    const errs = validate(fields, t);
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    setStatus('sending');
     try {
-      const controller = new AbortController();
-      const timeout    = setTimeout(() => controller.abort(), 30_000);
-      const res = await fetch(ENDPOINT, {
-        method:  'POST',
+      const ctrl = new AbortController();
+      const tid  = setTimeout(() => ctrl.abort(), 30000);
+      const res  = await fetch(`${BACKEND}/api/sendEmail`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(form),
-        signal:  controller.signal,
+        body: JSON.stringify(fields),
+        signal: ctrl.signal,
       });
-      clearTimeout(timeout);
-      if (!res.ok) throw new Error('Server error');
+      clearTimeout(tid);
+      if (!res.ok) throw new Error('server');
       setStatus('success');
-      setForm({ name: '', email: '', subject: '', message: '' });
-      setErrors({});
-      setTouched({});
+      setFields(EMPTY);
     } catch {
       setStatus('error');
     }
   };
 
-  const getInputCls = (field) => {
-    const hasError = touched[field] && errors[field];
-    return `w-full bg-transparent border-0 border-b ${
-      hasError ? 'border-red-500/50 focus:border-red-400' : 'border-neutral-800 focus:border-[#7c3aed]'
-    } text-white text-sm px-0 py-3 placeholder:text-neutral-600 focus:outline-none transition-colors duration-300`;
-  };
-
   return (
-    <section id="contact" ref={containerRef} className="pt-6 pb-12 md:pt-10 md:pb-16">
+    <section id="contact" ref={containerRef} className="pt-6 pb-16 md:pt-10 md:pb-24">
       <div className="max-w-6xl mx-auto px-4 md:px-6">
 
         {/* ── Header ── */}
-        <div className="mb-8">
+        <div className="mb-10 md:mb-14">
           <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
             {t('contact.label')}
           </p>
@@ -126,181 +97,122 @@ export default function Contact() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-10 md:gap-20">
+        {/* ── Layout: formulario + sidebar ── */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-12 md:gap-20">
 
-          {/* ── Form ── */}
-          <div data-reveal className="order-2 md:order-1">
-            <p className="text-neutral-400 text-sm mb-8 leading-relaxed">
-              {t('contact.form.description')}
-            </p>
-
+          {/* Formulario */}
+          <div data-reveal>
             {status === 'success' ? (
-              <div className="py-12 text-center space-y-3">
-                <div className="w-10 h-10 rounded-sm bg-brand-400/10 border border-brand-400/20 flex items-center justify-center mx-auto">
-                  <span className="text-brand-400 text-lg">✓</span>
-                </div>
-                <p className="text-white font-medium">{t('contact.success.message')}</p>
-                <p className="text-neutral-400 text-sm">{t('contact.success.sub')}</p>
+              <div className="py-12">
+                <p className="text-white text-xl font-semibold mb-1">{t('contact.success.message')}</p>
+                <p className="text-neutral-400 text-sm mb-6">{t('contact.success.sub')}</p>
                 <button
                   onClick={() => setStatus('idle')}
-                  className="mt-4 font-mono text-xs text-brand-400 hover:text-brand-300 transition-colors duration-200"
+                  className="font-mono text-xs uppercase tracking-[0.18em] text-brand-400 hover:text-white transition-colors duration-200"
                 >
                   {t('contact.success.another')}
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-7" noValidate>
-                {/* Name + Email */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                  <div>
-                    <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
-                      {t('contact.form.name.label')}
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={form.name}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder={t('contact.form.name.ph')}
-                      minLength={2}
-                      required
-                      className={getInputCls('name')}
-                    />
-                    {touched.name && errors.name && (
-                      <p className="text-xs text-red-400 mt-1">{errors.name}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
-                      {t('contact.form.email.label')}
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      placeholder={t('contact.form.email.ph')}
-                      required
-                      className={getInputCls('email')}
-                    />
-                    {touched.email && errors.email && (
-                      <p className="text-xs text-red-400 mt-1">{errors.email}</p>
-                    )}
-                  </div>
+              <form onSubmit={submit} noValidate className="flex flex-col gap-8">
+
+                {/* Fila nombre + email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <Field label={t('contact.form.name.label')}    name="name"    type="text"  placeholder={t('contact.form.name.ph')}    value={fields.name}    onChange={change} error={errors.name} />
+                  <Field label={t('contact.form.email.label')}   name="email"   type="email" placeholder={t('contact.form.email.ph')}   value={fields.email}   onChange={change} error={errors.email} />
                 </div>
 
-                {/* Subject */}
-                <div>
-                  <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
-                    {t('contact.form.subject.label')}
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={form.subject}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder={t('contact.form.subject.ph')}
-                    required
-                    className={getInputCls('subject')}
-                  />
-                  {touched.subject && errors.subject && (
-                    <p className="text-xs text-red-400 mt-1">{errors.subject}</p>
-                  )}
-                </div>
+                <Field label={t('contact.form.subject.label')} name="subject" type="text" placeholder={t('contact.form.subject.ph')} value={fields.subject} onChange={change} error={errors.subject} />
 
-                {/* Message */}
-                <div>
-                  <label className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-1.5">
-                    {t('contact.form.message.label')}
-                  </label>
-                  <textarea
-                    name="message"
-                    value={form.message}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder={t('contact.form.message.ph')}
-                    required
-                    rows={5}
-                    className={`${getInputCls('message')} resize-none`}
-                  />
-                  <div className="flex items-center justify-between mt-1">
-                    {touched.message && errors.message ? (
-                      <p className="text-xs text-red-400">{errors.message}</p>
-                    ) : (
-                      <span />
-                    )}
-                    <p className="text-xs font-mono text-neutral-500">
-                      {form.message.length}/20
-                    </p>
-                  </div>
-                </div>
+                <Field label={t('contact.form.message.label')} name="message" type="textarea" placeholder={t('contact.form.message.ph')} value={fields.message} onChange={change} error={errors.message} rows={5} />
 
                 {status === 'error' && (
-                  <p className="font-mono text-xs text-red-400">
-                    {t('contact.form.error')}
-                  </p>
+                  <p className="text-red-400 text-sm font-mono">{t('contact.form.error')}</p>
                 )}
 
-                <ScrambleButton
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="bg-white hover:bg-neutral-200 text-neutral-950 text-sm font-medium rounded-sm px-8 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                >
-                  {status === 'loading' ? t('contact.form.submitting') : t('contact.form.submit')}
-                </ScrambleButton>
+                <div>
+                  <button
+                    type="submit"
+                    disabled={status === 'sending'}
+                    className="c-submit w-full sm:w-auto font-mono text-sm uppercase tracking-[0.18em] px-8 py-3 border border-neutral-600 text-neutral-300 hover:border-white hover:text-white disabled:opacity-40 transition-all duration-200 rounded-sm"
+                  >
+                    {status === 'sending' ? t('contact.form.submitting') : t('contact.form.submit')}
+                  </button>
+                </div>
+
               </form>
             )}
           </div>
 
-          {/* ── Contact info ── */}
-          <div data-reveal className="order-1 md:order-2 space-y-6 md:space-y-8">
+          {/* Sidebar: contacto directo */}
+          <div data-reveal className="flex flex-col gap-8 md:pt-1">
+
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-500 mb-3">
                 {t('contact.direct.label')}
               </p>
-              <div className="space-y-3">
-                {[
-                  { labelKey: 'contact.direct.email', value: 'christianestrada1102.dev@gmail.com', href: 'mailto:christianestrada1102.dev@gmail.com' },
-                  { labelKey: 'contact.direct.phone', value: '+52 614 107 0683',                   href: 'tel:+526141070683' },
-                ].map(({ labelKey, value, href }) => (
-                  <div key={labelKey}>
-                    <p className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">
-                      {t(labelKey)}
-                    </p>
-                    <a href={href} className="text-neutral-300 text-sm hover:text-white transition-colors duration-200 break-all">
-                      {value}
-                    </a>
-                  </div>
-                ))}
-              </div>
+              <a
+                href={`mailto:${EMAIL}`}
+                className="block text-sm text-neutral-300 hover:text-white transition-colors duration-200 break-all leading-relaxed"
+              >
+                {EMAIL}
+              </a>
+              <a
+                href="tel:+526141070683"
+                className="block text-sm text-neutral-400 hover:text-white transition-colors duration-200 mt-1"
+              >
+                +52 614 107 0683
+              </a>
             </div>
 
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-500 mb-3">
                 {t('contact.social.label')}
               </p>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-2">
                 {SOCIAL.map(({ Icon, label, href }) => (
                   <a
                     key={label}
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={label}
-                    className="text-neutral-400 hover:text-white transition-colors duration-200"
+                    className="flex items-center gap-2.5 text-neutral-400 hover:text-white transition-colors duration-200 w-fit"
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-sm">{label}</span>
                   </a>
                 ))}
               </div>
             </div>
-          </div>
 
+          </div>
         </div>
+
       </div>
     </section>
+  );
+}
+
+function Field({ label, name, type, placeholder, value, onChange, error, rows }) {
+  return (
+    <div className="c-field-wrap">
+      <label htmlFor={name} className="block font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500 mb-2">
+        {label}
+      </label>
+      {type === 'textarea' ? (
+        <textarea
+          id={name} name={name} rows={rows ?? 4}
+          placeholder={placeholder} value={value} onChange={onChange}
+          className={`c-field w-full bg-transparent resize-none text-sm text-white placeholder-neutral-600 border-b py-2 outline-none transition-colors duration-200 ${error ? 'border-red-500' : 'border-neutral-700 focus:border-brand-400'}`}
+        />
+      ) : (
+        <input
+          id={name} name={name} type={type}
+          placeholder={placeholder} value={value} onChange={onChange}
+          className={`c-field w-full bg-transparent text-sm text-white placeholder-neutral-600 border-b py-2 outline-none transition-colors duration-200 ${error ? 'border-red-500' : 'border-neutral-700 focus:border-brand-400'}`}
+        />
+      )}
+      {error && <p className="mt-1.5 font-mono text-[10px] text-red-400 tracking-wide">{error}</p>}
+    </div>
   );
 }

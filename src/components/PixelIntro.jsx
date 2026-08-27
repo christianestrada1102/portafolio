@@ -160,25 +160,36 @@ export default function PixelIntro({ onDone }) {
       return null;
     };
 
-    // ── Disolve 8-bit: el fondo se descompone en bloques que desaparecen
-    //    radialmente desde el centro, con borde irregular por ruido ──
-    const BLOCK = 18;
+    // ── Salida: dispersión de pixeles. La capa se trocea en bloques que
+    //    mueren en orden aleatorio: cada uno se encoge y se desvía un poco,
+    //    como si el fondo se esparciera revelando la página debajo ──
+    const BLOCK = 16;
     const bw = Math.ceil(w / BLOCK);
     const bh = Math.ceil(h / BLOCK);
     const blockThr = new Float32Array(bw * bh);
+    const driftX = new Float32Array(bw * bh);
+    const driftY = new Float32Array(bw * bh);
     for (let by = 0; by < bh; by++) {
       for (let bx = 0; bx < bw; bx++) {
-        const px = bx * BLOCK + BLOCK / 2;
-        const py = by * BLOCK + BLOCK / 2;
-        blockThr[by * bw + bx] = Math.hypot(px - cx, py - cy) + Math.random() * 170;
+        const i = by * bw + bx;
+        blockThr[i] = Math.random() * 0.9;
+        const ang = Math.random() * Math.PI * 2;
+        const mag = 14 + Math.random() * 34;
+        driftX[i] = Math.cos(ang) * mag;
+        driftY[i] = Math.sin(ang) * mag;
       }
     }
-    const hole = { r: 0 };
+    const FADE = 0.16; // tramo de progreso que tarda cada bloque en morir
+    const prog = { p: 0 };
+    const lifeAt = (bx, by) => {
+      const t = (prog.p - blockThr[by * bw + bx]) / FADE;
+      return t <= 0 ? 0 : t >= 1 ? 1 : t;
+    };
     const revealedAt = (x, y) => {
-      if (hole.r <= 0) return false;
+      if (prog.p <= 0) return false;
       const bx = Math.min(bw - 1, Math.max(0, Math.floor(x / BLOCK)));
       const by = Math.min(bh - 1, Math.max(0, Math.floor(y / BLOCK)));
-      return hole.r >= blockThr[by * bw + bx];
+      return lifeAt(bx, by) > 0.4;
     };
 
     let raf;
@@ -191,15 +202,28 @@ export default function PixelIntro({ onDone }) {
 
       ctx.clearRect(0, 0, w, h);
 
-      // Fondo: entero antes de la salida; por bloques durante el disolve
+      // Fondo: entero antes de la salida; durante ella cada bloque se
+      // encoge y se desvía según su vida (dispersión, no círculo)
       ctx.fillStyle = '#0a0610';
-      if (hole.r <= 0) {
+      if (prog.p <= 0) {
         ctx.fillRect(0, 0, w, h);
       } else {
         for (let by = 0; by < bh; by++) {
           for (let bx = 0; bx < bw; bx++) {
-            if (hole.r < blockThr[by * bw + bx]) {
+            const life = lifeAt(bx, by);
+            if (life >= 1) continue;
+            if (life <= 0) {
               ctx.fillRect(bx * BLOCK, by * BLOCK, BLOCK, BLOCK);
+            } else {
+              const i = by * bw + bx;
+              const size = BLOCK * (1 - life);
+              ctx.globalAlpha = 1 - life * 0.6;
+              ctx.fillRect(
+                bx * BLOCK + (BLOCK - size) / 2 + driftX[i] * life,
+                by * BLOCK + (BLOCK - size) / 2 + driftY[i] * life,
+                size, size,
+              );
+              ctx.globalAlpha = 1;
             }
           }
         }
@@ -225,13 +249,12 @@ export default function PixelIntro({ onDone }) {
     };
     raf = requestAnimationFrame(loop);
 
-    // ── Salida: el radio del disolve crece hasta consumir toda la capa ──
-    const maxR = Math.hypot(w, h) / 2 + 220;
-    const exit = gsap.to(hole, {
-      r: maxR,
+    // ── Salida: el progreso barre todos los umbrales y la capa se esparce ──
+    const exit = gsap.to(prog, {
+      p: 1.1, // rebasa el último umbral (0.9) más su fade (0.16)
       delay: 2.1,
-      duration: 1.1,
-      ease: 'power2.inOut',
+      duration: 1.15,
+      ease: 'power1.inOut',
       onComplete: () => {
         cancelAnimationFrame(raf);
         setGone(true);

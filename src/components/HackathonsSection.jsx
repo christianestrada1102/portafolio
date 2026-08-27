@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -19,6 +20,7 @@ const getImages = (folder) =>
 const HACKATHONS = [
   {
     id: 'nasa',
+    pageIdx: 2,
     folder: 'nasa-space-apps',
     date: 'Oct 2025',
     name: 'NASA Space Apps Challenge',
@@ -30,6 +32,7 @@ const HACKATHONS = [
   },
   {
     id: 'ethmty',
+    pageIdx: 4,
     folder: 'eth-mexico',
     date: 'Nov 2025',
     name: 'ETH Mexico MTY',
@@ -41,6 +44,7 @@ const HACKATHONS = [
   },
   {
     id: 'icatech',
+    pageIdx: 3,
     folder: 'icatech',
     date: '2025',
     name: 'MIT · ICATECH Hackathon',
@@ -52,6 +56,7 @@ const HACKATHONS = [
   },
   {
     id: 'hacklatam',
+    pageIdx: 6,
     folder: 'hack-latam',
     date: '2026',
     name: 'hack@latam',
@@ -201,6 +206,7 @@ function HackBlock({ h, index }) {
   const images  = getImages(h.folder);
   const slots   = [images[0] ?? null, images[1] ?? null, images[2] ?? null];
   const isEven  = index % 2 === 0;
+  const navigate = useNavigate();
 
   const scrollToProjects = () => {
     const el = document.getElementById(h.project.id);
@@ -210,7 +216,10 @@ function HackBlock({ h, index }) {
   };
 
   return (
-    <div className="py-14 md:py-16">
+    <div
+      className="py-14 md:py-16 cursor-pointer"
+      onClick={() => navigate(`/hackathons?h=${h.pageIdx ?? 0}`)}
+    >
       <div
         className={`flex flex-col gap-10 md:gap-14 md:flex-row ${
           !isEven ? 'md:flex-row-reverse' : ''

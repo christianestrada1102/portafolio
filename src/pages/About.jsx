@@ -192,7 +192,7 @@ export default function About() {
           <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-6">
             {t('about.stack.label')}
           </p>
-          <div className="tech-row relative overflow-hidden text-neutral-400" style={{ height: '64px' }}>
+          <div className="tech-row relative overflow-hidden text-neutral-400" style={{ height: '80px' }}>
             <LogoLoop
               logos={TECH_LOGOS}
               speed={70}

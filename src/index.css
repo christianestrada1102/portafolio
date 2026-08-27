@@ -696,6 +696,42 @@ body {
   }
 }
 
+/* ── Mobile responsive fixes ── */
+
+/* Tech stack marquee: narrower fade edges so icons aren't hidden by gradients */
+@media (max-width: 767px) {
+  .logoloop--fade::before,
+  .logoloop--fade::after {
+    width: clamp(12px, 3%, 28px);
+  }
+}
+
+/* Achievements: reduce title size on mobile so rows don't overflow */
+@media (max-width: 639px) {
+  .ach-title {
+    font-size: clamp(1.25rem, 5.5vw, 1.7rem) !important;
+  }
+}
+
+/* ── HackathonsPage: responsive overrides ── */
+
+/* Float images stack vertically on mobile instead of wrapping text */
+@media (max-width: 639px) {
+  .hack-float-r,
+  .hack-float-l {
+    float: none !important;
+    width: 100% !important;
+    margin: 0 0 1.5rem !important;
+  }
+}
+
+/* Hide the 01/07 counter in TopNav on very narrow screens */
+@media (max-width: 479px) {
+  .hack-nav-counter {
+    display: none;
+  }
+}
+
 /* ── Projects: lista editorial ── */
 .project-preview-media {
   position: absolute;
@@ -883,10 +919,81 @@ html[data-theme='light']::view-transition-new(root) {
 .ach-bg-fade {
   background: linear-gradient(90deg, var(--bg) 0%, transparent 38%, transparent 72%, var(--bg) 100%);
 }
+.ach-bg-mono {
+  filter: grayscale(1) brightness(0.92);
+}
+.ach-bg-color {
+  -webkit-mask-image: radial-gradient(circle 320px at var(--mx, 50%) var(--my, 50%), rgb(0 0 0) 25%, transparent 72%);
+  mask-image: radial-gradient(circle 320px at var(--mx, 50%) var(--my, 50%), rgb(0 0 0) 25%, transparent 72%);
+}
+@media (prefers-reduced-motion: reduce), (hover: none) {
+  .ach-bg-mono { filter: none; }
+  .ach-bg-color { display: none; }
+}
 /* En tema claro las fotos se lavan sobre fondo claro: más presencia */
 [data-theme="light"] .ach-row:hover .ach-bg {
   opacity: 0.6;
 }
 @media (prefers-reduced-motion: reduce) {
   .ach-bg { transition: opacity 0.2s ease; transform: none; }
+}
+
+/* ── Achievements hover roll effect ── */
+.ach-roll {
+  display: block;
+  overflow: hidden;
+}
+.ach-roll-inner {
+  display: block;
+  position: relative;
+  transition: transform 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.ach-row:hover .ach-roll-inner {
+  transform: translateY(-100%);
+}
+.ach-hacks:hover .ach-row:not(:hover) .ach-title,
+.ach-hacks:hover .ach-row:not(:hover) .ach-title .accent-subtle {
+  color: #52525b;
+}
+.ach-hacks:hover .ach-row:not(:hover) .ach-date,
+.ach-hacks:hover .ach-row:not(:hover) .ach-result {
+  color: #3f3f46;
+}
+.ach-hacks .ach-title,
+.ach-hacks .ach-title .accent-subtle,
+.ach-hacks .ach-date,
+.ach-hacks .ach-result {
+  transition: color 0.25s ease;
+}
+[data-theme="light"] .ach-hacks:hover .ach-row:not(:hover) .ach-title,
+[data-theme="light"] .ach-hacks:hover .ach-row:not(:hover) .ach-title .accent-subtle {
+  color: #b8b8c0;
+}
+[data-theme="light"] .ach-hacks:hover .ach-row:not(:hover) .ach-date,
+[data-theme="light"] .ach-hacks:hover .ach-row:not(:hover) .ach-result {
+  color: #cdcdd4;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ach-roll-inner { transition: none; }
+  .ach-row:hover .ach-roll-inner { transform: none; }
+}
+
+/* ── Contact form fields ── */
+.c-field {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.c-field::placeholder {
+  color: #404040;
+}
+[data-theme="light"] .c-field {
+  color: #111111;
+}
+[data-theme="light"] .c-field::placeholder {
+  color: #999999;
+}
+[data-theme="light"] .c-field:not(.border-red-500) {
+  border-color: #cccccc;
+}
+[data-theme="light"] .c-field:focus:not(.border-red-500) {
+  border-color: #7c3aed;
 }

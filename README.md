@@ -21,7 +21,7 @@
 
 ## About
 
-A professional web portfolio designed and built from scratch, focused on smooth motion design, a custom theming system, and bilingual support — all without relying on heavy external libraries beyond GSAP.
+A professional web portfolio designed and built from scratch, focused on smooth motion design, a custom theming system, bilingual support, and a standalone hackathon archive — all without relying on heavy external libraries beyond GSAP and Framer Motion.
 
 > Built and maintained by **[Christian Estrada](https://github.com/christianestrada1102)** (@CodeByNas)
 > Chihuahua, Mexico
@@ -32,16 +32,19 @@ A professional web portfolio designed and built from scratch, focused on smooth 
 
 | Feature | Description |
 |---|---|
-| 🎬 GSAP Animations | Staggered letter entrance, hero parallax, scroll-reveal in every section, infinite project carousel via ScrollTrigger |
-| 🚀 Animated Preloader | Intro screen built with GSAP, always renders in dark theme regardless of active theme |
-| ✨ ScrambleButton | Custom button component with character-scramble effect on hover, built with a GSAP timeline |
-| 🌗 Light / Dark Theme | CSS variable system (`data-theme`) with 6 semantic tokens, persisted in `localStorage`, zero flash on load via inline `<head>` script |
-| 🌍 Manual i18n (ES/EN) | Zero-dependency translation system — flat key dictionary + `LanguageContext` with `useCallback` |
+| 🎬 GSAP Animations | Staggered letter entrance, hero parallax, scroll-reveal in every section, boarding-pass transition in `/hackathons` |
+| 🚀 Pixel Intro | `/hackathons` entry screen: pixels scatter randomly using per-block threshold + drift vectors; gated before cover starts |
+| ✈️ Boarding Pass | Animated airline-ticket overlay on article open — route line + plane fly CUU→MTY, stamp drops, GSAP timeline |
+| ✨ ScrambleButton | Custom button with character-scramble on hover, GSAP timeline |
+| 🌗 Light / Dark Theme | CSS variable system (`data-theme`) with semantic tokens, persisted in `localStorage`, zero flash via inline `<head>` script |
+| 🌍 Manual i18n (ES/EN) | Zero-dependency translation system — flat key dictionary + `LanguageContext` |
 | 🖱️ Lenis Smooth Scroll | Integrated with GSAP ScrollTrigger for precise scroll-driven animations |
-| ♾️ Infinite Carousel | Perfect loop via GSAP proxy + modulo math, zero visible cut frame |
-| 📱 Mobile Responsive | Improved hamburger menu, hero repositioned to lower third, clamp-based fluid typography |
-| 📬 Functional Contact Form | Express backend + Resend API on Render, 30s timeout with `AbortController` |
-| ♿ Accessibility | `prefers-reduced-motion`, `aria-hidden` on carousel clones, proper heading hierarchy, optimal contrast |
+| 🃏 Projects Ring | 3D rotating card ring built with Three.js; click to open modal with project detail |
+| 📬 Functional Contact Form | Express backend + Resend API on Render; 30 s `AbortController` timeout |
+| 🏆 Achievements Hover | Title roll + sibling dimming + cursor color-bloom (radial CSS mask) on certs and hackathon rows |
+| 📄 Hackathon Archive | Standalone `/hackathons` — per-article navigation (keyboard ← →, swipe), data in `src/data/hackathons.js` |
+| 🔍 404 Page | Scramble + magnetic effect on digits; `sessionStorage` guard against loops |
+| ♿ Accessibility | `prefers-reduced-motion`, `aria-hidden` on decorative clones, proper heading hierarchy, `aria-live` on dynamic text |
 
 ---
 
@@ -59,19 +62,24 @@ A professional web portfolio designed and built from scratch, focused on smooth 
 
 ```
 React 18                 → UI, lazy loading, Suspense
-Vite 5                   → Dev server, build, code splitting
+Vite 5                   → Dev server, build, code splitting (vendor / motion / three chunks)
 TailwindCSS 3            → Utility-first styling
-GSAP 3 + ScrollTrigger   → Animations, carousel, parallax
-Lenis                    → Smooth scroll integrated with GSAP
-React Icons              → SVG icons (FaGithub, SiReact, etc.)
+GSAP 3 + ScrollTrigger   → Timelines, scroll reveals, boarding-pass animation
+Framer Motion            → Page transitions
+Lenis                    → Smooth scroll synchronized with gsap.ticker
+React Router DOM v6      → Client-side routing; vercel.json rewrites all paths to index.html
+vite-imagetools          → WebP/AVIF via ?as=picture imports
+React Icons              → SVG icons (FaGithub, FaLinkedin, FaXTwitter, etc.)
+@vercel/analytics        → Vercel Web Analytics
+Three.js                 → 3D projects ring (separate chunk)
 ```
 
 ### Backend
 
 ```
 Node.js + Express        → POST /api/sendEmail endpoint
-Resend API                → Transactional emails
-Render                    → Hosting with cold start (~30s)
+Resend API               → Transactional emails (owner notification + user confirmation)
+Render                   → Hosting with cold start (~30 s)
 ```
 
 ### Animations Breakdown
@@ -79,10 +87,12 @@ Render                    → Hosting with cold start (~30s)
 | Animation | Implementation |
 |---|---|
 | Hero | Staggered letters via `gsap.timeline`, image parallax with ScrollTrigger scrub |
-| Preloader | Name fade-in with inline styles (theme-immune) + `preloader-active` navbar class |
-| ScrambleButton | Left→right scramble on `mouseenter`, right→left restore on `mouseleave` |
-| Scroll Reveal | `[data-reveal]` with `gsap.from` + ScrollTrigger across About, Achievements, Contact |
-| Carousel | Proxy tween `0 → stride` with `onUpdate: x = -(val % stride)`, pause/play via ScrollTrigger |
+| Pixel Intro | Per-block `blockThr` (random 0–0.9) + `driftX`/`driftY`; GSAP `prog.p 0→1.1`; `lifeAt()` drives shrink + fade |
+| Boarding Pass | Overlay fade → pass `y:-70→0` → route `scaleX 0→1` + plane `left 0%→100%` → stamp → pass exit → article fade |
+| Achievements hover | CSS `mask-image: radial-gradient` following `--mx`/`--my` custom props; title `translateY(-100%)` roll |
+| ScrambleButton | Left→right scramble on `mouseenter`, restore on `mouseleave` |
+| Scroll Reveal | `[data-reveal]` with `gsap.from` + ScrollTrigger across all sections |
+| 404 | GSAP scramble on digits + magnetic cursor tracking |
 
 ---
 
@@ -90,31 +100,45 @@ Render                    → Hosting with cold start (~30s)
 
 ```
 PortafolioWeb/
-├── index.html                  # Anti-flash script + data-theme="dark" by default
+├── index.html                    # Anti-flash script + data-theme="dark" by default
 ├── src/
-│   ├── assets/                 # Images (PNG, JPG, WebP, GIF)
+│   ├── assets/
+│   │   ├── hacks/                # Hackathon photos (per-event subfolders)
+│   │   └── ...                   # General images (WebP)
 │   ├── components/
-│   │   ├── Layout.jsx          # Navbar, footer, scroll progress, theme, language
-│   │   ├── Preloader.jsx       # GSAP animated intro (always dark)
-│   │   └── ScrambleButton.jsx  # Button with character scramble effect
+│   │   ├── Layout.jsx            # Navbar, footer, scroll progress, theme/lang toggles
+│   │   ├── Preloader.jsx         # GSAP animated intro (always dark)
+│   │   ├── ScrambleButton.jsx    # Button with character scramble effect
+│   │   ├── TiltCard.jsx          # Mouse-tracking 3D tilt card
+│   │   ├── TypingText.jsx        # Animated typing text
+│   │   ├── PixelIntro.jsx        # Pixel scatter intro for /hackathons
+│   │   └── ASCIIText.jsx         # ASCII art text (React Bits)
 │   ├── context/
-│   │   ├── ThemeContext.jsx    # data-theme toggle + localStorage
-│   │   └── LanguageContext.jsx # t(), toggleLang(), localStorage
+│   │   ├── ThemeContext.jsx      # data-theme toggle + localStorage
+│   │   └── LanguageContext.jsx   # t(), toggleLang(), localStorage
 │   ├── hooks/
-│   │   └── useScrollReveal.js
+│   │   └── useInView.js          # Intersection Observer for scroll reveals
+│   ├── data/
+│   │   └── hackathons.js         # Per-event metadata (title, date, photos, description)
+│   ├── utils/
+│   │   └── sectionReveal.js      # Shared revealHeaders GSAP utility
 │   ├── pages/
-│   │   ├── Home.jsx            # Hero parallax + GSAP stagger
-│   │   ├── About.jsx           # Bio, stack, tools
-│   │   ├── Projects.jsx        # Infinite GSAP carousel + iframe modal
-│   │   ├── Achievements.jsx    # NASA modal, ICATECH, POAPs
-│   │   └── Contact.jsx         # Form + validation + Resend
-│   ├── translations.js         # ES/EN keys for the whole app
-│   ├── App.jsx                 # Lazy loading + Suspense
-│   ├── main.jsx                # ThemeProvider + LanguageProvider + Lenis
-│   └── index.css               # CSS variables, light theme, mobile media queries
+│   │   ├── Home.jsx              # Hero parallax + GSAP stagger
+│   │   ├── About.jsx             # Bio, stack, tools
+│   │   ├── Projects.jsx          # 3D ring (Three.js) + modal
+│   │   ├── Achievements.jsx      # NASA modal, ICATECH, hackathon rows w/ hover effects
+│   │   ├── Contact.jsx           # Form + validation + Resend
+│   │   ├── HackathonsPage.jsx    # Standalone article viewer + boarding pass + pixel intro
+│   │   └── NotFound.jsx          # 404 with scramble + magnetic digits
+│   ├── translations.js           # ES/EN keys for the whole app
+│   ├── App.jsx                   # Lazy loading + Suspense + React Router
+│   ├── main.jsx                  # ThemeProvider + LanguageProvider + Lenis + Analytics
+│   └── index.css                 # CSS variables, theme tokens, custom animations
 ├── server/
-│   ├── index.js
+│   ├── index.js                  # Express + Resend — POST /api/sendEmail
 │   └── ENV_TEMPLATE.txt
+├── public/
+│   └── hackathons/               # Static hackathon assets (.gitkeep)
 └── README.md
 ```
 
@@ -164,32 +188,7 @@ export const translations = {
 };
 ```
 
-`LanguageContext` exposes a memoized `t(key)` via `useCallback([lang])` and `toggleLang()` with persistence in `localStorage`. The toggle is visible in the desktop navbar and the mobile menu.
-
----
-
-## Infinite Project Carousel
-
-Perfect loop with no visible cut:
-
-```js
-// JSX: originals + clones (React manages both)
-{PROJECTS.map((p, i) => renderCard(p, i, false))}
-{PROJECTS.map((p, i) => renderCard(p, i, true))}
-
-// Exact stride from offsetLeft (immune to CSS padding)
-const stride = track.children[PROJECTS.length].offsetLeft
-             - track.children[0].offsetLeft;
-
-// Proxy + modulo: never renders the cut frame
-const proxy = { val: 0 };
-gsap.to(proxy, {
-  val: stride, duration: 30, ease: 'none', repeat: -1,
-  onUpdate() { gsap.set(track, { x: -(proxy.val % stride) }); },
-});
-```
-
-The viewport uses `mask-image` to fade out the left and right edges.
+`LanguageContext` exposes a memoized `t(key)` via `useCallback([lang])` and `toggleLang()` with persistence in `localStorage`.
 
 ---
 
@@ -232,7 +231,7 @@ EMAIL_FROM=noreply@yourdomain.com
 |---|---|
 | `npm run dev` | Vite dev server (port 3000) |
 | `npm run build` | Production build → `dist/` |
-| `npm run preview` | Serves the build locally |
+| `npm run preview` | Serves the build locally (use this for Lighthouse) |
 | `npm run install:all` | Installs frontend + backend |
 
 ---
@@ -241,10 +240,12 @@ EMAIL_FROM=noreply@yourdomain.com
 
 | Service | Platform | Notes |
 |---|---|---|
-| Frontend | Vercel | Build: `npm run build` · Output: `dist` · No env vars required |
-| Backend | Render | Root: `server` · Build: `npm install` · Start: `node index.js` |
+| Frontend | Vercel | Build: `npm run build` · Output: `dist` · SPA rewrite in `vercel.json` |
+| Backend | Render | Root: `server` · Start: `node index.js` · Cold start ~30 s |
 
 **Backend environment variables:** `RESEND_API_KEY`, `EMAIL_FROM`, `PORT`
+
+**Security headers** (`vercel.json`): X-Frame-Options, HSTS, COOP, Referrer-Policy, Permissions-Policy. CSP intentionally omitted (caused Lighthouse Performance drop from 81→55).
 
 ---
 
@@ -253,20 +254,6 @@ EMAIL_FROM=noreply@yourdomain.com
 ```
 MIT License
 Copyright (c) 2026 CodeByNas
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ```
 
 See the full [LICENSE](LICENSE) file for details.

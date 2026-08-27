@@ -25,6 +25,7 @@ export default function Preloader({ onComplete }) {
     // Bloquea scroll durante el preloader
     document.body.style.overflow = 'hidden';
     document.documentElement.classList.add('preloader-active');
+    window.lenis?.stop();
 
     // Anchos reales para posicionar CHRISTIAN.ESTRADA centrado
     const cWidth = christian.offsetWidth;
@@ -51,6 +52,7 @@ export default function Preloader({ onComplete }) {
         el.style.display = 'none';
         document.body.style.overflow = '';
         document.documentElement.classList.remove('preloader-active');
+        window.lenis?.start();
         onComplete?.();
       },
     });
@@ -105,6 +107,7 @@ export default function Preloader({ onComplete }) {
       tl.kill();
       document.body.style.overflow = '';
       document.documentElement.classList.remove('preloader-active');
+      window.lenis?.start();
     };
   }, [onComplete]);
 

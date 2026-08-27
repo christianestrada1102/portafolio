@@ -126,7 +126,6 @@ class AsciiFilter {
     }
 
     this.asciify(this.context, w, h);
-    this.hue();
   }
 
   onMouseMove(e) {
@@ -361,11 +360,9 @@ class CanvAscii {
   }
 
   updateRotation() {
-    const x = mapRange(this.mouse.y, 0, this.height, 0.5, -0.5);
-    const y = mapRange(this.mouse.x, 0, this.width, -0.5, 0.5);
-
-    this.mesh.rotation.x += (x - this.mesh.rotation.x) * 0.05;
-    this.mesh.rotation.y += (y - this.mesh.rotation.y) * 0.05;
+    // Sin giro con el mouse: el plano vuelve suavemente a quedar de frente
+    this.mesh.rotation.x += (0 - this.mesh.rotation.x) * 0.05;
+    this.mesh.rotation.y += (0 - this.mesh.rotation.y) * 0.05;
   }
 
   clear() {
@@ -382,6 +379,24 @@ class CanvAscii {
       }
     });
     this.scene.clear();
+  }
+
+  setText(txt) {
+    this.textString = txt;
+    if (!this.textCanvas || !this.mesh) return;
+    this.textCanvas.txt = txt;
+    this.textCanvas.resize();
+    this.textCanvas.render();
+    // El canvas cambió de tamaño: la textura vieja quedaría con las
+    // dimensiones anteriores y se muestrea repetida — hay que recrearla
+    this.texture.dispose();
+    this.texture = new THREE.CanvasTexture(this.textCanvas.texture);
+    this.texture.minFilter = THREE.NearestFilter;
+    this.mesh.material.uniforms.uTexture.value = this.texture;
+    const textAspect = this.textCanvas.width / this.textCanvas.height;
+    const planeW = this.planeBaseHeight * textAspect;
+    this.mesh.geometry.dispose();
+    this.mesh.geometry = new THREE.PlaneGeometry(planeW, this.planeBaseHeight, 36, 36);
   }
 
   dispose() {
@@ -412,6 +427,13 @@ export default function ASCIIText({
 }) {
   const containerRef = useRef(null);
   const asciiRef = useRef(null);
+  const textRef = useRef(text);
+  textRef.current = text;
+
+  // Cambio de texto en vivo, sin recrear el contexto WebGL
+  useEffect(() => {
+    if (asciiRef.current) asciiRef.current.setText(text);
+  }, [text]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -422,7 +444,7 @@ export default function ASCIIText({
 
     const createAndInit = async (container, w, h) => {
       const instance = new CanvAscii(
-        { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves },
+        { text: textRef.current, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves },
         container,
         w,
         h
@@ -483,7 +505,7 @@ export default function ASCIIText({
         asciiRef.current = null;
       }
     };
-  }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves]);
+  }, [asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves]);
 
   return (
     <div

@@ -43,10 +43,10 @@ const CERTS = [
   { id: 'icatech',     date: '2025',     title: 'MIT',              accent: 'ICATECH 2025', result: '80h · 5 módulos' },
 ];
 const HACKS = [
-  { id: 'nasa',  date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: 'Yuyin · MVP en 48h' },
-  { id: 'eth',   date: 'Nov 2025', title: 'ETH Mexico',      accent: 'MTY',       result: 'SettArb · MVP en 54h' },
-  { id: 'mit',   date: '2025',     title: 'MIT',             accent: 'ICATECH',   result: 'SafeZone · MVP en 48h' },
-  { id: 'latam', date: '2026',     title: 'hack@',           accent: 'latam',     result: 'HAVEN · producción' },
+  { id: 'nasa',  pageIdx: 2, date: 'Oct 2025', title: 'NASA Space Apps', accent: 'Challenge', result: 'Yuyin · MVP en 48h' },
+  { id: 'eth',   pageIdx: 4, date: 'Nov 2025', title: 'ETH Mexico',      accent: 'MTY',       result: 'SettArb · MVP en 54h' },
+  { id: 'mit',   pageIdx: 3, date: '2025',     title: 'MIT',             accent: 'ICATECH',   result: 'SafeZone · MVP en 48h' },
+  { id: 'latam', pageIdx: 6, date: '2026',     title: 'hack@',           accent: 'latam',     result: 'HAVEN · producción' },
 ];
 
 export default function Achievements() {
@@ -340,7 +340,7 @@ export default function Achievements() {
             {rowInner(CERTS[0], true)}
             <span
               aria-hidden="true"
-              className="ach-cta shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400/80 group-hover:text-brand-300 underline-offset-4 group-hover:underline transition-colors duration-300"
+              className="ach-cta hidden md:inline shrink-0 pt-2 md:pt-4 font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400/80 group-hover:text-brand-300 underline-offset-4 group-hover:underline transition-colors duration-300"
             >
               {t('achievements.nasa.cta')}
             </span>
@@ -373,7 +373,7 @@ export default function Achievements() {
               }}
             >
               <div className="overflow-hidden">
-                <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
+                <ul className="pb-6 pl-6 md:pl-32 space-y-1.5">
                   {ICATECH_HOURS.map((hours, j) => {
                     const cert = ICATECH_CERTS[j];
                     const inner = (
@@ -389,7 +389,7 @@ export default function Achievements() {
                           <button
                             type="button"
                             onClick={(e) => openCert(cert, t(`achievements.icatech.course.${j}`), e)}
-                            className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
+                            className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
                           >
                             {inner}
                             <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-brand-400/80 group-hover/cert:text-brand-300 underline-offset-4 group-hover/cert:underline transition-colors duration-200">
@@ -434,7 +434,7 @@ export default function Achievements() {
               }}
             >
               <div className="overflow-hidden">
-                <ul className="pb-6 pl-24 md:pl-32 space-y-1.5">
+                <ul className="pb-6 pl-6 md:pl-32 space-y-1.5">
                   {[
                     { cert: certDiplomado,      labelKey: 'achievements.fullstack.cert' },
                     { cert: certReconocimiento, labelKey: 'achievements.fullstack.reco' },
@@ -465,7 +465,7 @@ export default function Achievements() {
           {HACKS.map((item) => (
             <Link
               key={item.id}
-              to="/hackathons"
+              to={`/hackathons?h=${item.pageIdx}`}
               onMouseMove={rowMove}
               className="ach-row group relative isolate overflow-hidden flex items-start gap-4 md:gap-8 border-b border-neutral-800 py-5 md:py-7"
             >
@@ -511,13 +511,13 @@ export default function Achievements() {
         >
           <div
             ref={certModalRef}
-            className="relative max-h-[88vh] bg-neutral-900 border border-neutral-800 rounded-sm overflow-auto"
-            style={{ width: imgModal.w, maxWidth: '92vw' }}
+            className="relative border border-neutral-800 rounded-sm overflow-hidden"
+            style={{ width: imgModal.w, maxWidth: '92vw', maxHeight: '88vh' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={closeCert}
-              className="sticky top-3 float-right mr-3 text-neutral-500 hover:text-white transition-colors duration-200 font-mono text-xs z-10 bg-neutral-900/80 px-2 py-1 rounded-sm"
+              className="absolute top-3 right-3 text-neutral-400 hover:text-white transition-colors duration-200 font-mono text-xs z-10 bg-black/60 px-2 py-1 rounded-sm"
             >
               {t('achievements.nasa.close')}
             </button>

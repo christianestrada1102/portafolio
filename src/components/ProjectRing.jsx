@@ -54,7 +54,9 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
   // Tamaño de carta responsivo
   useEffect(() => {
     const set = () =>
-      setCard(window.innerWidth < 768 ? { w: 210, h: 131 } : { w: 320, h: 200 });
+      setCard(window.innerWidth < 768
+        ? { w: 210, h: 131, hm: 2.7 }
+        : { w: 320, h: 200, hm: 2.1 });
     set();
     window.addEventListener('resize', set);
     return () => window.removeEventListener('resize', set);
@@ -146,7 +148,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
       className="ring-stage"
       style={{
         width: '100%',
-        height: card.h * 2.1,
+        height: card.h * (card.hm ?? 2.1),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
