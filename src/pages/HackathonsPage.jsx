@@ -794,7 +794,7 @@ function PixelPlane({ size = 6 }) {
   );
 }
 
-function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang, showNav, backLabel }) {
+function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang, showNav, backLabel, mobile = false }) {
   const [open, setOpen] = useState(false);
 
   const btn = {
@@ -816,61 +816,79 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang,
 
   return (
     <>
-      {/* Logo compacto (sin fondo): se expande y revela el volver */}
-      <div
-        style={{ position: 'fixed', top: 18, left: 22, zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px' }}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
-      >
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          style={{
-            fontFamily: MONO,
-            fontSize: '15px',
-            fontWeight: 700,
-            color: C.text,
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)',
-          }}
-          aria-expanded={open}
-          aria-label="Menú"
+      {mobile ? (
+        /* ── Mobile: barra superior con fondo, logo + volver en una fila ── */
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 16px', height: '52px',
+          background: 'rgba(10, 6, 16, 0.92)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: `1px solid ${C.border}`,
+        }}>
+          <button
+            type="button"
+            style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 700, color: C.text, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <button
+              type="button"
+              onClick={onToggleLang}
+              style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.1em', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
+            >
+              {lang === 'es' ? 'EN' : 'ES'}
+            </button>
+            <button
+              type="button"
+              onClick={onBack}
+              style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.08em', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              ◀ Volver
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* ── Desktop: logo con slide-out para volver ── */
+        <div
+          style={{ position: 'fixed', top: 18, left: 22, zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px' }}
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
         >
-          <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
-        </button>
-        <button
-          type="button"
-          onClick={onBack}
-          tabIndex={open ? 0 : -1}
-          style={{
-            fontFamily: MONO,
-            fontSize: '11px',
-            letterSpacing: '0.1em',
-            color: C.muted,
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            maxWidth: open ? '220px' : '0px',
-            opacity: open ? 1 : 0,
-            transform: open ? 'translateX(0)' : 'translateX(-8px)',
-            transition: 'max-width .45s cubic-bezier(0.33, 1, 0.68, 1), opacity .3s ease, transform .45s cubic-bezier(0.33, 1, 0.68, 1), color .2s',
-            textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = C.text; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = C.muted; }}
-        >
-          {backLabel}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, color: C.text, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)' }}
+            aria-expanded={open}
+            aria-label="Menú"
+          >
+            <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
+          </button>
+          <button
+            type="button"
+            onClick={onBack}
+            tabIndex={open ? 0 : -1}
+            style={{
+              fontFamily: MONO, fontSize: '11px', letterSpacing: '0.1em', color: C.muted,
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+              whiteSpace: 'nowrap', overflow: 'hidden',
+              maxWidth: open ? '220px' : '0px',
+              opacity: open ? 1 : 0,
+              transform: open ? 'translateX(0)' : 'translateX(-8px)',
+              transition: 'max-width .45s cubic-bezier(0.33, 1, 0.68, 1), opacity .3s ease, transform .45s cubic-bezier(0.33, 1, 0.68, 1), color .2s',
+              textShadow: '0 2px 12px rgba(10, 6, 16, 0.9)',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = C.text; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = C.muted; }}
+          >
+            {backLabel}
+          </button>
+        </div>
+      )}
 
-      {/* Idioma + navegación (sin fondo) */}
-      <div style={{ position: 'fixed', top: 16, right: 22, zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {/* Idioma + navegación — en mobile va oculto (lo maneja el swipe) */}
+      <div style={{ position: 'fixed', top: mobile ? 4 : 16, right: mobile ? 0 : 22, zIndex: 20, display: mobile ? 'none' : 'flex', alignItems: 'center', gap: '10px' }}>
         {showNav && (
           <>
             <button type="button" onClick={onPrev} style={btn} onMouseEnter={hover} onMouseLeave={leave} aria-label="Anterior">
@@ -1304,7 +1322,7 @@ export default function HackathonsPage() {
             display: 'flex',
             fontFamily: MONO,
             filter: 'drop-shadow(0 18px 50px rgba(0,0,0,0.65))',
-            maxWidth: 'min(92vw, 480px)',
+            maxWidth: 'min(88vw, 400px)',
             width: '100%',
           }}
         >
@@ -1454,8 +1472,9 @@ export default function HackathonsPage() {
           onToggleLang={toggleLang}
           showNav={started}
           backLabel={L.back}
+          mobile={isMobile}
         />
-        <div style={{ height: '84px' }} aria-hidden="true" />
+        <div style={{ height: isMobile ? '68px' : '84px' }} aria-hidden="true" />
 
         {/* ── Portada: bienvenida a la bitácora ── */}
         {!started && deepIdx == null && (
@@ -1568,10 +1587,11 @@ export default function HackathonsPage() {
             className="hack-article-meta"
             style={{
               display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
               flexWrap: 'wrap',
-              gap: '4px 0',
-              marginBottom: '48px',
-              alignItems: 'center',
+              gap: isMobile ? '10px' : '4px 0',
+              marginBottom: isMobile ? '28px' : '48px',
+              alignItems: isMobile ? 'flex-start' : 'center',
             }}
           >
             {[
@@ -1580,7 +1600,7 @@ export default function HackathonsPage() {
               [L.duration, h.duration],
             ].map(([label, value], i) => (
               <span key={label} style={{ display: 'flex', alignItems: 'center' }}>
-                {i > 0 && (
+                {i > 0 && !isMobile && (
                   <span style={{ margin: '0 10px', color: C.border }}>·</span>
                 )}
                 <span
