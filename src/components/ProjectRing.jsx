@@ -72,7 +72,8 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
     if (!ring) return;
 
     const reduced   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const degPerSec = reduced ? 0 : -5.5;
+    const isMobile  = window.innerWidth < 768;
+    const degPerSec = reduced ? 0 : isMobile ? -11 : -5.5;
     let raf;
 
     const apply = () => {

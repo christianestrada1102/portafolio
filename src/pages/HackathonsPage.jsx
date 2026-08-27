@@ -329,7 +329,7 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
 
 function Paragraphs({ paragraphs, dropCap = false, editor = false, onText }) {
   return (
-    <div className="hack-article-prose">
+    <>
       {paragraphs.map((text, i) => {
         // En modo editor el párrafo es texto plano editable (sin capitular,
         // que partiría el primer carácter)
@@ -374,7 +374,7 @@ function Paragraphs({ paragraphs, dropCap = false, editor = false, onText }) {
           </p>
         );
       })}
-    </div>
+    </>
   );
 }
 
@@ -1455,7 +1455,7 @@ export default function HackathonsPage() {
         {started && (
         <>
         {/* ── Article ── */}
-        <article ref={articleRef} key={h.id}>
+        <article ref={articleRef} key={h.id} className="hack-article">
 
           {/* Eyebrow */}
           <p

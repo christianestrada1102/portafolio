@@ -764,7 +764,7 @@ body {
   }
 }
 
-/* Hackathons article: reduce title and body text on mobile */
+/* Hackathons article: reduce title, body text and photo sizes on mobile */
 @media (max-width: 767px) {
   .hack-article-title {
     font-size: clamp(1.55rem, 6vw, 3rem) !important;
@@ -773,13 +773,22 @@ body {
     gap: 8px 0 !important;
     margin-bottom: 28px !important;
   }
-  .hack-article-prose p {
+  .hack-article p {
     font-size: 15px !important;
     line-height: 1.7 !important;
   }
+  /* Main bleed photo: stay within container, change to 16/9 */
   .hack-main-photo {
     width: 100% !important;
     margin-left: 0 !important;
+  }
+  .hack-main-photo figure > div,
+  .hack-main-photo [style*="aspect-ratio"] {
+    aspect-ratio: 16/9 !important;
+  }
+  /* Drop cap too large on mobile */
+  .hack-article p > span[style*="4.4em"] {
+    font-size: 2.8em !important;
   }
 }
 
