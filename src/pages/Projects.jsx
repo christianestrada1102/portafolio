@@ -234,7 +234,7 @@ export default function Projects() {
             paused={!!selectedProject || returning}
             bringToFront={selectedProject?.num ?? null}
           />
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-600 mt-2 select-none hidden md:block">
+          <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-600 mt-2 select-none">
             {t('projects.ring.hint')}
           </p>
         </div>
