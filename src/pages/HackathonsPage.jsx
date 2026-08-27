@@ -1304,7 +1304,8 @@ export default function HackathonsPage() {
             display: 'flex',
             fontFamily: MONO,
             filter: 'drop-shadow(0 18px 50px rgba(0,0,0,0.65))',
-            maxWidth: '92vw',
+            maxWidth: 'min(92vw, 480px)',
+            width: '100%',
           }}
         >
           {/* Cuerpo del pase */}
@@ -1325,23 +1326,23 @@ export default function HackathonsPage() {
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                gap: '18px',
-                padding: '10px clamp(18px, 3.5vw, 30px)',
+                gap: '8px',
+                padding: '8px 14px',
                 background: 'rgba(124, 58, 237, 0.18)',
                 borderBottom: `1px solid ${C.border}`,
               }}
             >
-              <span style={{ fontSize: '10px', letterSpacing: '0.22em', color: C.text }}>{'</>'}CODEBYNAS AIR</span>
-              <span style={{ fontSize: '10px', letterSpacing: '0.22em', color: C.accent }}>PASE DE ABORDAR</span>
+              <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: C.text }}>{'</>'}CODEBYNAS AIR</span>
+              <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: C.accent }}>PASE DE ABORDAR</span>
             </div>
-            <div style={{ padding: 'clamp(14px, 2.5vw, 22px) clamp(18px, 3.5vw, 30px)' }}>
+            <div style={{ padding: '12px 14px' }}>
               {/* Ruta: la línea se dibuja y el avión la recorre */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 2.5vw, 20px)', marginBottom: '18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                 <div>
-                  <div style={{ fontSize: 'clamp(24px, 4.5vw, 36px)', color: C.text, letterSpacing: '0.06em' }}>CUU</div>
-                  <div style={{ fontSize: '9px', letterSpacing: '0.16em', color: C.faint }}>CHIHUAHUA</div>
+                  <div style={{ fontSize: 'clamp(20px, 5.5vw, 30px)', color: C.text, letterSpacing: '0.06em' }}>CUU</div>
+                  <div style={{ fontSize: '8px', letterSpacing: '0.14em', color: C.faint }}>CHIHUAHUA</div>
                 </div>
-                <div style={{ flex: 1, position: 'relative', height: '30px', minWidth: 'clamp(90px, 16vw, 190px)' }}>
+                <div style={{ flex: 1, position: 'relative', height: '24px', minWidth: '60px' }}>
                   <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% - 1px)', borderTop: `2px dashed ${C.border}` }} />
                   <div
                     ref={routeRef}
@@ -1358,21 +1359,21 @@ export default function HackathonsPage() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 'clamp(24px, 4.5vw, 36px)', color: C.text, letterSpacing: '0.06em' }}>MTY</div>
-                  <div style={{ fontSize: '9px', letterSpacing: '0.16em', color: C.faint }}>MONTERREY</div>
+                  <div style={{ fontSize: 'clamp(20px, 5.5vw, 30px)', color: C.text, letterSpacing: '0.06em' }}>MTY</div>
+                  <div style={{ fontSize: '8px', letterSpacing: '0.14em', color: C.faint }}>MONTERREY</div>
                 </div>
               </div>
               {/* Datos del pasajero */}
-              <div style={{ display: 'flex', gap: 'clamp(14px, 3vw, 26px)', flexWrap: 'wrap', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: 'clamp(8px, 2.5vw, 20px)', flexWrap: 'wrap', marginBottom: '12px' }}>
                 {[['PASAJERO', 'CHRISTIAN'], ['FECHA', 'NOV 2025'], ['VUELO', 'BIT-025'], ['PUERTA', 'A7'], ['ASIENTO', '4E']].map(([k, v]) => (
                   <div key={k}>
-                    <div style={{ fontSize: '9px', letterSpacing: '0.18em', color: C.faint, marginBottom: '3px' }}>{k}</div>
-                    <div style={{ fontSize: '13px', color: C.prose }}>{v}</div>
+                    <div style={{ fontSize: '8px', letterSpacing: '0.15em', color: C.faint, marginBottom: '2px' }}>{k}</div>
+                    <div style={{ fontSize: '11px', color: C.prose }}>{v}</div>
                   </div>
                 ))}
               </div>
               {/* Código de barras */}
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '18px' }}>
                 {[3,1,2,1,4,1,1,3,2,1,3,1,1,2,4,1,2,1,3,1,2,2,1,4,1,1,3,1,2,1].map((w, i) => (
                   <div key={i} style={{ width: `${w}px`, height: '100%', background: i % 3 ? C.muted : C.accent, opacity: 0.8 }} />
                 ))}
@@ -1385,15 +1386,16 @@ export default function HackathonsPage() {
                 position: 'absolute',
                 top: '34%',
                 left: '50%',
-                marginLeft: '-90px',
-                border: `3px solid ${C.accent}`,
+                transform: 'translateX(-50%)',
+                border: `2px solid ${C.accent}`,
                 borderRadius: '4px',
                 color: C.accent,
-                fontSize: '19px',
-                letterSpacing: '0.3em',
-                padding: '7px 16px',
+                fontSize: 'clamp(13px, 3.5vw, 19px)',
+                letterSpacing: '0.25em',
+                padding: '5px 12px',
                 opacity: 0,
                 background: 'rgba(10, 6, 16, 0.4)',
+                whiteSpace: 'nowrap',
               }}
             >
               ABORDADO
@@ -1408,23 +1410,24 @@ export default function HackathonsPage() {
               border: `1px solid ${C.border}`,
               borderLeft: `2px dashed ${C.border}`,
               borderRadius: '0 10px 10px 0',
-              padding: 'clamp(16px, 3vw, 26px) clamp(14px, 2.5vw, 22px)',
+              padding: '10px 10px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              gap: '14px',
+              gap: '8px',
+              minWidth: '56px',
             }}
           >
             {/* Muescas de la perforación */}
             <div style={{ position: 'absolute', left: '-9px', top: '-9px', width: '16px', height: '16px', borderRadius: '50%', background: '#0a0610', zIndex: 1 }} />
             <div style={{ position: 'absolute', left: '-9px', bottom: '-9px', width: '16px', height: '16px', borderRadius: '50%', background: '#0a0610', zIndex: 1 }} />
-            <div style={{ fontSize: '10px', letterSpacing: '0.2em', color: C.faint }}>TALÓN</div>
-            <div style={{ fontSize: '17px', color: C.text, lineHeight: 1.5, textAlign: 'center' }}>
+            <div style={{ fontSize: '8px', letterSpacing: '0.18em', color: C.faint }}>TALÓN</div>
+            <div style={{ fontSize: '14px', color: C.text, lineHeight: 1.4, textAlign: 'center' }}>
               CUU
-              <div style={{ fontSize: '11px', color: C.accent }}>▼</div>
+              <div style={{ fontSize: '10px', color: C.accent }}>▼</div>
               MTY
             </div>
-            <div style={{ fontSize: '10px', color: C.faint }}>BIT-025 · 4E</div>
+            <div style={{ fontSize: '8px', color: C.faint, whiteSpace: 'nowrap' }}>BIT-025</div>
           </div>
         </div>
       </div>
