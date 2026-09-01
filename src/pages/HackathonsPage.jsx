@@ -1098,16 +1098,6 @@ export default function HackathonsPage() {
     setCoverWord(words[0]);
     if (started || !introDone) return;
 
-    // En mobile: rotación simple sin scramble (evita texto ilegible)
-    if (isMobile) {
-      let idx = 0;
-      const id = setInterval(() => {
-        idx = (idx + 1) % words.length;
-        setCoverWord(words[idx]);
-      }, 1700);
-      return () => clearInterval(id);
-    }
-
     // Transición scramble (técnica del ScrambleText de OriginKit): las letras
     // se revuelven con glifos aleatorios y se resuelven de izquierda a derecha
     const GLYPHS = 'abcdefghijklmnopqrstuvwxyz<>/_*+=#%';
@@ -1486,29 +1476,16 @@ export default function HackathonsPage() {
               zIndex: 0,
             }}
           >
-            {/* Saludo: ASCII 3D en desktop, texto plano en mobile (canvas blur) */}
-            {isMobile ? (
-              <div ref={asciiWrapRef} className="hack-cover-ascii" style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{
-                  fontFamily: MONO,
-                  fontSize: 'clamp(2rem, 11vw, 3.2rem)',
-                  fontWeight: 700,
-                  color: C.text,
-                  letterSpacing: '0.04em',
-                  opacity: 0.92,
-                  lineHeight: 1,
-                  userSelect: 'none',
-                }}>
-                  {coverWord}
-                </span>
+            {/* Saludo ASCII 3D — misma fuente y efecto en mobile, solo más pequeño */}
+            <div
+              ref={asciiWrapRef}
+              className="hack-cover-ascii"
+              style={{ position: 'relative', height: isMobile ? 'min(160px, 22vh)' : 'min(300px, 34vh)', marginBottom: '8px' }}
+            >
+              <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+                <ASCIIText text={coverWord} enableWaves asciiFontSize={isMobile ? 5 : 8} />
               </div>
-            ) : (
-              <div ref={asciiWrapRef} style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
-                <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-                  <ASCIIText text={coverWord} enableWaves asciiFontSize={8} />
-                </div>
-              </div>
-            )}
+            </div>
 
             <h1
               className="hack-cover-h1"
