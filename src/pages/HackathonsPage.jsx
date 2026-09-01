@@ -817,7 +817,7 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang,
   return (
     <>
       {mobile ? (
-        /* ── Mobile: barra superior con fondo, logo + volver en una fila ── */
+        /* ── Mobile: barra con fondo — logo+volver izquierda, lang derecha ── */
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 20,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -826,28 +826,27 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang,
           backdropFilter: 'blur(12px)',
           borderBottom: `1px solid ${C.border}`,
         }}>
-          <button
-            type="button"
-            style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 700, color: C.text, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-          >
-            <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
-          </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <button
-              type="button"
-              onClick={onToggleLang}
-              style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.1em', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
-            >
-              {lang === 'es' ? 'EN' : 'ES'}
-            </button>
+          {/* Izquierda: logo + volver (igual que desktop) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 700, color: C.text }}>
+              <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
+            </span>
             <button
               type="button"
               onClick={onBack}
-              style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.08em', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '4px' }}
+              style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.08em', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
             >
-              ◀ Volver
+              ◀ {backLabel?.replace('◀ ', '') ?? 'Volver'}
             </button>
           </div>
+          {/* Derecha: solo lang */}
+          <button
+            type="button"
+            onClick={onToggleLang}
+            style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.1em', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
+          >
+            {lang === 'es' ? 'EN' : 'ES'}
+          </button>
         </div>
       ) : (
         /* ── Desktop: logo con slide-out para volver ── */
@@ -933,73 +932,61 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang,
 
 // ── Bottom nav ─────────────────────────────────────────────────────────────────
 
-function BottomNav({ currentIdx, total, onPrev, onNext }) {
+function BottomNav({ currentIdx, total, onPrev, onNext, mobile = false }) {
   const prev = hackathons[(currentIdx - 1 + total) % total];
   const next = hackathons[(currentIdx + 1) % total];
   const prevLabel = `${prev.event} ${prev.eventItalic}`;
   const nextLabel = `${next.event} ${next.eventItalic}`;
 
+  const counter = (
+    <span style={{ fontFamily: MONO, fontSize: '11px', color: C.faint, letterSpacing: '0.12em', whiteSpace: 'nowrap' }}>
+      {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+    </span>
+  );
+
+  if (mobile) {
+    return (
+      <nav style={{ padding: '24px 0 40px', borderTop: `1px solid ${C.border}`, marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <button
+          onClick={onPrev}
+          style={{ fontFamily: SANS, fontSize: '13px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}
+          onMouseEnter={e => e.currentTarget.style.color = C.text}
+          onMouseLeave={e => e.currentTarget.style.color = C.muted}
+        >
+          <span style={{ flexShrink: 0 }}>◀</span>
+          <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{prevLabel}</span>
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {counter}
+          <button
+            onClick={onNext}
+            style={{ fontFamily: SANS, fontSize: '13px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'right' }}
+            onMouseEnter={e => e.currentTarget.style.color = C.text}
+            onMouseLeave={e => e.currentTarget.style.color = C.muted}
+          >
+            <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '180px' }}>{nextLabel}</span>
+            <span style={{ flexShrink: 0 }}>▶</span>
+          </button>
+        </div>
+      </nav>
+    );
+  }
+
   const btnStyle = (align) => ({
-    fontFamily: SANS,
-    fontSize: '13px',
-    color: C.muted,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 0,
-    textAlign: align,
-    transition: 'color .2s',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    maxWidth: '200px',
+    fontFamily: SANS, fontSize: '13px', color: C.muted, background: 'none', border: 'none',
+    cursor: 'pointer', padding: 0, textAlign: align, transition: 'color .2s',
+    display: 'flex', alignItems: 'center', gap: '6px', maxWidth: '200px',
   });
 
   return (
-    <nav
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr auto 1fr',
-        alignItems: 'center',
-        gap: '16px',
-        padding: '32px 0 48px',
-        borderTop: `1px solid ${C.border}`,
-        marginTop: '56px',
-      }}
-    >
-      <button
-        onClick={onPrev}
-        style={btnStyle('left')}
-        onMouseEnter={e => e.currentTarget.style.color = C.text}
-        onMouseLeave={e => e.currentTarget.style.color = C.muted}
-      >
+    <nav style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: '16px', padding: '32px 0 48px', borderTop: `1px solid ${C.border}`, marginTop: '56px' }}>
+      <button onClick={onPrev} style={btnStyle('left')} onMouseEnter={e => e.currentTarget.style.color = C.text} onMouseLeave={e => e.currentTarget.style.color = C.muted}>
         <span>◀</span>
-        <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-          {prevLabel}
-        </span>
+        <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{prevLabel}</span>
       </button>
-
-      <span
-        style={{
-          fontFamily: MONO,
-          fontSize: '11px',
-          color: C.faint,
-          letterSpacing: '0.12em',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {String(currentIdx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-      </span>
-
-      <button
-        onClick={onNext}
-        style={{ ...btnStyle('right'), justifyContent: 'flex-end' }}
-        onMouseEnter={e => e.currentTarget.style.color = C.text}
-        onMouseLeave={e => e.currentTarget.style.color = C.muted}
-      >
-        <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-          {nextLabel}
-        </span>
+      {counter}
+      <button onClick={onNext} style={{ ...btnStyle('right'), justifyContent: 'flex-end' }} onMouseEnter={e => e.currentTarget.style.color = C.text} onMouseLeave={e => e.currentTarget.style.color = C.muted}>
+        <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{nextLabel}</span>
         <span>▶</span>
       </button>
     </nav>
@@ -1489,12 +1476,29 @@ export default function HackathonsPage() {
               zIndex: 0,
             }}
           >
-            {/* Saludo ASCII 3D (React Bits ASCIIText) */}
-            <div ref={asciiWrapRef} className="hack-cover-ascii" style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
-              <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-                <ASCIIText text={coverWord} enableWaves asciiFontSize={8} />
+            {/* Saludo: ASCII 3D en desktop, texto plano en mobile (canvas blur) */}
+            {isMobile ? (
+              <div ref={asciiWrapRef} className="hack-cover-ascii" style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{
+                  fontFamily: MONO,
+                  fontSize: 'clamp(2rem, 11vw, 3.2rem)',
+                  fontWeight: 700,
+                  color: C.text,
+                  letterSpacing: '0.04em',
+                  opacity: 0.92,
+                  lineHeight: 1,
+                  userSelect: 'none',
+                }}>
+                  {coverWord}
+                </span>
               </div>
-            </div>
+            ) : (
+              <div ref={asciiWrapRef} style={{ position: 'relative', height: 'min(300px, 34vh)', marginBottom: '8px' }}>
+                <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+                  <ASCIIText text={coverWord} enableWaves asciiFontSize={8} />
+                </div>
+              </div>
+            )}
 
             <h1
               className="hack-cover-h1"
@@ -1671,6 +1675,7 @@ export default function HackathonsPage() {
           total={total}
           onPrev={prevHack}
           onNext={nextHack}
+          mobile={isMobile}
         />
 
         <KeyHint text={L.hint} />
