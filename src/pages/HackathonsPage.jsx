@@ -1098,6 +1098,16 @@ export default function HackathonsPage() {
     setCoverWord(words[0]);
     if (started || !introDone) return;
 
+    // En mobile: rotación simple sin scramble (evita texto ilegible)
+    if (isMobile) {
+      let idx = 0;
+      const id = setInterval(() => {
+        idx = (idx + 1) % words.length;
+        setCoverWord(words[idx]);
+      }, 1700);
+      return () => clearInterval(id);
+    }
+
     // Transición scramble (técnica del ScrambleText de OriginKit): las letras
     // se revuelven con glifos aleatorios y se resuelven de izquierda a derecha
     const GLYPHS = 'abcdefghijklmnopqrstuvwxyz<>/_*+=#%';
