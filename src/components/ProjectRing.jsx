@@ -230,7 +230,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
                         ref={(el) => {
                           if (el) {
                             el.muted = true;
-                            el.play?.().catch(() => {});
+                            if (el.paused) el.play?.().catch(() => {});
                           }
                         }}
                         src={p.videoSrc}

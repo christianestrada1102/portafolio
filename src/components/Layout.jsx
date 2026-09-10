@@ -67,8 +67,11 @@ function toggleTheme(event) {
 export default function Layout({ children }) {
   const progressRef                          = useRef(null);
   const headerRef                            = useRef(null);
+  const mobileOpenRef                        = useRef(false);
   const [isScrolled,     setIsScrolled]     = useState(false);
   const [mobileOpen,     setMobileOpen]     = useState(false);
+  // Keep ref in sync so the scroll handler always sees the current value
+  useEffect(() => { mobileOpenRef.current = mobileOpen; }, [mobileOpen]);
   const [active,         setActive]         = useState('#home');
   const { lang, t, toggleLang }             = useLanguage();
 
@@ -100,10 +103,10 @@ export default function Layout({ children }) {
       // Ocultar navbar al bajar, reaparecer con slide-down al subir
       if (!reduced && headerRef.current) {
         const goingDown = y > lastY;
-        if (goingDown && y > 160 && !hidden) {
+        if (goingDown && y > 160 && !hidden && !mobileOpenRef.current) {
           hidden = true;
           gsap.to(headerRef.current, { y: -76, duration: 0.4, ease: 'power3.out' });
-        } else if (!goingDown && hidden) {
+        } else if ((!goingDown || mobileOpenRef.current) && hidden) {
           hidden = false;
           gsap.fromTo(
             headerRef.current,
