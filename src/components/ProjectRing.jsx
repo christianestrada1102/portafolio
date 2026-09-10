@@ -49,7 +49,8 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
 
   const count  = projects.length;
   const angle  = 360 / count;
-  const radius = (card.w * 1.35) / (2 * Math.tan(Math.PI / count));
+  const isMobileCard = card.w < 160;
+  const radius = (card.w * (isMobileCard ? 1.1 : 1.35)) / (2 * Math.tan(Math.PI / count));
 
   // Tamaño de carta responsivo
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function ProjectRing({ projects, onSelect, onActiveChange, paused
       setCard(mobile
         // móvil: cartas más pequeñas, sin tilt para evitar que el anillo se
         // desplace verticalmente por perspectiva, altura de escenario compacta
-        ? { w: 170, h: 106, hm: 2.2, tilt: 0 }
+        ? { w: 138, h: 86, hm: 2.4, tilt: 0 }
         : { w: 320, h: 200, hm: 2.1, tilt: -7 });
     };
     set();
