@@ -9,13 +9,86 @@ import { revealHeaders } from '../utils/sectionReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
+function MobileCarousel({ projects, onSelect, onActiveChange }) {
+  const scrollRef = useRef(null);
+  const { t } = useLanguage();
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    onActiveChange?.(Math.max(0, Math.min(idx, projects.length - 1)));
+  }, [projects.length, onActiveChange]);
+
+  return (
+    <div
+      ref={scrollRef}
+      onScroll={handleScroll}
+      style={{
+        display: 'flex',
+        overflowX: 'auto',
+        scrollSnapType: 'x mandatory',
+        WebkitOverflowScrolling: 'touch',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        gap: 0,
+      }}
+    >
+      {projects.map((p) => (
+        <div
+          key={p.num}
+          style={{
+            flex: '0 0 100%',
+            scrollSnapAlign: 'start',
+            padding: '0 16px',
+            boxSizing: 'border-box',
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              aspectRatio: '16/10',
+              borderRadius: 10,
+              overflow: 'hidden',
+              background: '#111',
+              cursor: p.url ? 'pointer' : 'default',
+            }}
+            onClick={() => onSelect?.(p)}
+          >
+            {p.videoSrc ? (
+              <video
+                ref={(el) => { if (el) { el.muted = true; if (el.paused) el.play?.().catch(() => {}); } }}
+                src={p.videoSrc}
+                poster={p.image}
+                autoPlay muted loop playsInline preload="metadata"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }}
+              />
+            ) : (
+              <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            )}
+            <span style={{ position: 'absolute', top: 8, left: 10, fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>{p.num}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Projects() {
   const sectionRef = useRef(null);
   const modalRef = useRef(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [returning, setReturning] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const activeProject = PROJECTS[activeIdx];
 
@@ -225,18 +298,28 @@ export default function Projects() {
           <p data-anim="copy" className="text-neutral-400 mt-2">{t('projects.subtitle')}</p>
         </div>
 
-        {/* ── Anillo 3D de proyectos ── */}
+        {/* ── Carrusel (móvil) / Anillo 3D (desktop) ── */}
         <div className="ring-reveal">
-          <ProjectRing
-            projects={PROJECTS}
-            onSelect={openProject}
-            onActiveChange={setActiveIdx}
-            paused={!!selectedProject || returning}
-            bringToFront={selectedProject?.num ?? null}
-          />
-          <p className="hidden md:block text-center font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-600 mt-2 select-none">
-            {t('projects.ring.hint')}
-          </p>
+          {isMobile ? (
+            <MobileCarousel
+              projects={PROJECTS}
+              onSelect={openProject}
+              onActiveChange={setActiveIdx}
+            />
+          ) : (
+            <>
+              <ProjectRing
+                projects={PROJECTS}
+                onSelect={openProject}
+                onActiveChange={setActiveIdx}
+                paused={!!selectedProject || returning}
+                bringToFront={selectedProject?.num ?? null}
+              />
+              <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-600 mt-2 select-none">
+                {t('projects.ring.hint')}
+              </p>
+            </>
+          )}
         </div>
 
         {/* ── Panel del proyecto activo ── */}
