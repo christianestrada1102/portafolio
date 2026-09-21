@@ -77,12 +77,13 @@ function VSCodeIcon({ className }) {
 
 function OpenRouterIcon({ className }) {
   return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="5"  cy="12" r="2" fill="currentColor"/>
-      <circle cx="19" cy="7"  r="2" fill="currentColor"/>
-      <circle cx="19" cy="17" r="2" fill="currentColor"/>
-      <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" d="M7 11.3 17 7.7M7 12.7 17 16.3"/>
-      <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M14 5.5 17 7l-3 1.5M14 15.5l3 1.5-3 1.5"/>
+    <svg className={className} viewBox="0 0 512 512" fill="currentColor" stroke="currentColor" aria-hidden="true">
+      <g>
+        <path d="M3 248.945C18 248.945 76 236 106 219C136 202 136 202 198 158C276.497 102.293 332 120.945 423 120.945" strokeWidth="90" fill="none"/>
+        <path d="M511 121.5L357.25 210.268L357.25 32.7324L511 121.5Z"/>
+        <path d="M0 249C15 249 73 261.945 103 278.945C133 295.945 133 295.945 195 339.945C273.497 395.652 329 377 420 377" strokeWidth="90" fill="none"/>
+        <path d="M508 376.445L354.25 287.678L354.25 465.213L508 376.445Z"/>
+      </g>
     </svg>
   );
 }
