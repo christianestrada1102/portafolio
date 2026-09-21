@@ -75,6 +75,18 @@ function VSCodeIcon({ className }) {
   );
 }
 
+function OpenRouterIcon({ className }) {
+  return (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="5"  cy="12" r="2" fill="currentColor"/>
+      <circle cx="19" cy="7"  r="2" fill="currentColor"/>
+      <circle cx="19" cy="17" r="2" fill="currentColor"/>
+      <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" d="M7 11.3 17 7.7M7 12.7 17 16.3"/>
+      <path stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M14 5.5 17 7l-3 1.5M14 15.5l3 1.5-3 1.5"/>
+    </svg>
+  );
+}
+
 function CursorIcon({ className }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" aria-hidden="true">
@@ -89,6 +101,7 @@ const TOOLS = [
   { label: 'Cursor',        icon: <CursorIcon className="w-[1em] h-[1em]" /> },
   { label: 'Git',           icon: <SiGit /> },
   { label: 'GitHub',        icon: <SiGithub /> },
+  { label: 'OpenRouter',    icon: <OpenRouterIcon className="w-[1em] h-[1em]" /> },
 ];
 
 /** Divide un texto en spans .reveal-word para el reveal scroll-driven palabra por palabra */
