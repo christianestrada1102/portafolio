@@ -160,19 +160,14 @@ function CursorIcon({ className }) {
 }
 
 const TOOLS = [
-  { label: 'Visual Studio', icon: <VisualStudioIcon className="w-[1em] h-[1em]" /> },
   { label: 'VS Code',       icon: <VSCodeIcon className="w-[1em] h-[1em]" /> },
-  { label: 'Cursor',        icon: <CursorIcon className="w-[1em] h-[1em]" /> },
   { label: 'Git',           icon: <SiGit /> },
   { label: 'GitHub',        icon: <SiGithub /> },
-  { label: 'OpenRouter',    icon: <OpenRouterIcon className="w-[1em] h-[1em]" /> },
-  { label: 'ChatGPT',       icon: <OpenAIIcon className="w-[1em] h-[1em]" /> },
-  { label: 'Claude',        icon: <ClaudeIcon className="w-[1em] h-[1em]" /> },
-  { label: 'Cloudinary',    icon: <CloudinaryIcon className="w-[1em] h-[1em]" /> },
   { label: 'Figma',         icon: <FigmaIcon className="w-[1em] h-[1em]" /> },
-  { label: 'Obsidian',      icon: <ObsidianIcon className="w-[1em] h-[1em]" /> },
   { label: 'Postman',       icon: <PostmanIcon className="w-[1em] h-[1em]" /> },
   { label: 'Notion',        icon: <NotionIcon className="w-[1em] h-[1em]" /> },
+  { label: 'Claude',        icon: <ClaudeIcon className="w-[1em] h-[1em]" /> },
+  { label: 'OpenRouter',    icon: <OpenRouterIcon className="w-[1em] h-[1em]" /> },
 ];
 
 /** Divide un texto en spans .reveal-word para el reveal scroll-driven palabra por palabra */
