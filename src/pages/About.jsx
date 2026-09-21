@@ -15,7 +15,6 @@ import {
   SiTailwindcss,
   SiSupabase,
   SiFirebase,
-  SiVisualstudio,
   SiVisualstudiocode,
   SiGithub,
 } from 'react-icons/si';
@@ -61,6 +60,14 @@ const TECH_LOGOS = [
   { node: <SiGit />,        title: 'Git',        ariaLabel: 'Git' },
 ];
 
+function VisualStudioIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="currentColor" d="M90.3 3.1L51.2 40.6 21.1 17.3 3.1 24.8v78.4l18 7.5 30.3-23.3 39.1 37.5L124.9 113V15L90.3 3.1zM51.2 74.4L26.5 93.5V34.5l24.7 19.1v20.8zm39 19.1L64.3 75.7V52.3l25.9-17.8v59z"/>
+    </svg>
+  );
+}
+
 function CursorIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -70,7 +77,7 @@ function CursorIcon({ className }) {
 }
 
 const TOOLS = [
-  { label: 'Visual Studio', icon: <SiVisualstudio /> },
+  { label: 'Visual Studio', icon: <VisualStudioIcon className="w-[1em] h-[1em]" /> },
   { label: 'VS Code',       icon: <SiVisualstudiocode /> },
   { label: 'Cursor',        icon: <CursorIcon className="w-[1em] h-[1em]" /> },
   { label: 'Git',           icon: <SiGit /> },
