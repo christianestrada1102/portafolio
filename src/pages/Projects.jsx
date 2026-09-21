@@ -11,29 +11,41 @@ gsap.registerPlugin(ScrollTrigger);
 
 function MobileCarousel({ projects, onSelect, onActiveChange }) {
   const scrollRef = useRef(null);
-  const { t } = useLanguage();
+  const [current, setCurrent] = useState(0);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const idx = Math.round(el.scrollLeft / el.clientWidth);
-    onActiveChange?.(Math.max(0, Math.min(idx, projects.length - 1)));
+    const clamped = Math.max(0, Math.min(idx, projects.length - 1));
+    setCurrent(clamped);
+    onActiveChange?.(clamped);
   }, [projects.length, onActiveChange]);
 
+  const goTo = useCallback((idx) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ left: idx * el.clientWidth, behavior: 'smooth' });
+  }, []);
+
+  const prev = () => goTo(Math.max(0, current - 1));
+  const next = () => goTo(Math.min(projects.length - 1, current + 1));
+
   return (
-    <div
-      ref={scrollRef}
-      onScroll={handleScroll}
-      style={{
-        display: 'flex',
-        overflowX: 'auto',
-        scrollSnapType: 'x mandatory',
-        WebkitOverflowScrolling: 'touch',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-        gap: 0,
-      }}
-    >
+    <div style={{ position: 'relative' }}>
+      {/* Scroll strip */}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        style={{
+          display: 'flex',
+          overflowX: 'auto',
+          scrollSnapType: 'x mandatory',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
       {projects.map((p) => (
         <div
           key={p.num}
@@ -71,6 +83,51 @@ function MobileCarousel({ projects, onSelect, onActiveChange }) {
           </div>
         </div>
       ))}
+      </div>
+
+      {/* Flechas + dots */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 14, padding: '0 16px' }}>
+        {/* Prev */}
+        <button
+          onClick={prev}
+          disabled={current === 0}
+          aria-label="Anterior"
+          style={{ background: 'none', border: 'none', padding: 4, cursor: current === 0 ? 'default' : 'pointer', opacity: current === 0 ? 0.2 : 0.7, color: 'var(--text-primary)', transition: 'opacity .2s' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+
+        {/* Dots */}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {projects.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Proyecto ${i + 1}`}
+              style={{
+                width: i === current ? 18 : 6,
+                height: 6,
+                borderRadius: 3,
+                background: i === current ? 'var(--text-primary)' : 'rgba(128,128,128,0.4)',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                transition: 'width .25s ease, background .25s ease',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Next */}
+        <button
+          onClick={next}
+          disabled={current === projects.length - 1}
+          aria-label="Siguiente"
+          style={{ background: 'none', border: 'none', padding: 4, cursor: current === projects.length - 1 ? 'default' : 'pointer', opacity: current === projects.length - 1 ? 0.2 : 0.7, color: 'var(--text-primary)', transition: 'opacity .2s' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
     </div>
   );
 }
