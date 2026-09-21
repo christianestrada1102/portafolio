@@ -15,6 +15,9 @@ import {
   SiTailwindcss,
   SiSupabase,
   SiFirebase,
+  SiVisualstudio,
+  SiVisualstudiocode,
+  SiGithub,
 } from 'react-icons/si';
 import LogoLoop from '../components/LogoLoop';
 import { useLanguage } from '../context/LanguageContext';
@@ -58,7 +61,21 @@ const TECH_LOGOS = [
   { node: <SiGit />,        title: 'Git',        ariaLabel: 'Git' },
 ];
 
-const TOOLS = ['Visual Studio', 'VS Code', 'Cursor', 'Git', 'GitHub'];
+function CursorIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+
+const TOOLS = [
+  { label: 'Visual Studio', icon: <SiVisualstudio /> },
+  { label: 'VS Code',       icon: <SiVisualstudiocode /> },
+  { label: 'Cursor',        icon: <CursorIcon className="w-[1em] h-[1em]" /> },
+  { label: 'Git',           icon: <SiGit /> },
+  { label: 'GitHub',        icon: <SiGithub /> },
+];
 
 /** Divide un texto en spans .reveal-word para el reveal scroll-driven palabra por palabra */
 function Words({ children }) {
@@ -175,12 +192,15 @@ export default function About() {
               {t('about.tools.label')}
             </p>
             <div className="flex flex-wrap gap-2">
-              {TOOLS.map((tool) => (
+              {TOOLS.map(({ label, icon }) => (
                 <span
-                  key={tool}
-                  className="font-mono text-xs bg-neutral-800/50 text-neutral-400 px-3 py-1 rounded-sm hover:bg-neutral-800 hover:text-neutral-300 transition-all duration-200 cursor-default"
+                  key={label}
+                  title={label}
+                  aria-label={label}
+                  className="inline-flex items-center gap-1.5 bg-neutral-800/50 text-neutral-400 px-3 py-1.5 rounded-sm hover:bg-neutral-800 hover:text-neutral-300 transition-all duration-200 cursor-default text-base"
                 >
-                  {tool}
+                  {icon}
+                  <span className="font-mono text-xs">{label}</span>
                 </span>
               ))}
             </div>
