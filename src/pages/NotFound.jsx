@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
+import { useLanguage } from '../context/LanguageContext';
 
 const DIGITS = ['4', '0', '4'];
 const SCRAMBLE_DURATION = 1.2; // segundos hasta que el último dígito se resuelve
@@ -12,22 +13,44 @@ function getAccentColor() {
   return value || '#7c3aed';
 }
 
+const NF_STRINGS = {
+  es: {
+    title:   '404 — Página no encontrada | CodeByNas',
+    eyebrow: 'Página no encontrada',
+    aria:    '404 — Página no encontrada',
+    logoAria:'CodeByNas — volver al inicio',
+    headline:'Esta ruta no <em>existe</em>... todavía.',
+    message: 'Tal vez la borré, tal vez nunca estuvo, o tal vez es uno de esos proyectos que dejé a medias un viernes a las 3am.',
+    back:    '← Volver al inicio',
+  },
+  en: {
+    title:   '404 — Page not found | CodeByNas',
+    eyebrow: 'Page not found',
+    aria:    '404 — Page not found',
+    logoAria:'CodeByNas — back to home',
+    headline:"This route doesn't <em>exist</em>... yet.",
+    message: "Maybe I deleted it, maybe it never existed, or maybe it's one of those projects I left half-done on a Friday at 3am.",
+    back:    '← Back to home',
+  },
+};
+
 export default function NotFound() {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
+  const S = NF_STRINGS[lang] ?? NF_STRINGS.es;
   const digitRefs = useRef([]);
   const fadeRefs = useRef([]);
 
-  // SEO: título y noindex solo mientras esta página está montada
+  // SEO: título (reactivo al idioma) y noindex mientras esta página está montada
   useEffect(() => {
-    const prevTitle = document.title;
-    document.title = '404 — Página no encontrada | CodeByNas';
+    document.title = S.title;
+  }, [S.title]);
 
+  useEffect(() => {
     const robots = document.querySelector('meta[name="robots"]');
     const prevRobots = robots ? robots.getAttribute('content') : null;
     if (robots) robots.setAttribute('content', 'noindex, nofollow');
-
     return () => {
-      document.title = prevTitle;
       if (robots && prevRobots) robots.setAttribute('content', prevRobots);
     };
   }, []);
@@ -109,7 +132,7 @@ export default function NotFound() {
 
   return (
     <main className="nf-page">
-      <Link to="/" className="nf-logo" aria-label="CodeByNas — volver al inicio">
+      <Link to="/" className="nf-logo" aria-label={S.logoAria}>
         CodeByNas
       </Link>
 
@@ -118,10 +141,10 @@ export default function NotFound() {
           ref={(el) => { fadeRefs.current[0] = el; }}
           className="nf-eyebrow nf-fade"
         >
-          Página no encontrada
+          {S.eyebrow}
         </p>
 
-        <h1 className="nf-digits" aria-label="404 — Página no encontrada">
+        <h1 className="nf-digits" aria-label={S.aria}>
           {DIGITS.map((digit, i) => (
             <span
               key={i}
@@ -138,16 +161,14 @@ export default function NotFound() {
         <p
           ref={(el) => { fadeRefs.current[1] = el; }}
           className="nf-headline nf-fade"
-        >
-          Esta ruta no <em>existe</em>... todavía.
-        </p>
+          dangerouslySetInnerHTML={{ __html: S.headline }}
+        />
 
         <p
           ref={(el) => { fadeRefs.current[2] = el; }}
           className="nf-message nf-fade"
         >
-          Tal vez la borré, tal vez nunca estuvo, o tal vez es uno de esos
-          proyectos que dejé a medias un viernes a las 3am.
+          {S.message}
         </p>
 
         <button
@@ -156,7 +177,7 @@ export default function NotFound() {
           className="nf-button nf-fade"
           onClick={() => navigate('/')}
         >
-          ← Volver al inicio
+          {S.back}
         </button>
       </div>
     </main>

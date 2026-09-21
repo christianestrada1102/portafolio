@@ -172,12 +172,6 @@ export default function Layout({ children }) {
             : 'bg-transparent'
         }`}
       >
-        {/* Scroll progress bar */}
-        <div
-          ref={progressRef}
-          className="absolute bottom-0 left-0 h-px bg-brand-500"
-          style={{ width: '0%' }}
-        />
 
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
 

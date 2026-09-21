@@ -84,10 +84,9 @@ body {
   font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-weight: 400;
-  color: #8b5cf6;
-  opacity: 0.7;
+  color: #60469d;
+  opacity: 0.85;
   letter-spacing: 0.01em;
-  filter: saturate(80%);
 }
 
 @media (max-width: 767px) {
@@ -478,6 +477,8 @@ body {
 /* ─ Accent elements ─ */
 [data-theme="light"] .accent-subtle {
   color: var(--accent);
+  opacity: 1;
+  filter: none;
 }
 
 [data-theme="light"] .scroll-shimmer {
@@ -1011,6 +1012,21 @@ html[data-theme='light']::view-transition-new(root) {
 .ach-row:hover .ach-roll-inner {
   transform: translateY(-100%);
 }
+[data-theme="dark"] .ach-course-item {
+  color: #a1a1aa;
+}
+[data-theme="dark"] .ach-course-item button:hover,
+[data-theme="dark"] button.ach-course-item:hover {
+  color: #ffffff;
+}
+[data-theme="light"] .ach-course-item {
+  color: #3f3f46;
+}
+[data-theme="light"] .ach-course-item button:hover,
+[data-theme="light"] button.ach-course-item:hover {
+  color: #18181b;
+}
+
 .ach-hacks:hover .ach-row:not(:hover) .ach-title,
 .ach-hacks:hover .ach-row:not(:hover) .ach-title .accent-subtle {
   color: #52525b;

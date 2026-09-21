@@ -101,9 +101,10 @@ function PhotoPlaceholder({ idx, ratio = '16/9' }) {
   );
 }
 
-function GBCPhoto({ photo, idx, ratio = '16/9' }) {
+function GBCPhoto({ photo, idx, ratio = '16/9', lang = 'es' }) {
   const [broken, setBroken] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const caption = (lang === 'en' && photo.caption_en != null ? photo.caption_en : photo.caption) ?? '';
   const boxRef    = useRef(null);
   const canvasRef = useRef(null);
   const imgRef    = useRef(null);
@@ -243,9 +244,9 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
     return (
       <figure style={{ margin: 0 }}>
         <PhotoPlaceholder idx={idx} ratio={ratio} />
-        {photo.caption && (
+        {caption && (
           <figcaption style={{ fontFamily: MONO, fontSize: '11px', color: C.faint, marginTop: '8px' }}>
-            IMG_{String(idx + 1).padStart(3, '0')}.GBC — {photo.caption}
+            IMG_{String(idx + 1).padStart(3, '0')}.GBC — {caption}
           </figcaption>
         )}
       </figure>
@@ -270,7 +271,7 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
         {/* Foto real debajo — siempre con filtro GBC para consistencia */}
         <img
           src={photo.src ?? photo.src8}
-          alt={photo.caption || ''}
+          alt={caption}
           onError={() => setBroken(true)}
           loading="lazy"
           style={{
@@ -316,9 +317,9 @@ function GBCPhoto({ photo, idx, ratio = '16/9' }) {
           }}
         />
       </div>
-      {photo.caption && (
+      {caption && (
         <figcaption style={{ fontFamily: MONO, fontSize: '11px', color: C.faint, marginTop: '8px' }}>
-          IMG_{String(idx + 1).padStart(3, '0')}.GBC — {photo.caption}
+          IMG_{String(idx + 1).padStart(3, '0')}.GBC — {caption}
         </figcaption>
       )}
     </figure>
@@ -497,7 +498,7 @@ function Arrangeable({ editor, ov = {}, onOv, textMode = false, children }) {
 // Layout editorial asimétrico: la foto principal rompe ancho, las secundarias
 // se flotan alternando lado (el texto las envuelve) y una ancha se desplaza
 // fuera del margen. Nada de rejillas cuadradas.
-function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, ovs = {}, onOv, mobile = false }) {
+function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, ovs = {}, onOv, mobile = false, lang = 'es' }) {
   const wrap = (idx, node) => (
     <Arrangeable editor={editor} ov={ovs[idx]} onOv={(patch) => onOv?.(idx, patch)}>
       {node}
@@ -557,7 +558,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
         {/* Foto principal: 16/9, ancho completo */}
         <div style={{ marginBottom: '1.5rem' }}>
           <ScrollReveal y={28}>
-            {wrap(0, <GBCPhoto photo={main} idx={0} ratio="16/9" />)}
+            {wrap(0, <GBCPhoto photo={main} idx={0} ratio="16/9" lang={lang} />)}
           </ScrollReveal>
         </div>
 
@@ -568,7 +569,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
         {rest[0] && (
           <div style={{ margin: '1.25rem 0' }}>
             <ScrollReveal y={24}>
-              {wrap(1, <GBCPhoto photo={rest[0]} idx={1} ratio="4/3" />)}
+              {wrap(1, <GBCPhoto photo={rest[0]} idx={1} ratio="4/3" lang={lang} />)}
             </ScrollReveal>
           </div>
         )}
@@ -580,7 +581,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
         {rest[1] && (
           <div style={{ margin: '1.25rem 0' }}>
             <ScrollReveal y={24}>
-              {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="4/3" />)}
+              {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="4/3" lang={lang} />)}
             </ScrollReveal>
           </div>
         )}
@@ -592,7 +593,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
         {rest[2] && (
           <div style={{ margin: '1.5rem 0' }}>
             <ScrollReveal y={28}>
-              {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="16/9" />)}
+              {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="16/9" lang={lang} />)}
             </ScrollReveal>
           </div>
         )}
@@ -604,7 +605,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', margin: '1.5rem 0 1rem' }}>
             {rest.slice(3, 7).map((photo, i) => (
               <ScrollReveal key={i} y={24} delay={i * 0.08}>
-                {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio="4/3" />)}
+                {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio="4/3" lang={lang} />)}
               </ScrollReveal>
             ))}
           </div>
@@ -625,7 +626,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
         }}
       >
         <ScrollReveal y={52}>
-          {wrap(0, <GBCPhoto photo={main} idx={0} ratio="21/9" />)}
+          {wrap(0, <GBCPhoto photo={main} idx={0} ratio="21/9" lang={lang} />)}
         </ScrollReveal>
       </div>
 
@@ -633,7 +634,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
       {rest[0] && (
         <div className="hack-float-r" style={floatBox('right')}>
           <ScrollReveal x={44} y={24} tilt={1.4} delay={0.1}>
-            {wrap(1, <GBCPhoto photo={rest[0]} idx={1} ratio="4/5" />)}
+            {wrap(1, <GBCPhoto photo={rest[0]} idx={1} ratio="4/5" lang={lang} />)}
           </ScrollReveal>
         </div>
       )}
@@ -644,14 +645,14 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
       {rest[1] && blockB.length > 0 && (
         <div className="hack-float-l" style={floatBox('left')}>
           <ScrollReveal x={-44} y={24} tilt={-1.2}>
-            {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="3/4" />)}
+            {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="3/4" lang={lang} />)}
           </ScrollReveal>
         </div>
       )}
       {rest[1] && blockB.length === 0 && (
         <div style={{ margin: '0 0 2.5rem' }}>
           <ScrollReveal y={48} tilt={-0.8}>
-            {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="16/9" />)}
+            {wrap(2, <GBCPhoto photo={rest[1]} idx={2} ratio="16/9" lang={lang} />)}
           </ScrollReveal>
         </div>
       )}
@@ -671,7 +672,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
           }}
         >
           <ScrollReveal y={52}>
-            {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="21/9" />)}
+            {wrap(3, <GBCPhoto photo={rest[2]} idx={3} ratio="21/9" lang={lang} />)}
           </ScrollReveal>
         </div>
       )}
@@ -702,7 +703,7 @@ function EditorialLayout({ photos, story, coda, dropCap = true, editor = false, 
                 }}
               >
                 <ScrollReveal y={48} tilt={tilts[i]} delay={i * 0.12}>
-                  {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio={ratios[i]} />)}
+                  {wrap(4 + i, <GBCPhoto photo={photo} idx={4 + i} ratio={ratios[i]} lang={lang} />)}
                 </ScrollReveal>
               </div>
             ))}
@@ -826,17 +827,31 @@ function TopNav({ currentIdx, total, onBack, onPrev, onNext, lang, onToggleLang,
           backdropFilter: 'blur(12px)',
           borderBottom: `1px solid ${C.border}`,
         }}>
-          {/* Izquierda: logo + volver (igual que desktop) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 700, color: C.text }}>
+          {/* Izquierda: logo + volver (click para revelar) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 700, color: C.text, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              aria-expanded={open}
+            >
               <span style={{ color: C.accent }}>{'</>'}</span>CodeByNas
-            </span>
+            </button>
             <button
               type="button"
               onClick={onBack}
-              style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.08em', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '3px' }}
+              tabIndex={open ? 0 : -1}
+              style={{
+                fontFamily: MONO, fontSize: '11px', letterSpacing: '0.08em', color: C.muted,
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                whiteSpace: 'nowrap', overflow: 'hidden',
+                maxWidth: open ? '180px' : '0px',
+                opacity: open ? 1 : 0,
+                transform: open ? 'translateX(0)' : 'translateX(-8px)',
+                transition: 'max-width .35s cubic-bezier(0.33, 1, 0.68, 1), opacity .25s ease, transform .35s cubic-bezier(0.33, 1, 0.68, 1)',
+              }}
             >
-              ◀ {backLabel?.replace('◀ ', '') ?? 'Volver'}
+              ◀ {backLabel?.replace('◀ ', '') ?? (lang === 'en' ? 'Back' : 'Volver')}
             </button>
           </div>
           {/* Derecha: solo lang */}
@@ -946,28 +961,26 @@ function BottomNav({ currentIdx, total, onPrev, onNext, mobile = false }) {
 
   if (mobile) {
     return (
-      <nav style={{ padding: '24px 0 40px', borderTop: `1px solid ${C.border}`, marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <nav style={{ padding: '24px 0 40px', borderTop: `1px solid ${C.border}`, marginTop: '40px', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: '8px' }}>
         <button
           onClick={onPrev}
-          style={{ fontFamily: SANS, fontSize: '13px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}
+          style={{ fontFamily: SANS, fontSize: '12px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '6px', textAlign: 'left', minWidth: 0 }}
           onMouseEnter={e => e.currentTarget.style.color = C.text}
           onMouseLeave={e => e.currentTarget.style.color = C.muted}
         >
           <span style={{ flexShrink: 0 }}>◀</span>
           <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{prevLabel}</span>
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {counter}
-          <button
-            onClick={onNext}
-            style={{ fontFamily: SANS, fontSize: '13px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'right' }}
-            onMouseEnter={e => e.currentTarget.style.color = C.text}
-            onMouseLeave={e => e.currentTarget.style.color = C.muted}
-          >
-            <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '180px' }}>{nextLabel}</span>
-            <span style={{ flexShrink: 0 }}>▶</span>
-          </button>
-        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>{counter}</div>
+        <button
+          onClick={onNext}
+          style={{ fontFamily: SANS, fontSize: '12px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', textAlign: 'right', minWidth: 0 }}
+          onMouseEnter={e => e.currentTarget.style.color = C.text}
+          onMouseLeave={e => e.currentTarget.style.color = C.muted}
+        >
+          <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{nextLabel}</span>
+          <span style={{ flexShrink: 0 }}>▶</span>
+        </button>
       </nav>
     );
   }
@@ -1082,6 +1095,8 @@ export default function HackathonsPage() {
   }, []);
   const { lang, toggleLang }        = useLanguage();
   const L = STRINGS[lang] ?? STRINGS.es;
+  // Pick translated field: h.field_en if lang=en and it exists, else h.field
+  const tr = (h, field) => (lang === 'en' && h[`${field}_en`] != null ? h[`${field}_en`] : h[field]);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -1567,7 +1582,7 @@ export default function HackathonsPage() {
               letterSpacing: '-0.02em',
             }}
           >
-            {h.event}{' '}
+            {tr(h, 'event')}{' '}
             <em style={{ fontStyle: 'italic', color: C.italic, fontWeight: 400 }}>
               {h.eventItalic}
             </em>
@@ -1586,9 +1601,9 @@ export default function HackathonsPage() {
             }}
           >
             {[
-              [L.place,    h.location],
-              [L.team,     h.team],
-              [L.duration, h.duration],
+              [L.place,    tr(h, 'location')],
+              [L.team,     tr(h, 'team')],
+              [L.duration, tr(h, 'duration')],
             ].map(([label, value], i) => (
               <span key={label} style={{ display: 'flex', alignItems: 'center' }}>
                 {i > 0 && !isMobile && (
@@ -1619,9 +1634,10 @@ export default function HackathonsPage() {
               {h.intro && (
                 <EditorialLayout
                   photos={[]}
-                  story={h.intro}
+                  story={tr(h, 'intro')}
                   dropCap
                   mobile={isMobile}
+                  lang={lang}
                   editor={editorMode}
                   ovs={layoutOv[`${h.id}#intro`] ?? {}}
                   onOv={(key, patch) => setOv(`${h.id}#intro`, key, patch)}
@@ -1632,9 +1648,10 @@ export default function HackathonsPage() {
                   <ChapterHeading index={i} title={c.title} titleItalic={c.titleItalic} />
                   <EditorialLayout
                     photos={c.photos}
-                    story={c.story}
+                    story={tr(c, 'story')}
                     dropCap={false}
                     mobile={isMobile}
+                    lang={lang}
                     editor={editorMode}
                     ovs={layoutOv[`${h.id}#${i}`] ?? {}}
                     onOv={(idx, patch) => setOv(`${h.id}#${i}`, idx, patch)}
@@ -1645,9 +1662,10 @@ export default function HackathonsPage() {
           ) : (
             <EditorialLayout
               photos={h.photos}
-              story={h.story}
-              coda={h.coda}
+              story={tr(h, 'story')}
+              coda={tr(h, 'coda')}
               mobile={isMobile}
+              lang={lang}
               editor={editorMode}
               ovs={layoutOv[h.id] ?? {}}
               onOv={(idx, patch) => setOv(h.id, idx, patch)}

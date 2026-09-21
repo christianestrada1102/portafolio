@@ -134,9 +134,9 @@ export default function Home() {
               <span aria-hidden="true" className="text-neutral-600">·</span>
               <span>{t('home.stats.hackathons')}</span>
               <span aria-hidden="true" className="text-neutral-600">·</span>
-              <span>NASA</span>
+              <span>Lead&nbsp;<a href="https://innovathon.innovacuu.xyz/" target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors duration-200">@INNOVA</a></span>
               <span aria-hidden="true" className="text-neutral-600">·</span>
-              <span>ETH México</span>
+              <span>Chihuahua, MX</span>
             </div>
           </div>
 

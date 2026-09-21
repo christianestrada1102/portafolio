@@ -376,28 +376,27 @@ export default function Achievements() {
                 <ul className="pb-6 pl-6 md:pl-32 space-y-1.5">
                   {ICATECH_HOURS.map((hours, j) => {
                     const cert = ICATECH_CERTS[j];
-                    const inner = (
-                      <>
-                        <span aria-hidden="true" className="text-neutral-600">→</span>
-                        <span>{t(`achievements.icatech.course.${j}`)}</span>
-                        <span className="font-mono text-[11px] text-neutral-600">{hours}h</span>
-                      </>
-                    );
                     return (
-                      <li key={j} className="text-sm text-neutral-400">
+                      <li key={j} className="text-sm ach-course-item">
                         {cert ? (
                           <button
                             type="button"
                             onClick={(e) => openCert(cert, t(`achievements.icatech.course.${j}`), e)}
-                            className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
+                            className="flex items-baseline gap-x-3 text-left transition-colors duration-200 group/cert w-full"
                           >
-                            {inner}
-                            <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-brand-400/80 group-hover/cert:text-brand-300 underline-offset-4 group-hover/cert:underline transition-colors duration-200">
+                            <span aria-hidden="true" className="text-neutral-600 shrink-0">→</span>
+                            <span className="flex-1 min-w-0">{t(`achievements.icatech.course.${j}`)}</span>
+                            <span className="font-mono text-[11px] text-neutral-600 shrink-0">{hours}h</span>
+                            <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400 group-hover/cert:text-brand-300 underline-offset-4 underline transition-colors duration-200 shrink-0">
                               {t('achievements.icatech.view')}
                             </span>
                           </button>
                         ) : (
-                          <span className="flex items-baseline gap-3">{inner}</span>
+                          <span className="flex items-baseline gap-3">
+                            <span aria-hidden="true" className="text-neutral-600 shrink-0">→</span>
+                            <span>{t(`achievements.icatech.course.${j}`)}</span>
+                            <span className="font-mono text-[11px] text-neutral-600 shrink-0">{hours}h</span>
+                          </span>
                         )}
                       </li>
                     );
@@ -439,15 +438,15 @@ export default function Achievements() {
                     { cert: certDiplomado,      labelKey: 'achievements.fullstack.cert' },
                     { cert: certReconocimiento, labelKey: 'achievements.fullstack.reco' },
                   ].map(({ cert, labelKey }, j) => (
-                    <li key={j} className="text-sm text-neutral-400">
+                    <li key={j} className="text-sm ach-course-item">
                       <button
                         type="button"
                         onClick={(e) => openCert(cert, t(labelKey), e)}
-                        className="flex items-baseline gap-3 text-left hover:text-neutral-200 transition-colors duration-200 group/cert"
+                        className="flex items-baseline gap-3 text-left transition-colors duration-200 group/cert"
                       >
                         <span aria-hidden="true" className="text-neutral-600">→</span>
                         <span>{t(labelKey)}</span>
-                        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-brand-400/80 group-hover/cert:text-brand-300 underline-offset-4 group-hover/cert:underline transition-colors duration-200">
+                        <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400 group-hover/cert:text-brand-300 underline-offset-4 underline transition-colors duration-200">
                           {t('achievements.fullstack.view')}
                         </span>
                       </button>

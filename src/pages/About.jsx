@@ -242,12 +242,12 @@ export default function About() {
   }, [lang]);
 
   return (
-    <section id="about" ref={containerRef} className="pt-8 pb-6 md:pt-12 md:pb-8">
-      <div className="max-w-6xl mx-auto px-4 md:px-6">
+    <section id="about" ref={containerRef} className="pt-12 pb-10 md:pt-16 md:pb-12">
+      <div className="max-w-6xl mx-auto px-6 md:px-6">
 
         {/* ── Header ── */}
-        <div className="mb-8">
-          <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-2">
+        <div className="mb-10 md:mb-8">
+          <p data-anim="eyebrow" className="font-mono text-xs uppercase tracking-[0.25em] text-brand-400 mb-3">
             {t('about.label')}
           </p>
           <h2 data-anim="title" className="text-3xl md:text-4xl font-semibold text-white">
@@ -257,34 +257,39 @@ export default function About() {
         </div>
 
         {/* ── Bio + Tools ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-10 md:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-10 mb-12 md:mb-12">
 
           {/* Bio */}
           <div ref={bioRef} data-reveal className="space-y-4 text-neutral-400 text-base leading-relaxed">
             <p>
               <Words>{t('about.bio.1.pre')}</Words>
-              <span className="text-white font-medium"><Words>Christian Estrada</Words></span>
-              <Words>{t('about.bio.1.post')}</Words>
+              <span className="text-brand-500 font-medium"><Words>Christian Estrada</Words></span>
+              {t('about.bio.1.post').split('INNOVA').map((part, i, arr) => (
+                <span key={i}>
+                  <Words>{part}</Words>
+                  {i < arr.length - 1 && (
+                    <a href="https://innovathon.innovacuu.xyz/" target="_blank" rel="noopener noreferrer" className="text-brand-500 font-medium hover:text-brand-400 transition-colors duration-200">INNOVA</a>
+                  )}
+                </span>
+              ))}
             </p>
             <p>
               <Words>{t('about.bio.2.pre')}</Words>
-              <span className="text-neutral-200"><Words>{t('about.bio.2.stack')}</Words></span>
-              <Words>{t('about.bio.2.mid')}</Words>
-              <span className="text-neutral-200"><Words>{t('about.bio.2.expanding')}</Words></span>.
+              <span className="text-brand-500"><Words>{t('about.bio.2.expanding')}</Words></span>.
             </p>
             <p>
               <Words>{t('about.bio.3.pre')}</Words>
-              <span className="text-neutral-200"><Words>{t('about.bio.3.hackathons')}</Words></span>
+              <span className="text-brand-500"><Words>{t('about.bio.3.hackathons')}</Words></span>
               <Words>{t('about.bio.3.post')}</Words>
             </p>
           </div>
 
           {/* Tools */}
           <div data-reveal>
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-4">
+            <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-5">
               {t('about.tools.label')}
             </p>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
               {TOOLS.map(({ label, icon }, i) => (
                 <span
                   key={label}
@@ -300,7 +305,7 @@ export default function About() {
 
         {/* ── Tech icons ── */}
         <div data-reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-6">
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-8 md:mb-6">
             {t('about.stack.label')}
           </p>
           <div className="tech-row relative overflow-hidden text-neutral-400" style={{ height: '80px' }}>
