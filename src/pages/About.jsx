@@ -15,7 +15,6 @@ import {
   SiTailwindcss,
   SiSupabase,
   SiFirebase,
-  SiVisualstudiocode,
   SiGithub,
 } from 'react-icons/si';
 import LogoLoop from '../components/LogoLoop';
@@ -68,17 +67,25 @@ function VisualStudioIcon({ className }) {
   );
 }
 
+function VSCodeIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="currentColor" d="M90.767 127.126a10.59 10.59 0 007.997-1.751l21.941-15.963c3.565-2.578 5.295-6.888 5.295-11.034V29.638c0-4.145-1.73-8.456-5.295-11.034L98.764 2.641A10.59 10.59 0 0090.767.89a10.59 10.59 0 00-8.035 3.9L36.999 54.088 15.34 37.93a7.076 7.076 0 00-9.008.37L1.6 42.63C-.531 44.577-.01 47.995 2.336 49.67L21.04 64 2.336 78.329C-.01 80.004-.531 83.42 1.6 85.37l4.733 4.33a7.076 7.076 0 009.008.37l21.658-16.158 45.733 49.298a10.59 10.59 0 008.035 3.916zm2.259-92.766L57.181 64l35.845 29.64V34.36z"/>
+    </svg>
+  );
+}
+
 function CursorIcon({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
 
 const TOOLS = [
   { label: 'Visual Studio', icon: <VisualStudioIcon className="w-[1em] h-[1em]" /> },
-  { label: 'VS Code',       icon: <SiVisualstudiocode /> },
+  { label: 'VS Code',       icon: <VSCodeIcon className="w-[1em] h-[1em]" /> },
   { label: 'Cursor',        icon: <CursorIcon className="w-[1em] h-[1em]" /> },
   { label: 'Git',           icon: <SiGit /> },
   { label: 'GitHub',        icon: <SiGithub /> },
