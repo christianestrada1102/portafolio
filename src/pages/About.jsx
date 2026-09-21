@@ -284,15 +284,13 @@ export default function About() {
             <p className="font-mono text-xs uppercase tracking-[0.25em] text-neutral-400 mb-4">
               {t('about.tools.label')}
             </p>
-            <div className="flex flex-wrap gap-2">
-              {TOOLS.map(({ label, icon }) => (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+              {TOOLS.map(({ label, icon }, i) => (
                 <span
                   key={label}
-                  title={label}
-                  aria-label={label}
-                  className="inline-flex items-center gap-1.5 bg-neutral-800/50 text-neutral-400 px-3 py-1.5 rounded-sm hover:bg-neutral-800 hover:text-neutral-300 transition-all duration-200 cursor-default text-base"
+                  className="inline-flex items-center gap-1.5 text-neutral-400 hover:text-neutral-200 transition-colors duration-200 cursor-default text-base"
                 >
-                  {icon}
+                  <span className="text-[1.1em] opacity-75">{icon}</span>
                   <span className="font-mono text-xs">{label}</span>
                 </span>
               ))}
