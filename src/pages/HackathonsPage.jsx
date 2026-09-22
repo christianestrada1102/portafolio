@@ -1500,14 +1500,12 @@ export default function HackathonsPage() {
               className="hack-cover-ascii"
               style={{ position: 'relative', height: isMobile ? 'min(160px, 22vh)' : 'min(300px, 34vh)', marginBottom: '8px' }}
             >
-              <div style={{
-                position: 'absolute', inset: 0, zIndex: 1,
-                ...(isMobile && coverWord.length > 8 ? {
-                  transform: `scaleX(${Math.min(1, 8 / coverWord.length)})`,
-                  transformOrigin: 'left center',
-                } : {}),
-              }}>
-                <ASCIIText text={coverWord} enableWaves asciiFontSize={isMobile ? 4 : 8} />
+              <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+                <ASCIIText
+                  text={coverWord}
+                  enableWaves
+                  asciiFontSize={isMobile ? Math.max(2, Math.floor(7 / Math.max(1, coverWord.length / 7))) : 8}
+                />
               </div>
             </div>
 
