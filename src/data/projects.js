@@ -6,7 +6,7 @@ import innovathonImg from '../assets/innovathon.png';
 import lavanderiaImg from '../assets/lavanderia.png';
 import cotiestimaImg from '../assets/cotistima.png';
 
-const poisedVideo = null; // video too large for git — host on Cloudinary to enable
+import poisedVideo    from '../assets/Videos/poised-demo.mp4';
 import cotiestimaVideo from '../assets/Videos/cotiestima-demo.mp4';
 import innovathonVideo from '../assets/Videos/innovathon-demo.mp4';
 import havenVideo from '../assets/Videos/haven-demo.mp4';
