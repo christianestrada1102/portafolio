@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect } from 'react';
+import { useRef, useLayoutEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { useLanguage } from '../context/LanguageContext';
@@ -12,7 +12,27 @@ const CV_PATH = { es: '/cv-christian-estrada-es.pdf', en: '/cv-christian-estrada
 
 export default function Contact() {
   const containerRef = useRef(null);
-  const { t, lang } = useLanguage();
+  const cvRowRef     = useRef(null);
+  const cvIconRef    = useRef(null);
+  const { t, lang }  = useLanguage();
+  const [cvDone, setCvDone] = useState(false);
+
+  const handleCvClick = useCallback(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const icon = cvIconRef.current;
+    const row  = cvRowRef.current;
+    if (!icon || !row) return;
+
+    setCvDone(false);
+    gsap.timeline()
+      .to(icon, { y: 6, opacity: 0, duration: 0.25, ease: 'power2.in' })
+      .to(icon, { y: -8, duration: 0 })
+      .to(icon, { y: 0, opacity: 1, duration: 0.35, ease: 'power2.out' })
+      .call(() => {
+        setCvDone(true);
+        setTimeout(() => setCvDone(false), 2200);
+      });
+  }, []);
 
   useLayoutEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -70,12 +90,30 @@ export default function Contact() {
           </a>
 
           <a
+            ref={cvRowRef}
             href={CV_PATH[lang] ?? CV_PATH.es}
             download
+            onClick={handleCvClick}
             className="group flex items-center justify-between py-4 text-neutral-400 hover:text-white transition-colors duration-200"
           >
-            <span className="font-mono text-xs uppercase tracking-[0.2em]">{t('contact.cta.cv')}</span>
-            <svg className="w-3.5 h-3.5 opacity-30 group-hover:opacity-80 group-hover:translate-y-0.5 transition-all duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <span className="font-mono text-xs uppercase tracking-[0.2em] flex items-center gap-2">
+              {t('contact.cta.cv')}
+              <span
+                style={{
+                  overflow: 'hidden',
+                  maxWidth: cvDone ? '80px' : '0px',
+                  opacity: cvDone ? 1 : 0,
+                  transition: 'max-width 0.3s ease, opacity 0.3s ease',
+                  color: 'var(--accent)',
+                  fontSize: '10px',
+                  letterSpacing: '0.15em',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                ✓ {lang === 'en' ? 'saved' : 'guardado'}
+              </span>
+            </span>
+            <svg ref={cvIconRef} className="w-3.5 h-3.5 opacity-30 group-hover:opacity-80 transition-opacity duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 15V3M7 10l5 5 5-5M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/>
             </svg>
           </a>

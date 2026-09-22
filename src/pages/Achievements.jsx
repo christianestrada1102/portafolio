@@ -382,10 +382,11 @@ export default function Achievements() {
                           <button
                             type="button"
                             onClick={(e) => openCert(cert, t(`achievements.icatech.course.${j}`), e)}
-                            className="flex items-baseline gap-x-3 text-left transition-colors duration-200 group/cert w-full"
+                            className="flex items-baseline gap-x-3 text-left transition-colors duration-200 group/cert w-full md:w-auto"
                           >
                             <span aria-hidden="true" className="text-neutral-600 shrink-0">→</span>
-                            <span className="flex-1 min-w-0">{t(`achievements.icatech.course.${j}`)}</span>
+                            {/* mobile: nombre ocupa espacio y empuja horas a la derecha; desktop: inline sin flex-1 */}
+                            <span className="flex-1 md:flex-none">{t(`achievements.icatech.course.${j}`)}</span>
                             <span className="font-mono text-[11px] text-neutral-600 shrink-0">{hours}h</span>
                             <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-brand-400 group-hover/cert:text-brand-300 underline-offset-4 underline transition-colors duration-200 shrink-0">
                               {t('achievements.icatech.view')}
