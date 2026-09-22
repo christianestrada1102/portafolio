@@ -111,8 +111,6 @@ class AsciiFilter {
     this.pre.style.left = '0';
     this.pre.style.top = '0';
     this.pre.style.zIndex = '9';
-    this.pre.style.overflow = 'hidden';
-    this.pre.style.width = '100%';
     this.pre.style.backgroundAttachment = 'fixed';
     this.pre.style.mixBlendMode = 'difference';
   }
