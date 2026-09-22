@@ -1498,10 +1498,10 @@ export default function HackathonsPage() {
             <div
               ref={asciiWrapRef}
               className="hack-cover-ascii"
-              style={{ position: 'relative', height: isMobile ? 'min(160px, 22vh)' : 'min(300px, 34vh)', marginBottom: '8px' }}
+              style={{ position: 'relative', height: isMobile ? 'min(160px, 22vh)' : 'min(300px, 34vh)', marginBottom: '8px', overflow: 'hidden' }}
             >
-              <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-                <ASCIIText text={coverWord} enableWaves asciiFontSize={isMobile ? 5 : 8} />
+              <div style={{ position: 'absolute', inset: 0, zIndex: 1, overflow: 'hidden' }}>
+                <ASCIIText text={coverWord} enableWaves asciiFontSize={isMobile ? 4 : 8} />
               </div>
             </div>
 
