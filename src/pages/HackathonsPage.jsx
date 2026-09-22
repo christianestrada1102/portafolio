@@ -1324,7 +1324,7 @@ export default function HackathonsPage() {
             display: 'flex',
             fontFamily: MONO,
             filter: 'drop-shadow(0 18px 50px rgba(0,0,0,0.65))',
-            maxWidth: 'min(88vw, 400px)',
+            maxWidth: isMobile ? 'min(88vw, 400px)' : '560px',
             width: '100%',
           }}
         >
@@ -1353,14 +1353,14 @@ export default function HackathonsPage() {
               }}
             >
               <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: C.text }}>{'</>'}CODEBYNAS AIR</span>
-              <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: C.accent }}>PASE DE ABORDAR</span>
+              <span style={{ fontSize: '9px', letterSpacing: '0.18em', color: C.accent }}>{lang === 'en' ? 'BOARDING PASS' : 'PASE DE ABORDAR'}</span>
             </div>
             <div style={{ padding: '12px 14px' }}>
               {/* Ruta: la línea se dibuja y el avión la recorre */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                 <div>
-                  <div style={{ fontSize: 'clamp(20px, 5.5vw, 30px)', color: C.text, letterSpacing: '0.06em' }}>CUU</div>
-                  <div style={{ fontSize: '8px', letterSpacing: '0.14em', color: C.faint }}>CHIHUAHUA</div>
+                  <div style={{ fontSize: isMobile ? 'clamp(20px, 5.5vw, 30px)' : '36px', color: C.text, letterSpacing: '0.06em' }}>CUU</div>
+                  <div style={{ fontSize: isMobile ? '8px' : '10px', letterSpacing: '0.14em', color: C.faint }}>CHIHUAHUA</div>
                 </div>
                 <div style={{ flex: 1, position: 'relative', height: '24px', minWidth: '60px' }}>
                   <div style={{ position: 'absolute', left: 0, right: 0, top: 'calc(50% - 1px)', borderTop: `2px dashed ${C.border}` }} />
@@ -1379,13 +1379,16 @@ export default function HackathonsPage() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 'clamp(20px, 5.5vw, 30px)', color: C.text, letterSpacing: '0.06em' }}>MTY</div>
-                  <div style={{ fontSize: '8px', letterSpacing: '0.14em', color: C.faint }}>MONTERREY</div>
+                  <div style={{ fontSize: isMobile ? 'clamp(20px, 5.5vw, 30px)' : '36px', color: C.text, letterSpacing: '0.06em' }}>MTY</div>
+                  <div style={{ fontSize: isMobile ? '8px' : '10px', letterSpacing: '0.14em', color: C.faint }}>MONTERREY</div>
                 </div>
               </div>
               {/* Datos del pasajero */}
               <div style={{ display: 'flex', gap: 'clamp(8px, 2.5vw, 20px)', flexWrap: 'wrap', marginBottom: '12px' }}>
-                {[['PASAJERO', 'CHRISTIAN'], ['FECHA', 'NOV 2025'], ['VUELO', 'BIT-025'], ['PUERTA', 'A7'], ['ASIENTO', '4E']].map(([k, v]) => (
+                {(lang === 'en'
+                  ? [['PASSENGER', 'CHRISTIAN'], ['DATE', 'NOV 2025'], ['FLIGHT', 'BIT-025'], ['GATE', 'A7'], ['SEAT', '4E']]
+                  : [['PASAJERO', 'CHRISTIAN'], ['FECHA', 'NOV 2025'], ['VUELO', 'BIT-025'], ['PUERTA', 'A7'], ['ASIENTO', '4E']]
+                ).map(([k, v]) => (
                   <div key={k}>
                     <div style={{ fontSize: '8px', letterSpacing: '0.15em', color: C.faint, marginBottom: '2px' }}>{k}</div>
                     <div style={{ fontSize: '11px', color: C.prose }}>{v}</div>
@@ -1418,7 +1421,7 @@ export default function HackathonsPage() {
                 whiteSpace: 'nowrap',
               }}
             >
-              ABORDADO
+              {lang === 'en' ? 'BOARDED' : 'ABORDADO'}
             </div>
           </div>
           {/* Perforación + talón */}
@@ -1441,7 +1444,7 @@ export default function HackathonsPage() {
             {/* Muescas de la perforación */}
             <div style={{ position: 'absolute', left: '-9px', top: '-9px', width: '16px', height: '16px', borderRadius: '50%', background: '#0a0610', zIndex: 1 }} />
             <div style={{ position: 'absolute', left: '-9px', bottom: '-9px', width: '16px', height: '16px', borderRadius: '50%', background: '#0a0610', zIndex: 1 }} />
-            <div style={{ fontSize: '8px', letterSpacing: '0.18em', color: C.faint }}>TALÓN</div>
+            <div style={{ fontSize: '8px', letterSpacing: '0.18em', color: C.faint }}>{lang === 'en' ? 'STUB' : 'TALÓN'}</div>
             <div style={{ fontSize: '14px', color: C.text, lineHeight: 1.4, textAlign: 'center' }}>
               CUU
               <div style={{ fontSize: '10px', color: C.accent }}>▼</div>
