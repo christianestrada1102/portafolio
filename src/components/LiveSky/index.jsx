@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { SkyEngine } from './engine';
 import '@fontsource/nunito/900.css';
+
+const POLL_MS = 15_000;
 
 const STRINGS = {
   es: {
@@ -45,9 +47,21 @@ const reducedMotion =
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function LiveSky() {
-  const canvasRef = useRef(null);
-  const engineRef = useRef(null);
-  const { lang }  = useLanguage();
+  const canvasRef  = useRef(null);
+  const engineRef  = useRef(null);
+  const pollRef    = useRef(null);
+  const { lang }   = useLanguage();
+
+  const fetchStatus = useCallback(async (currentLang) => {
+    try {
+      const res = await fetch(`/api/status?lang=${currentLang}`, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) return;
+      const data = await res.json();
+      engineRef.current?.setLiveData(data);
+    } catch {
+      // network error — engine keeps showing last known state
+    }
+  }, []);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -69,7 +83,15 @@ export default function LiveSky() {
     // Start RAF loop immediately; writing starts after preloader
     engine._startLoop();
 
-    const beginWriting = () => engine.beginWriting();
+    const startPolling = (l) => {
+      fetchStatus(l);
+      pollRef.current = setInterval(() => fetchStatus(l), POLL_MS);
+    };
+
+    const beginWriting = () => {
+      engine.beginWriting();
+      startPolling(lang);
+    };
 
     // If preloader already ran (e.g. hot-reload), start immediately
     if (sessionStorage.getItem('preloader-shown')) {
@@ -106,6 +128,7 @@ export default function LiveSky() {
 
     return () => {
       clearTimeout(engine._pendingStart);
+      clearInterval(pollRef.current);
       window.removeEventListener('skywriting:start', beginWriting);
       engine.destroy();
       engineRef.current = null;
@@ -117,10 +140,15 @@ export default function LiveSky() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update strings when language toggles
+  // Update strings and re-fetch API labels when language toggles
   useEffect(() => {
     engineRef.current?.setStrings(STRINGS[lang] ?? STRINGS.es);
-  }, [lang]);
+    if (engineRef.current) {
+      clearInterval(pollRef.current);
+      fetchStatus(lang);
+      pollRef.current = setInterval(() => fetchStatus(lang), POLL_MS);
+    }
+  }, [lang, fetchStatus]);
 
   if (reducedMotion) {
     return (

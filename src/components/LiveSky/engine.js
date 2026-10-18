@@ -118,8 +118,11 @@ export class SkyEngine {
     this.fly  = null; this.cloudC = null; this.cloudA = 0;
     this.tpts = []; this.t = 0; this.lastMin = '';
 
-    // Mock system stats (replaced by real data in Phase 4)
-    this.sys = { cpu: 34, ram: 6.2, up: 4 * 3600 + 12 * 60, sync: 0 };
+    // Live system stats — updated by setLiveData()
+    this.sys = { cpu: 0, ram: 0, ramTotal: 16, up: 0, hostname: 'linux', syncAgo: null };
+
+    // Real grid cells from API — null means use mock fallback
+    this._apiGrid = null;
 
     // Grid position bookkeeping for live-line drawing
     this._gridX0 = 0; this._gridY0 = 0; this._gridGH = 0;
@@ -159,6 +162,23 @@ export class SkyEngine {
 
   setStrings(s) {
     this.strings = s;
+    if (this.mode === 'open') this._renderGrid();
+  }
+
+  // Called by the React component whenever /api/status returns fresh data
+  setLiveData({ state, grid, live }) {
+    this.setWord(state);
+    this._apiGrid = grid ?? null;
+    if (live) {
+      this.sys = {
+        cpu:      live.cpu,
+        ram:      live.ramUsed,
+        ramTotal: live.ramTotal,
+        up:       live.uptime,
+        hostname: live.hostname,
+        syncAgo:  live.syncAgo,
+      };
+    }
     if (this.mode === 'open') this._renderGrid();
   }
 
@@ -218,6 +238,11 @@ export class SkyEngine {
   }
 
   _cells() {
+    // Use real API data when available
+    if (this._apiGrid) {
+      return this._apiGrid.map(c => [c.label, c.value, c.sub]);
+    }
+    // Fallback mock data
     const S     = this.strings;
     const clock = this._clockStr();
     const D = {
@@ -415,7 +440,14 @@ export class SkyEngine {
   }
 
   _startMorph() {
-    this._renderGrid();
+    // Ensure Nunito is loaded before sampling glyph pixels for the cloud effect
+    document.fonts.load('900 30px "Nunito"').catch(() => {}).finally(() => {
+      this._renderGrid();
+      this._beginMorph();
+    });
+  }
+
+  _beginMorph() {
     const done = this.pos >= this.path.length - 1;
     let p0, dir;
     if (done) {
@@ -497,10 +529,13 @@ export class SkyEngine {
     if (this.cloudA < 0.15 || this._gridX0 === 0) return;
     const S      = this.strings;
     const sys    = this.sys;
-    const active = this.word !== 'offline';
+    const active   = this.word !== 'offline';
+    const host     = sys.hostname ?? 'linux';
+    const syncStr  = sys.syncAgo != null ? `${sys.syncAgo}s` : '—';
+    const ramTotal = sys.ramTotal ?? 16;
     const text   = active
-      ? `christian@cachyos — live · cpu ${Math.round(sys.cpu)}% · ram ${sys.ram.toFixed(1)}/16 gb · up ${this._fmtUp(sys.up)} · ${S.sync} ${sys.sync}s`
-      : `christian@cachyos — ${S.noSignal}`;
+      ? `christian@${host} — live · cpu ${Math.round(sys.cpu)}% · ram ${(sys.ram ?? 0).toFixed(1)}/${ramTotal} gb · up ${this._fmtUp(sys.up)} · ${S.sync} ${syncStr}`
+      : `christian@${host} — ${S.noSignal}`;
 
     const alpha  = Math.min(1, (this.cloudA - 0.15) / 0.4);
     const x0     = this._gridX0;
