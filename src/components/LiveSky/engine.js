@@ -237,9 +237,12 @@ export class SkyEngine {
     for (const ch of w) { if (C[ch]) units += C[ch].w; else units += 0.6; }
     units += 2.6;
 
-    const u    = Math.min(26, (this.W * 0.6) / units);
-    const ox   = this.W - units * u - this.W * 0.04;
-    const base = this.H * 0.32;
+    // Write in the upper-center region of the hero (right of the text block).
+    // areaW = how much horizontal space the word can use; ox = left anchor.
+    const areaW = this.W * 0.42;
+    const u     = Math.min(26, areaW / units);
+    const ox    = this.W * 0.30;
+    const base  = this.H * 0.24;
     const tf   = (x, y) => [ox + (x - y * 0.28) * u, base + y * u];
 
     const raw = [[-0.2, -0.05], [0.5, -0.15], [1.0, -0.35]];
