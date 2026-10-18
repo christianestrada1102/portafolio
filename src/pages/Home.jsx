@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import nasPhoto from '../assets/nas2.webp';
 import { useLanguage } from '../context/LanguageContext';
+import LiveSky from '../components/LiveSky';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -63,6 +64,7 @@ export default function Home() {
         ref={photoWrapRef}
         style={{ position: 'absolute', inset: 0, zIndex: 0 }}
       >
+
         <img
           src={nasPhoto}
           alt=""
@@ -74,6 +76,9 @@ export default function Home() {
           height="1080"
         />
       </div>
+
+      {/* ── Live sky animation (transparent canvas, z-index 1) ── */}
+      <LiveSky />
 
       <div className="max-w-6xl mx-auto px-4 md:px-6 w-full py-10 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-8 items-center">
