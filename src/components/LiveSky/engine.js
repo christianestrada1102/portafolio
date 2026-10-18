@@ -380,15 +380,15 @@ export class SkyEngine {
 
     const imgData = sc.getImageData(0, 0, W, H).data;
     this.tpts = [];
-    // Sample every 4px for a sparser, puffier result
-    for (let y = 0; y < H; y += 4) {
-      for (let x = 0; x < W; x += 4) {
+    // Sample every 3px — dense enough for coverage, sparse enough for puff overlap
+    for (let y = 0; y < H; y += 3) {
+      for (let x = 0; x < W; x += 3) {
         if (imgData[(y * W + x) * 4 + 3] > 120) this.tpts.push([x, y]);
       }
     }
     this.tpts.sort(() => Math.random() - .5);
 
-    const puffR = fs * 0.65; // large puffs relative to font size
+    const puffR = fs * 0.55; // puff radius relative to font size
 
     // Build shadow layer (offset down-right for depth)
     const sh   = document.createElement('canvas');
@@ -397,8 +397,8 @@ export class SkyEngine {
     const sk   = sh.getContext('2d');
     sk.setTransform(dpr, 0, 0, dpr, 0, 0);
     for (const q of this.tpts) {
-      const r = puffR * (0.85 + Math.random() * 0.3);
-      sk.globalAlpha = 0.25;
+      const r = puffR * (0.9 + Math.random() * 0.3);
+      sk.globalAlpha = 0.22;
       sk.drawImage(this._cpuff, q[0] - r + 2, q[1] - r + 3, r * 2, r * 2);
     }
     sk.globalCompositeOperation = 'source-atop';
@@ -413,18 +413,24 @@ export class SkyEngine {
     const k   = cc.getContext('2d');
     k.setTransform(dpr, 0, 0, dpr, 0, 0);
     // Shadow pass
-    k.globalAlpha = 0.55; k.drawImage(sh, 0, 0, W, H);
-    // Main cloud puffs
+    k.globalAlpha = 0.5; k.drawImage(sh, 0, 0, W, H);
+    // Solid text base so letters are always legible
+    k.globalAlpha  = 0.9;
+    k.font         = CLOUD_FONT(fs);
+    k.textBaseline = 'middle';
+    k.fillStyle    = '#ffffff';
+    for (const L of lay) k.fillText(L.cell[1], L.x, L.y + 16 + fs / 2);
+    // Cloud puffs on top of text for fluffy texture
     for (const q of this.tpts) {
-      const r = puffR * (0.9 + Math.random() * 0.25);
-      k.globalAlpha = 0.55 + Math.random() * 0.2;
+      const r = puffR * (0.85 + Math.random() * 0.3);
+      k.globalAlpha = 0.38 + Math.random() * 0.18;
       k.drawImage(this._cpuff, q[0] - r, q[1] - r, r * 2, r * 2);
     }
-    // Bright highlight pass — smaller puffs centered for crispness
+    // Bright highlight puffs
     for (const q of this.tpts) {
-      if (Math.random() > 0.5) continue;
-      const r = puffR * 0.45;
-      k.globalAlpha = 0.7;
+      if (Math.random() > 0.4) continue;
+      const r = puffR * 0.4;
+      k.globalAlpha = 0.65;
       k.drawImage(this._cpuff, q[0] - r, q[1] - r - 1, r * 2, r * 2);
     }
     k.globalAlpha = 1;
