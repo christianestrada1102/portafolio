@@ -93,15 +93,8 @@ export default function LiveSky() {
       startPolling(lang);
     };
 
-    // If preloader already ran (e.g. hot-reload), start immediately
-    if (sessionStorage.getItem('preloader-shown')) {
-      // Small delay so hero entrance animation plays first
-      const tid = setTimeout(beginWriting, 400);
-      // Store cleanup
-      engine._pendingStart = tid;
-    } else {
-      window.addEventListener('skywriting:start', beginWriting, { once: true });
-    }
+    // Start only after preloader signals — never before hero is visible
+    window.addEventListener('skywriting:start', beginWriting, { once: true });
 
     // Resize
     const ro = new ResizeObserver(doResize);

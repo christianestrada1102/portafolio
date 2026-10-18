@@ -19,6 +19,7 @@ export default function Preloader({ onComplete }) {
       el.style.display = 'none';
       gsap.set('#home', { visibility: 'visible', opacity: 1 });
       onComplete?.();
+      window.dispatchEvent(new CustomEvent('skywriting:start'));
       return;
     }
 
