@@ -414,24 +414,13 @@ export class SkyEngine {
     k.setTransform(dpr, 0, 0, dpr, 0, 0);
     // Shadow pass
     k.globalAlpha = 0.5; k.drawImage(sh, 0, 0, W, H);
-    // Solid text base so letters are always legible
-    k.globalAlpha  = 0.9;
-    k.font         = CLOUD_FONT(fs);
-    k.textBaseline = 'middle';
-    k.fillStyle    = '#ffffff';
-    for (const L of lay) k.fillText(L.cell[1], L.x, L.y + 16 + fs / 2);
-    // Cloud puffs on top of text for fluffy texture
-    for (const q of this.tpts) {
-      const r = puffR * (0.85 + Math.random() * 0.3);
-      k.globalAlpha = 0.38 + Math.random() * 0.18;
-      k.drawImage(this._cpuff, q[0] - r, q[1] - r, r * 2, r * 2);
-    }
-    // Bright highlight puffs
-    for (const q of this.tpts) {
-      if (Math.random() > 0.4) continue;
-      const r = puffR * 0.4;
-      k.globalAlpha = 0.65;
-      k.drawImage(this._cpuff, q[0] - r, q[1] - r - 1, r * 2, r * 2);
+    // Smoke-style letters: same soft puff sprite as the plane trail
+    for (let pass = 0; pass < 2; pass++) {
+      for (const q of this.tpts) {
+        const r = 2.5 + Math.random() * 2.5;
+        k.globalAlpha = 0.35 + Math.random() * 0.2;
+        k.drawImage(this._puff, q[0] - r + (Math.random() - .5) * 2, q[1] - r + (Math.random() - .5) * 2, r * 2, r * 2);
+      }
     }
     k.globalAlpha = 1;
     for (const L of lay) {
