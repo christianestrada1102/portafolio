@@ -101,11 +101,16 @@ function hadRecentPush() {
 
 function getSong() {
   try {
-    const status = execSync('playerctl status 2>/dev/null', { timeout: 800 }).toString().trim();
+    // Try spotify first, fall back to any playing player
+    const players = execSync('playerctl -l 2>/dev/null', { timeout: 800 }).toString().trim().split('\n');
+    const preferred = players.find(p => p.startsWith('spotify')) ?? '';
+    const flag = preferred ? `-p ${preferred}` : '';
+
+    const status = execSync(`playerctl ${flag} status 2>/dev/null`, { timeout: 800 }).toString().trim();
     if (status !== 'Playing') return null;
 
-    const title  = execSync('playerctl metadata title  2>/dev/null', { timeout: 800 }).toString().trim();
-    const artist = execSync('playerctl metadata artist 2>/dev/null', { timeout: 800 }).toString().trim();
+    const title  = execSync(`playerctl ${flag} metadata title  2>/dev/null`, { timeout: 800 }).toString().trim();
+    const artist = execSync(`playerctl ${flag} metadata artist 2>/dev/null`, { timeout: 800 }).toString().trim();
     return title ? { title, artist } : null;
   } catch {
     return null;
