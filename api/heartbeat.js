@@ -1,8 +1,18 @@
 // POST /api/heartbeat — receives system telemetry from the Linux daemon.
 // Authenticated with Authorization: Bearer <HEARTBEAT_SECRET>.
-// Upserts a single row (id=1) in the Supabase live_status table.
+// Stores in Upstash Redis with a 90s TTL so the key auto-expires → offline state.
 
-import { createClient } from '@supabase/supabase-js';
+const REDIS_TTL = 90; // seconds
+
+async function redisSet(key, value) {
+  const url   = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const res   = await fetch(`${url}/set/${encodeURIComponent(key)}/${encodeURIComponent(JSON.stringify(value))}?EX=${REDIS_TTL}`, {
+    method:  'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Redis SET failed: ${res.status}`);
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -10,56 +20,39 @@ export default async function handler(req, res) {
   }
 
   // Auth
-  const auth = req.headers.authorization ?? '';
+  const auth  = req.headers.authorization ?? '';
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
   if (!token || token !== process.env.HEARTBEAT_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // Validate payload
   const body = req.body;
   if (!body || typeof body !== 'object') {
     return res.status(400).json({ error: 'Invalid payload' });
   }
 
-  const {
-    cpu,          // number 0-100
-    ramUsed,      // number GB
-    ramTotal,     // number GB
-    uptime,       // number seconds
-    hostname,     // string
-    appClass,     // 'editor' | 'terminal' | 'browser' | 'other'
-    song,         // { title, artist } | null
-    recentPush,   // boolean — pushed to git in last 30 min
-  } = body;
+  const { cpu, ramUsed, ramTotal, uptime, hostname, appClass, song, recentPush } = body;
 
-  // Sanitize: only store what we need, no raw window titles
+  // Sanitize — never store raw window titles or project paths
   const payload = {
-    cpu:        typeof cpu === 'number'      ? Math.round(cpu)           : null,
-    ramUsed:    typeof ramUsed === 'number'  ? +ramUsed.toFixed(1)       : null,
-    ramTotal:   typeof ramTotal === 'number' ? +ramTotal.toFixed(1)      : null,
-    uptime:     typeof uptime === 'number'   ? Math.round(uptime)        : null,
-    hostname:   typeof hostname === 'string' ? hostname.slice(0, 32)     : 'linux',
+    cpu:        typeof cpu === 'number'     ? Math.round(cpu)          : null,
+    ramUsed:    typeof ramUsed === 'number' ? +ramUsed.toFixed(1)      : null,
+    ramTotal:   typeof ramTotal === 'number'? +ramTotal.toFixed(1)     : 16,
+    uptime:     typeof uptime === 'number'  ? Math.round(uptime)       : null,
+    hostname:   typeof hostname === 'string'? hostname.slice(0, 32)    : 'linux',
     appClass:   ['editor','terminal','browser','other'].includes(appClass) ? appClass : 'other',
     song:       song && typeof song === 'object'
                   ? { title: String(song.title ?? '').slice(0, 80), artist: String(song.artist ?? '').slice(0, 60) }
                   : null,
     recentPush: Boolean(recentPush),
+    ts:         Date.now(),
   };
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { persistSession: false } },
-  );
-
-  const { error } = await supabase
-    .from('live_status')
-    .upsert({ id: 1, payload, updated_at: new Date().toISOString() });
-
-  if (error) {
-    console.error('Supabase upsert error:', error.message);
-    return res.status(500).json({ error: 'DB error' });
+  try {
+    await redisSet('live_status', payload);
+  } catch (err) {
+    console.error('Redis error:', err.message);
+    return res.status(500).json({ error: 'Store error' });
   }
 
   return res.status(200).json({ ok: true });

@@ -1,14 +1,23 @@
 // GET /api/status — public endpoint consumed by the LiveSky frontend.
-// Returns the current state (build | idle | offline) plus live stats.
+// Reads from Upstash Redis. If the key is missing (TTL expired) → offline.
 // Cache: s-maxage=10, stale-while-revalidate=30
 
-import { createClient } from '@supabase/supabase-js';
-
-const TZ = 'America/Chihuahua';
+const TZ          = 'America/Chihuahua';
 const GITHUB_USER = 'christianestrada1102';
 
-// Simple in-memory GitHub cache (lives for the function instance lifetime)
+// In-memory GitHub cache (lives for the function instance lifetime)
 let ghCache = { data: null, fetchedAt: 0 };
+
+async function redisGet(key) {
+  const url   = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const res   = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Redis GET failed: ${res.status}`);
+  const { result } = await res.json();
+  return result ? JSON.parse(result) : null;
+}
 
 async function fetchGitHub() {
   const now = Date.now();
@@ -18,19 +27,17 @@ async function fetchGitHub() {
     const headers = { 'User-Agent': 'live-sky/1.0' };
     if (process.env.GITHUB_TOKEN) headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
 
-    const res  = await fetch(`https://api.github.com/users/${GITHUB_USER}/events?per_page=30`, { headers });
+    const res    = await fetch(`https://api.github.com/users/${GITHUB_USER}/events?per_page=30`, { headers });
     if (!res.ok) throw new Error(`GitHub ${res.status}`);
     const events = await res.json();
 
-    // Last push commit message + repo (public repos only)
-    const pushes = events.filter(e => e.type === 'PushEvent');
-    const lastPush = pushes[0] ?? null;
+    const pushes    = events.filter(e => e.type === 'PushEvent');
+    const lastPush  = pushes[0] ?? null;
     const lastCommit = lastPush
-      ? { repo: lastPush.repo.name.split('/')[1], ago: Date.now() - new Date(lastPush.created_at).getTime() }
+      ? { repo: lastPush.repo.name.split('/')[1], agoMs: Date.now() - new Date(lastPush.created_at).getTime() }
       : null;
 
-    // Repos with push activity today in Chihuahua timezone
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: TZ }); // YYYY-MM-DD
+    const todayStr  = new Date().toLocaleDateString('en-CA', { timeZone: TZ });
     const todayRepos = [...new Set(
       pushes
         .filter(e => new Date(e.created_at).toLocaleDateString('en-CA', { timeZone: TZ }) === todayStr)
@@ -45,11 +52,11 @@ async function fetchGitHub() {
   }
 }
 
-function fmtAgo(ms, lang = 'es') {
+function fmtAgo(ms, lang) {
   const s = Math.round(ms / 1000);
-  if (s < 60)  return lang === 'en' ? `${s}s ago`        : `hace ${s}s`;
+  if (s < 60)  return lang === 'en' ? `${s}s ago`      : `hace ${s}s`;
   const m = Math.round(s / 60);
-  if (m < 60)  return lang === 'en' ? `${m} min ago`     : `hace ${m} min`;
+  if (m < 60)  return lang === 'en' ? `${m} min ago`   : `hace ${m} min`;
   const h = Math.round(m / 60);
   return lang === 'en' ? `${h} h ago` : `hace ${h} h`;
 }
@@ -61,77 +68,58 @@ export default async function handler(req, res) {
 
   res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=30');
 
-  const lang = (req.query.lang === 'en') ? 'en' : 'es';
+  const lang = req.query.lang === 'en' ? 'en' : 'es';
+  const now  = Date.now();
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { persistSession: false } },
-  );
-
-  const { data: row, error } = await supabase
-    .from('live_status')
-    .select('payload, updated_at')
-    .eq('id', 1)
-    .single();
-
-  const now = Date.now();
-
-  // Determine state
-  let state = 'offline';
+  // Read from Redis — null means TTL expired → offline
   let payload = null;
-
-  if (!error && row) {
-    const ageSec = (now - new Date(row.updated_at).getTime()) / 1000;
-    payload = row.payload;
-
-    if (ageSec <= 90) {
-      const isBuilding = payload.appClass === 'editor' || payload.appClass === 'terminal' || payload.recentPush;
-      state = isBuilding ? 'build' : 'idle';
-    }
+  try {
+    payload = await redisGet('live_status');
+  } catch (err) {
+    console.error('Redis read error:', err.message);
   }
 
-  const gh = await fetchGitHub();
-  const localTime = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
+  // State: offline if key missing, build if active dev, idle otherwise
+  let state = 'offline';
+  if (payload) {
+    const isBuilding = payload.appClass === 'editor' || payload.appClass === 'terminal' || payload.recentPush;
+    state = isBuilding ? 'build' : 'idle';
+  }
 
-  // Build grid cells
-  const lastCommitLabel = gh.lastCommit
-    ? { value: gh.lastCommit.repo, sub: fmtAgo(now - (now - gh.lastCommit.ago), lang) }
+  const gh         = await fetchGitHub();
+  const localTime  = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
+  const syncAgo    = payload?.ts ? Math.round((now - payload.ts) / 1000) : null;
+
+  // Grid cells
+  const lastCommitCell = gh.lastCommit
+    ? { value: gh.lastCommit.repo, sub: fmtAgo(gh.lastCommit.agoMs, lang) }
     : { value: '—', sub: '—' };
 
-  // Fix: ago is already ms elapsed, so:
-  const lastCommitDisplay = gh.lastCommit
-    ? { value: gh.lastCommit.repo, sub: fmtAgo(gh.lastCommit.ago, lang) }
-    : { value: '—', sub: '—' };
-
-  const songDisplay = payload?.song?.title
+  const songCell = payload?.song?.title
     ? { value: payload.song.title.slice(0, 22), sub: payload.song.artist }
     : state === 'offline'
-      ? { value: lang === 'en' ? 'Nothing' : 'Nada', sub: lang === 'en' ? 'not playing' : 'sin reproducir' }
-      : { value: lang === 'en' ? 'Paused' : 'En pausa', sub: '—' };
+      ? { value: lang === 'en' ? 'Nothing'  : 'Nada',     sub: lang === 'en' ? 'not playing'   : 'sin reproducir' }
+      : { value: lang === 'en' ? 'Paused'   : 'En pausa', sub: '—' };
 
-  const reposDisplay = gh.todayRepos.length > 0
+  const reposCell = gh.todayRepos.length > 0
     ? { value: `${gh.todayRepos.length} ${lang === 'en' ? 'active' : 'activos'}`, sub: gh.todayRepos.slice(0, 2).join(' · ') }
     : { value: '0', sub: '—' };
 
   const grid = [
-    { label: lang === 'en' ? 'LAST COMMIT'  : 'ÚLTIMO COMMIT', ...lastCommitDisplay },
-    { label: lang === 'en' ? 'LISTENING'    : 'ESCUCHANDO',    ...songDisplay },
-    { label: lang === 'en' ? 'REPOS TODAY'  : 'REPOS HOY',     ...reposDisplay },
-    { label: lang === 'en' ? 'LOCAL TIME'   : 'HORA LOCAL',    value: localTime, sub: 'Chihuahua, MX' },
+    { label: lang === 'en' ? 'LAST COMMIT' : 'ÚLTIMO COMMIT', ...lastCommitCell },
+    { label: lang === 'en' ? 'LISTENING'   : 'ESCUCHANDO',    ...songCell },
+    { label: lang === 'en' ? 'REPOS TODAY' : 'REPOS HOY',     ...reposCell },
+    { label: lang === 'en' ? 'LOCAL TIME'  : 'HORA LOCAL',    value: localTime, sub: 'Chihuahua, MX' },
   ];
 
-  // Live terminal line data
-  const live = state === 'offline'
-    ? null
-    : {
-        hostname: payload?.hostname ?? 'linux',
-        cpu:      payload?.cpu ?? 0,
-        ramUsed:  payload?.ramUsed ?? 0,
-        ramTotal: payload?.ramTotal ?? 16,
-        uptime:   payload?.uptime ?? 0,
-        syncAgo:  row ? Math.round((now - new Date(row.updated_at).getTime()) / 1000) : null,
-      };
+  const live = state === 'offline' ? null : {
+    hostname: payload.hostname ?? 'linux',
+    cpu:      payload.cpu ?? 0,
+    ramUsed:  payload.ramUsed ?? 0,
+    ramTotal: payload.ramTotal ?? 16,
+    uptime:   payload.uptime ?? 0,
+    syncAgo,
+  };
 
   return res.status(200).json({ state, grid, live });
 }
