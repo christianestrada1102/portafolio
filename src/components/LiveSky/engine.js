@@ -380,27 +380,30 @@ export class SkyEngine {
 
     const imgData = sc.getImageData(0, 0, W, H).data;
     this.tpts = [];
-    for (let y = 0; y < H; y += 2) {
-      for (let x = 0; x < W; x += 2) {
+    // Sample every 4px for a sparser, puffier result
+    for (let y = 0; y < H; y += 4) {
+      for (let x = 0; x < W; x += 4) {
         if (imgData[(y * W + x) * 4 + 3] > 120) this.tpts.push([x, y]);
       }
     }
     this.tpts.sort(() => Math.random() - .5);
 
-    // Build shadow layer
+    const puffR = fs * 0.65; // large puffs relative to font size
+
+    // Build shadow layer (offset down-right for depth)
     const sh   = document.createElement('canvas');
     sh.width   = Math.round(W * dpr);
     sh.height  = Math.round(H * dpr);
     const sk   = sh.getContext('2d');
     sk.setTransform(dpr, 0, 0, dpr, 0, 0);
     for (const q of this.tpts) {
-      const r = fs * 0.1 + Math.random() * fs * 0.06;
-      sk.globalAlpha = 0.3;
-      sk.drawImage(this._cpuff, q[0] - r, q[1] - r + fs * 0.07, r * 2, r * 2);
+      const r = puffR * (0.85 + Math.random() * 0.3);
+      sk.globalAlpha = 0.25;
+      sk.drawImage(this._cpuff, q[0] - r + 2, q[1] - r + 3, r * 2, r * 2);
     }
     sk.globalCompositeOperation = 'source-atop';
     sk.globalAlpha  = 1;
-    sk.fillStyle    = '#7d7d8c';
+    sk.fillStyle    = '#8a8a9a';
     sk.fillRect(0, 0, W, H);
 
     // Build final cloud canvas
@@ -409,16 +412,20 @@ export class SkyEngine {
     cc.height = Math.round(H * dpr);
     const k   = cc.getContext('2d');
     k.setTransform(dpr, 0, 0, dpr, 0, 0);
-    k.globalAlpha = 0.7; k.drawImage(sh, 0, 0, W, H);
-    k.globalAlpha = 0.55;
-    k.font         = CLOUD_FONT(fs);
-    k.textBaseline = 'middle';
-    k.fillStyle    = '#fff';
-    for (const L of lay) k.fillText(L.cell[1], L.x, L.y + 16 + fs / 2);
+    // Shadow pass
+    k.globalAlpha = 0.55; k.drawImage(sh, 0, 0, W, H);
+    // Main cloud puffs
     for (const q of this.tpts) {
-      const r = fs * 0.09 + Math.random() * fs * 0.06;
-      k.globalAlpha = 0.42;
-      k.drawImage(this._cpuff, q[0] - r, q[1] - r - fs * 0.02, r * 2, r * 2);
+      const r = puffR * (0.9 + Math.random() * 0.25);
+      k.globalAlpha = 0.55 + Math.random() * 0.2;
+      k.drawImage(this._cpuff, q[0] - r, q[1] - r, r * 2, r * 2);
+    }
+    // Bright highlight pass — smaller puffs centered for crispness
+    for (const q of this.tpts) {
+      if (Math.random() > 0.5) continue;
+      const r = puffR * 0.45;
+      k.globalAlpha = 0.7;
+      k.drawImage(this._cpuff, q[0] - r, q[1] - r - 1, r * 2, r * 2);
     }
     k.globalAlpha = 1;
     for (const L of lay) {
