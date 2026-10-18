@@ -54,6 +54,7 @@ export default function Preloader({ onComplete }) {
         document.documentElement.classList.remove('preloader-active');
         window.lenis?.start();
         onComplete?.();
+        window.dispatchEvent(new CustomEvent('skywriting:start'));
       },
     });
 
