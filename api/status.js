@@ -82,7 +82,7 @@ export default async function handler(req, res) {
   // State: offline if key missing, build if active dev, idle otherwise
   let state = 'offline';
   if (payload) {
-    const isBuilding = payload.appClass === 'editor' || payload.appClass === 'terminal' || payload.recentPush;
+    const isBuilding = payload.appClass === 'editor' || payload.appClass === 'terminal' || payload.appClass === 'browser' || payload.recentPush;
     state = isBuilding ? 'build' : 'idle';
   }
 

@@ -360,7 +360,7 @@ export class SkyEngine {
 
     const rowH = fs + 42;
     const gh   = rows * rowH + (rows - 1) * 16;
-    const y0   = Math.max(30, this.CY - gh / 2);
+    const y0   = Math.max(20, this.CY - gh / 2 - 40);
     this._gridX0 = x0; this._gridY0 = y0; this._gridGH = gh;
 
     const lay = cs.map((cell, i) => ({
@@ -631,7 +631,7 @@ export class SkyEngine {
         this._drawPlane(this.path[i].x, this.path[i].y, this.head, this.bank);
       } else {
         this.wait++;
-        if (this.wait > 540) { this.wait = 0; this._build(this.word); }
+        if (this.wait > 1800) { this.wait = 0; this._build(this.word); }
       }
     } else if (this.mode === 'fly') {
       const P    = this.fly.pts;
