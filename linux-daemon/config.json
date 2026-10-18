@@ -1,0 +1,38 @@
+{
+  "endpoint": "https://www.codebynas.dev/api/heartbeat",
+  "hostname": "cachyos",
+  "publicRepos": [
+    "portafolio",
+    "CotiEstima",
+    "HAVEN",
+    "Hack_Latam",
+    "EthMexico",
+    "The-Realtime_Hack",
+    "SafeZone",
+    "SpaceYuyin"
+  ],
+  "appClassMap": {
+    "code":              "editor",
+    "Code":              "editor",
+    "neovim":            "editor",
+    "nvim":              "editor",
+    "vim":               "editor",
+    "emacs":             "editor",
+    "cursor":            "editor",
+    "zed":               "editor",
+    "jetbrains":         "editor",
+    "idea":              "editor",
+    "webstorm":          "editor",
+    "kitty":             "terminal",
+    "alacritty":         "terminal",
+    "foot":              "terminal",
+    "wezterm":           "terminal",
+    "ghostty":           "terminal",
+    "org.wezfurlong.wezterm": "terminal",
+    "firefox":           "browser",
+    "chromium":          "browser",
+    "google-chrome":     "browser",
+    "brave-browser":     "browser",
+    "thorium":           "browser"
+  }
+}

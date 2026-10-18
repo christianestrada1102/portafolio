@@ -1,0 +1,16 @@
+[Unit]
+Description=Live Sky portfolio heartbeat daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /home/%u/DEV/PROYECTOS/PortafolioWeb/PortafolioWeb/linux-daemon/daemon.mjs
+Restart=on-failure
+RestartSec=15s
+Environment=NODE_ENV=production
+# Load secret from a separate env file (never commit that file)
+EnvironmentFile=%h/.config/live-sky/env
+
+[Install]
+WantedBy=default.target
