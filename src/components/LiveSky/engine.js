@@ -30,6 +30,20 @@ function makePuff() {
   return c;
 }
 
+function makeCloudPuff() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const cc = c.getContext('2d');
+  const g2 = cc.createRadialGradient(28, 26, 0, 32, 32, 32);
+  g2.addColorStop(0,    'rgba(255,255,255,1)');
+  g2.addColorStop(0.55, 'rgba(240,240,246,0.95)');
+  g2.addColorStop(0.8,  'rgba(215,215,226,0.45)');
+  g2.addColorStop(1,    'rgba(200,200,215,0)');
+  cc.fillStyle = g2;
+  cc.fillRect(0, 0, 64, 64);
+  return c;
+}
+
 function cr(p0, p1, p2, p3, t) {
   const t2 = t * t, t3 = t2 * t;
   return [
@@ -89,6 +103,7 @@ export class SkyEngine {
     this.strings = strings;
 
     this._puff  = makePuff();
+    this._cpuff = makeCloudPuff();
 
     // Dimensions
     this.W = 0; this.H = 0;
@@ -374,29 +389,38 @@ export class SkyEngine {
     }
     this.tpts.sort(() => Math.random() - .5);
 
+    // Cloud lettering (ported 1:1 from the approved prototype)
+    const sh  = document.createElement('canvas');
+    sh.width  = Math.round(W * dpr);
+    sh.height = Math.round(H * dpr);
+    const sk  = sh.getContext('2d');
+    sk.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (const q of this.tpts) {
+      const r = fs * 0.1 + Math.random() * fs * 0.06;
+      sk.globalAlpha = 0.3;
+      sk.drawImage(this._cpuff, q[0] - r, q[1] - r + fs * 0.07, r * 2, r * 2);
+    }
+    sk.globalCompositeOperation = 'source-atop';
+    sk.globalAlpha = 1;
+    sk.fillStyle   = '#7d7d8c';
+    sk.fillRect(0, 0, W, H);
+
     const cc  = document.createElement('canvas');
     cc.width  = Math.round(W * dpr);
     cc.height = Math.round(H * dpr);
     const k   = cc.getContext('2d');
     k.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // Crisp text base with a faint soft shadow
+    k.globalAlpha = 0.7;
+    k.drawImage(sh, 0, 0, W, H);
+    k.globalAlpha  = 0.55;
     k.font         = CLOUD_FONT(fs);
     k.textBaseline = 'middle';
-    k.shadowColor  = 'rgba(0,0,0,0.35)';
-    k.shadowBlur   = 6;
-    k.shadowOffsetY = 1;
-    k.globalAlpha  = 0.92;
-    k.fillStyle    = '#f2f2f6';
+    k.fillStyle    = '#fff';
     for (const L of lay) k.fillText(L.cell[1], L.x, L.y + 16 + fs / 2);
-    k.shadowColor = 'transparent';
-    k.shadowBlur  = 0;
-    k.shadowOffsetY = 0;
-    // Fine smoke grain only along the glyphs, so edges read slightly vaporous
-    for (let i = 0; i < this.tpts.length; i += 3) {
-      const q = this.tpts[i];
-      const r = 0.8 + Math.random() * 1.2;
-      k.globalAlpha = 0.18 + Math.random() * 0.12;
-      k.drawImage(this._puff, q[0] - r + (Math.random() - .5) * 1.5, q[1] - r + (Math.random() - .5) * 1.5, r * 2, r * 2);
+    for (const q of this.tpts) {
+      const r = fs * 0.09 + Math.random() * fs * 0.06;
+      k.globalAlpha = 0.42;
+      k.drawImage(this._cpuff, q[0] - r, q[1] - r - fs * 0.02, r * 2, r * 2);
     }
     k.globalAlpha = 1;
     for (const L of lay) {
