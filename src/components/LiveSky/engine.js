@@ -167,8 +167,13 @@ export class SkyEngine {
 
   // Called by the React component whenever /api/status returns fresh data
   setLiveData({ state, grid, live }) {
-    this.setWord(state);
-    this._apiGrid = grid ?? null;
+    // Puffs are randomized per render, so only re-render the grid when its content changes
+    const gridKey  = JSON.stringify(grid ?? null);
+    const changed  = gridKey !== this._gridKey;
+    this._gridKey  = gridKey;
+    this._apiGrid  = grid ?? null;
+    if (this.mode === 'open') this.word = state;
+    else this.setWord(state);
     if (live) {
       this.sys = {
         cpu:      live.cpu,
@@ -179,7 +184,7 @@ export class SkyEngine {
         syncAgo:  live.syncAgo,
       };
     }
-    if (this.mode === 'open') this._renderGrid();
+    if (this.mode === 'open' && changed) this._renderGrid();
   }
 
   pause()  { this._paused = true; }
