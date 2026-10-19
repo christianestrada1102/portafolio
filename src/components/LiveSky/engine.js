@@ -413,7 +413,7 @@ export class SkyEngine {
 
     const artCell = lay.find(L => hasArt(L.cell));
     this._artBox  = artCell
-      ? { x: artCell.x, y: artCell.y + 16 + fs / 2 - artSize / 2, size: artSize }
+      ? { x: artCell.x, y: artCell.y + 16, size: artSize }
       : null;
 
     // Sample target pixels for smoke-to-cloud morph
