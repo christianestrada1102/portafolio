@@ -371,19 +371,20 @@ export class SkyEngine {
 
     // Sample target pixels for smoke-to-cloud morph
     const s  = document.createElement('canvas');
-    s.width  = W; s.height = H;
+    // Integer dims: W/H come from getBoundingClientRect and may be fractional, which breaks pixel indexing
+    const SW = Math.floor(W), SH = Math.floor(H);
+    s.width  = SW; s.height = SH;
     const sc = s.getContext('2d');
     sc.font         = CLOUD_FONT(fs);
     sc.textBaseline = 'middle';
     sc.fillStyle    = '#fff';
     for (const L of lay) sc.fillText(L.cell[1], L.x, L.y + 16 + fs / 2);
 
-    const imgData = sc.getImageData(0, 0, W, H).data;
+    const imgData = sc.getImageData(0, 0, SW, SH).data;
     this.tpts = [];
-    // Sample every 3px — dense enough for coverage, sparse enough for puff overlap
-    for (let y = 0; y < H; y += 3) {
-      for (let x = 0; x < W; x += 3) {
-        if (imgData[(y * W + x) * 4 + 3] > 120) this.tpts.push([x, y]);
+    for (let y = 0; y < SH; y += 2) {
+      for (let x = 0; x < SW; x += 2) {
+        if (imgData[(y * SW + x) * 4 + 3] > 120) this.tpts.push([x, y]);
       }
     }
     this.tpts.sort(() => Math.random() - .5);
