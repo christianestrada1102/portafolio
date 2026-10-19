@@ -1,0 +1,45 @@
+/* No z-index/opacity/transform here: creating a stacking context would isolate the covers' screen blend from the hero photo */
+.ls-art-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.ls-art {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: var(--size, 44px);
+  height: var(--size, 44px);
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  filter: grayscale(1) contrast(1.1) brightness(0.85);
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(circle, #000 55%, transparent 100%);
+          mask-image: radial-gradient(circle, #000 55%, transparent 100%);
+  transform: translate(var(--sx, 0px), var(--sy, 0px));
+  transition: opacity 400ms ease, filter 400ms ease;
+}
+
+.ls-art-wrap[data-show="1"] .ls-art.on {
+  opacity: 0.55;
+  pointer-events: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ls-art-wrap[data-show="1"] .ls-art.on:hover {
+    filter: grayscale(0);
+    opacity: 0.9;
+    mix-blend-mode: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-art {
+    transition: none;
+    transform: none;
+  }
+}

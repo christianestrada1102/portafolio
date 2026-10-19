@@ -205,6 +205,35 @@ export class SkyEngine {
     }
   }
 
+  // DOM layer holding the album-art <img>s; positioned and swayed in step with the clouds
+  attachArt(el) { this._artEl = el; this._artShown = null; this._artPos = ''; }
+
+  // url of the cover that finished loading (or null on error); text makes room only for a ready cover
+  setArtReady(url) {
+    if (this._artReady === url) return;
+    this._artReady = url;
+    if (this.mode === 'open') this._renderGrid();
+  }
+
+  _syncArt() {
+    const el = this._artEl;
+    if (!el) return;
+    const show = Boolean(this._artBox) && (this.mode === 'open' || this.mode === 'fly') && this.cloudA >= 0.95;
+    if (show !== this._artShown) { this._artShown = show; el.dataset.show = show ? '1' : '0'; }
+    const b = this._artBox;
+    if (b) {
+      const pos = `${b.x}|${b.y}|${b.size}`;
+      if (pos !== this._artPos) {
+        this._artPos = pos;
+        el.style.left = `${b.x}px`;
+        el.style.top  = `${b.y}px`;
+        el.style.setProperty('--size', `${b.size}px`);
+      }
+      el.style.setProperty('--sx', `${Math.sin(this.t * 0.5) * 0.8}px`);
+      el.style.setProperty('--sy', `${Math.sin(this.t * 0.4) * 0.6}px`);
+    }
+  }
+
   destroy() {
     if (this._rafId)    { cancelAnimationFrame(this._rafId); this._rafId = null; }
     if (this._interval) { clearInterval(this._interval);     this._interval = null; }
@@ -245,7 +274,7 @@ export class SkyEngine {
   _cells() {
     // Use real API data when available
     if (this._apiGrid) {
-      return this._apiGrid.map(c => [c.label, c.value, c.sub]);
+      return this._apiGrid.map(c => [c.label, c.value, c.sub, c.art ?? null]);
     }
     // Fallback mock data
     const S     = this.strings;
@@ -355,11 +384,16 @@ export class SkyEngine {
     const cw   = (x1 - x0) / cols;
 
     // Find largest font that fits cell width
+    // Album art sits left of the song value; reserve room for it only once the image has loaded
+    const artSize = W < 640 ? 36 : 44;
+    const artGap  = artSize + 10;
+    const hasArt  = (c) => Boolean(c[3]) && Boolean(this._artReady);
+
     const m  = document.createElement('canvas').getContext('2d');
     let fs   = 30;
     while (fs > 14) {
       m.font = CLOUD_FONT(fs);
-      if (Math.max(...cs.map(c => m.measureText(c[1]).width)) <= cw - 14) break;
+      if (Math.max(...cs.map(c => m.measureText(c[1]).width + (hasArt(c) ? artGap : 0))) <= cw - 14) break;
       fs--;
     }
 
@@ -368,11 +402,19 @@ export class SkyEngine {
     const y0   = Math.max(20, this.CY - gh / 2 - 40);
     this._gridX0 = x0; this._gridY0 = y0; this._gridGH = gh;
 
-    const lay = cs.map((cell, i) => ({
-      cell,
-      x: x0 + (i % cols) * cw,
-      y: y0 + Math.floor(i / cols) * (rowH + 16),
-    }));
+    const lay = cs.map((cell, i) => {
+      const x = x0 + (i % cols) * cw;
+      return {
+        cell, x,
+        vx: x + (hasArt(cell) ? artGap : 0),
+        y: y0 + Math.floor(i / cols) * (rowH + 16),
+      };
+    });
+
+    const artCell = lay.find(L => hasArt(L.cell));
+    this._artBox  = artCell
+      ? { x: artCell.x, y: artCell.y + 16 + fs / 2 - artSize / 2, size: artSize }
+      : null;
 
     // Sample target pixels for smoke-to-cloud morph
     const s  = document.createElement('canvas');
@@ -383,7 +425,7 @@ export class SkyEngine {
     sc.font         = CLOUD_FONT(fs);
     sc.textBaseline = 'middle';
     sc.fillStyle    = '#fff';
-    for (const L of lay) sc.fillText(L.cell[1], L.x, L.y + 16 + fs / 2);
+    for (const L of lay) sc.fillText(L.cell[1], L.vx, L.y + 16 + fs / 2);
 
     const imgData = sc.getImageData(0, 0, SW, SH).data;
     this.tpts = [];
@@ -421,7 +463,7 @@ export class SkyEngine {
     k.font         = CLOUD_FONT(fs);
     k.textBaseline = 'middle';
     k.fillStyle    = '#fff';
-    for (const L of lay) k.fillText(L.cell[1], L.x, L.y + 16 + fs / 2);
+    for (const L of lay) k.fillText(L.cell[1], L.vx, L.y + 16 + fs / 2);
     for (const q of this.tpts) {
       const r = fs * 0.09 + Math.random() * fs * 0.06;
       k.globalAlpha = 0.42;
@@ -434,7 +476,7 @@ export class SkyEngine {
       k.fillText(L.cell[0].split('').join(' '), L.x, L.y + 4);
       k.font      = '10px monospace';
       k.fillStyle = '#7e7e88';
-      k.fillText(L.cell[2], L.x, L.y + 16 + fs + 14);
+      k.fillText(L.cell[2], L.vx, L.y + 16 + fs + 14);
     }
 
     this.cloudC = cc;
@@ -613,6 +655,7 @@ export class SkyEngine {
       ctx.globalAlpha = 1;
     }
 
+    this._syncArt();
     this._drawHint();
     this._drawLiveLine();
 

@@ -14,6 +14,13 @@ async function redisSet(key, value) {
   if (!res.ok) throw new Error(`Redis SET failed: ${res.status}`);
 }
 
+// Only Spotify CDN covers are allowed through, since the URL ends up in an <img> on the public site
+function sanitizeArt(url) {
+  if (typeof url !== 'string') return null;
+  const m = url.match(/^https:\/\/(?:i\.scdn\.co|open\.spotify\.com)\/image\/([A-Za-z0-9]{16,64})$/);
+  return m ? `https://i.scdn.co/image/${m[1]}` : null;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -42,7 +49,7 @@ export default async function handler(req, res) {
     hostname:   typeof hostname === 'string'? hostname.slice(0, 32)    : 'linux',
     appClass:   ['editor','terminal','browser','other'].includes(appClass) ? appClass : 'other',
     song:       song && typeof song === 'object'
-                  ? { title: String(song.title ?? '').slice(0, 80), artist: String(song.artist ?? '').slice(0, 60) }
+                  ? { title: String(song.title ?? '').slice(0, 80), artist: String(song.artist ?? '').slice(0, 60), art: sanitizeArt(song.art) }
                   : null,
     recentPush: Boolean(recentPush),
     ts:         Date.now(),

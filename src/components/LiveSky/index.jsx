@@ -1,9 +1,11 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { SkyEngine } from './engine';
 import '@fontsource/nunito/900.css';
+import './LiveSky.css';
 
 const POLL_MS = 15_000;
+const FADE_MS = 400;
 
 const STRINGS = {
   es: {
@@ -50,7 +52,11 @@ export default function LiveSky() {
   const canvasRef  = useRef(null);
   const engineRef  = useRef(null);
   const pollRef    = useRef(null);
+  const artRef     = useRef(null);
   const { lang }   = useLanguage();
+  const [artUrl, setArtUrl] = useState(null);
+  // Up to two covers mounted at once so a song change can crossfade
+  const [covers, setCovers] = useState([]);
 
   const fetchStatus = useCallback(async (currentLang) => {
     try {
@@ -58,6 +64,7 @@ export default function LiveSky() {
       if (!res.ok) return;
       const data = await res.json();
       engineRef.current?.setLiveData(data);
+      setArtUrl(data.grid?.find(c => c.art)?.art ?? null);
     } catch {
       // network error — engine keeps showing last known state
     }
@@ -71,6 +78,7 @@ export default function LiveSky() {
     const dpr    = Math.min(2, window.devicePixelRatio || 1);
     const engine = new SkyEngine(canvas, dpr, STRINGS[lang] ?? STRINGS.es);
     engineRef.current = engine;
+    engine.attachArt(artRef.current);
 
     const parent = canvas.parentElement;
 
@@ -143,6 +151,30 @@ export default function LiveSky() {
     }
   }, [lang, fetchStatus]);
 
+  useEffect(() => {
+    if (!artUrl) {
+      engineRef.current?.setArtReady(null);
+      const t = setTimeout(() => setCovers([]), FADE_MS);
+      return () => clearTimeout(t);
+    }
+    setCovers(cs => cs.some(c => c.url === artUrl) ? cs : [...cs, { url: artUrl, loaded: false }]);
+  }, [artUrl]);
+
+  const onCoverLoad = (url) => {
+    setCovers(cs => cs.map(c => c.url === url ? { ...c, loaded: true } : c));
+    if (url !== artUrl) return;
+    engineRef.current?.setArtReady(url);
+    setTimeout(() => setCovers(cs => cs.filter(c => c.url === url)), FADE_MS);
+  };
+
+  const onCoverError = (url) => {
+    setCovers(cs => cs.filter(c => c.url !== url));
+    if (url === artUrl) {
+      engineRef.current?.setArtReady(null);
+      setCovers([]);
+    }
+  };
+
   if (reducedMotion) {
     return (
       <button
@@ -161,15 +193,31 @@ export default function LiveSky() {
   }
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      style={{
-        position: 'absolute', inset: 0,
-        width: '100%', height: '100%',
-        zIndex: 1, display: 'block',
-        cursor: 'pointer',
-      }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          zIndex: 1, display: 'block',
+          cursor: 'pointer',
+        }}
+      />
+      <div ref={artRef} className="ls-art-wrap" data-show="0" aria-hidden="true">
+        {covers.map(c => (
+          <img
+            key={c.url}
+            src={c.url}
+            alt=""
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className={`ls-art${c.loaded && c.url === artUrl ? ' on' : ''}`}
+            onLoad={() => onCoverLoad(c.url)}
+            onError={() => onCoverError(c.url)}
+          />
+        ))}
+      </div>
+    </>
   );
 }

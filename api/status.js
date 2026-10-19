@@ -96,13 +96,13 @@ export default async function handler(req, res) {
     : { value: '—', sub: '—' };
 
   const songCell = payload?.song?.title
-    ? { value: payload.song.title.slice(0, 22), sub: payload.song.artist }
+    ? { value: payload.song.title.slice(0, 22), sub: payload.song.artist, art: payload.song.art ?? null }
     : state === 'offline'
       ? { value: lang === 'en' ? 'Nothing'  : 'Nada',     sub: lang === 'en' ? 'not playing'   : 'sin reproducir' }
       : { value: lang === 'en' ? 'Paused'   : 'En pausa', sub: '—' };
 
   const reposCell = gh.todayRepos.length > 0
-    ? { value: `${gh.todayRepos.length} ${lang === 'en' ? 'active' : 'activos'}`, sub: gh.todayRepos.slice(0, 2).join(' · ') }
+    ? { value: `${gh.todayRepos.length} ${lang === 'en' ? 'active' : (gh.todayRepos.length === 1 ? 'activo' : 'activos')}`, sub: gh.todayRepos.slice(0, 2).join(' · ') }
     : { value: '0', sub: '—' };
 
   const grid = [

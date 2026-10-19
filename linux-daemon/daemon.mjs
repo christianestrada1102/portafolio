@@ -111,7 +111,9 @@ function getSong() {
 
     const title  = execSync(`playerctl ${flag} metadata title  2>/dev/null`, { timeout: 800 }).toString().trim();
     const artist = execSync(`playerctl ${flag} metadata artist 2>/dev/null`, { timeout: 800 }).toString().trim();
-    return title ? { title, artist } : null;
+    let art = '';
+    try { art = execSync(`playerctl ${flag} metadata mpris:artUrl 2>/dev/null`, { timeout: 800 }).toString().trim(); } catch {}
+    return title ? { title, artist, art } : null;
   } catch {
     return null;
   }
